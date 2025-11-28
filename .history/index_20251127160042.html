@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Mobile Work Calendar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Overlay for drawer and modal -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Side Drawer -->
+    <aside class="drawer" id="drawer">
+      <header class="drawer-header">
+        <h2>Menu</h2>
+        <button class="icon-btn" id="drawerCloseBtn">✕</button>
+      </header>
+
+      <nav class="drawer-tabs">
+        <button class="drawer-tab active" data-tab="office">Office</button>
+        <button class="drawer-tab" data-tab="expenses">Expenses</button>
+        <button class="drawer-tab" data-tab="notes">Notes</button>
+        <button class="drawer-tab" data-tab="calculator">Calculator</button>
+      </nav>
+
+      <section class="drawer-content">
+        <!-- Office tab -->
+        <div class="drawer-panel active" id="officeTab">
+          <h3 class="drawer-title">Calendars</h3>
+
+          <div class="calendar-list" id="calendarList"></div>
+
+          <button class="primary-btn full-width" id="createCalendarToggle">
+            + Create New Calendar
+          </button>
+
+          <form class="calendar-form" id="calendarForm">
+            <div class="field">
+              <label>Calendar Name</label>
+              <input
+                type="text"
+                id="calendarName"
+                placeholder="e.g. Office Work"
+              />
+            </div>
+            <div class="field">
+              <label>Description</label>
+              <textarea
+                id="calendarDescription"
+                rows="2"
+                placeholder="Short description"
+              ></textarea>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Salary Monthly</label>
+                <input
+                  type="number"
+                  id="salaryMonthly"
+                  placeholder="₹ / month"
+                  min="0"
+                />
+              </div>
+              <div class="field">
+                <label>Salary Hourly</label>
+                <input
+                  type="number"
+                  id="salaryHourly"
+                  placeholder="₹ / hour"
+                  min="0"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label>Working Days / Week</label>
+              <select id="workingDaysPerWeek">
+                <option value="5">5 days (Mon-Fri)</option>
+                <option value="6" selected>6 days (Mon-Sat)</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Office In Time</label>
+                <input
+                  type="time"
+                  id="officeInTime"
+                />
+              </div>
+              <div class="field">
+                <label>Office Out Time</label>
+                <input
+                  type="time"
+                  id="officeOutTime"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label>Set PIN (optional)</label>
+              <input
+                type="password"
+                id="calendarPin"
+                placeholder="4-6 digit PIN"
+                maxlength="6"
+              />
+            </div>
+            <button type="submit" class="primary-btn full-width">
+              Add
+            </button>
+          </form>
+
+          <div class="backup-row">
+            <button class="small-btn" id="backupExportBtn">Download Backup</button>
+            <button class="small-btn" id="backupImportBtn">Restore Backup</button>
+            <input type="file" id="backupFileInput" accept="application/json" style="display: none" />
+          </div>
+        </div>
+
+        <!-- Placeholder tabs -->
+        <div class="drawer-panel" id="expensesTab">
+          <p class="placeholder-text">
+            Expenses module coming soon.
+          </p>
+        </div>
+        <div class="drawer-panel" id="notesTab">
+          <p class="placeholder-text">
+            Notes module coming soon.
+          </p>
+        </div>
+        <div class="drawer-panel" id="calculatorTab">
+          <p class="placeholder-text">
+            Calculator module coming soon.
+          </p>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main App Container -->
+    <div class="app-shell">
+      <!-- Top header -->
+      <header class="app-header">
+        <button class="icon-btn" id="menuBtn">☰</button>
+        <h1 class="app-title">Office Calendar</h1>
+        <button class="icon-btn" id="reportBtn">📊</button>
+      </header>
+
+      <!-- Month header -->
+      <section class="month-header">
+        <button class="nav-arrow" id="prevMonthBtn">‹</button>
+        <div class="month-info">
+          <span class="month-label" id="monthLabel"></span>
+          <span class="year-label" id="yearLabel"></span>
+        </div>
+        <button class="nav-arrow" id="nextMonthBtn">›</button>
+      </section>
+
+      <!-- Calendar -->
+      <section class="calendar-card">
+        <div class="weekdays">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+        <div class="days-grid" id="daysGrid"></div>
+      </section>
+
+      <!-- Stats cards -->
+      <section class="stats-section">
+        <div class="stat-card">
+          <span class="stat-label">Days in Month</span>
+          <span class="stat-value" id="statDaysInMonth">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Present Days</span>
+          <span class="stat-value blue" id="statPresent">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Leaves</span>
+          <span class="stat-value purple" id="statLeave">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Absent</span>
+          <span class="stat-value red" id="statAbsent">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Half Days</span>
+          <span class="stat-value orange" id="statHalfDay">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Holidays</span>
+          <span class="stat-value green" id="statHoliday">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Extra Working Days</span>
+          <span class="stat-value green" id="statExtraDays">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Late Minutes</span>
+          <span class="stat-value red" id="statLate">0m</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Extra Minutes</span>
+          <span class="stat-value green" id="statExtra">0m</span>
+        </div>
+        <div class="stat-card wide">
+          <span class="stat-label">Working Hours</span>
+          <span class="stat-value" id="statWorkingHours">0h 0m</span>
+        </div>
+        <div class="stat-card wide">
+          <span class="stat-label">Calculated Salary</span>
+          <span class="stat-value" id="statSalary">₹0</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Date Modal -->
+    <div class="modal" id="dateModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title" id="modalDateLabel">Date</div>
+            <div class="modal-subtitle" id="modalCalendarName"></div>
+          </div>
+          <button class="icon-btn" id="modalCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <div class="chip-row">
+            <button class="chip secondary" data-action="workStart">
+              Work Start
+            </button>
+            <button class="chip secondary" data-action="workEnd">
+              Work End
+            </button>
+          </div>
+
+          <div class="chip-row">
+            <button class="chip primary" data-action="present">
+              Present
+            </button>
+            <button class="chip red" data-action="absent">
+              Absent
+            </button>
+          </div>
+
+          <div class="chip-row">
+            <button class="chip orange" data-action="halfDay">
+              Half Day
+            </button>
+            <button class="chip green" data-action="holiday">
+              Holiday
+            </button>
+          </div>
+
+          <div class="chip-row">
+            <button class="chip purple" data-action="leave">
+              Leave
+            </button>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <h4 class="section-title">Today’s Timing</h4>
+          <table class="timing-table">
+            <thead>
+              <tr>
+                <th>In Time</th>
+                <th>Out Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <input type="time" id="inTimeCell" />
+                </td>
+                <td>
+                  <input type="time" id="outTimeCell" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="text-align: center; margin-top: 8px;">
+            <button
+              id="saveTimeBtn"
+              class="ios-save-btn full-width"
+              style="display: none;"
+            >
+              Save Time
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- PIN Modal -->
+    <div class="modal" id="pinModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title">Unlock Calendar</div>
+            <div class="modal-subtitle" id="pinCalendarName"></div>
+          </div>
+          <button class="icon-btn" id="pinModalCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <div class="field">
+            <label>Enter PIN</label>
+            <input
+              type="password"
+              id="pinInput"
+              maxlength="6"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="chip-row">
+            <button class="chip primary" id="pinUnlockBtn">Unlock</button>
+            <button class="chip secondary" id="pinCancelBtn">Cancel</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Delete Calendar Modal -->
+    <div class="modal" id="deleteModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title">Delete Calendar</div>
+            <div class="modal-subtitle" id="deleteCalendarName"></div>
+          </div>
+          <button class="icon-btn" id="deleteModalCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <p class="placeholder-text" id="deleteWarningText">
+            Are you sure you want to delete this calendar? This action cannot be undone.
+          </p>
+          <div class="chip-row">
+            <button class="chip secondary" id="deleteCancelBtn">Cancel</button>
+            <button class="chip red" id="deleteConfirmBtn">Delete</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Running timer warning modal -->
+    <div class="modal" id="runningModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title">Timer Already Running</div>
+            <div class="modal-subtitle" id="runningModalCalendarName"></div>
+          </div>
+          <button class="icon-btn" id="runningModalCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <p class="placeholder-text">
+            Your last work timer is currently running on another date.
+            Please stop the previous day (Work End) before starting a new one.
+          </p>
+          <div class="chip-row">
+            <button class="chip primary" id="runningOkBtn">OK</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
