@@ -6,6 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
+<<<<<<< HEAD
     <title>Mobile Work Calendar </title>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -15,6 +16,13 @@
   </head>
   <body>
     <!-- Overlay for drawer aaa and modal -->
+=======
+    <title>Mobile Work Calendar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Overlay for drawer and modal -->
+>>>>>>> e6d3907 (Initial project commit)
     <div class="overlay" id="overlay"></div>
 
     <!-- Side Drawer -->
@@ -127,6 +135,7 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <!-- Expenses tab -->
         <div class="drawer-panel" id="expensesTab">
           <h3 class="drawer-title">Expenses Calendars</h3>
@@ -191,11 +200,20 @@
         </div>
 
         <!-- Placeholder tabs -->
+=======
+        <!-- Placeholder tabs -->
+        <div class="drawer-panel" id="expensesTab">
+          <p class="placeholder-text">
+            Expenses module coming soon.
+          </p>
+        </div>
+>>>>>>> e6d3907 (Initial project commit)
         <div class="drawer-panel" id="notesTab">
           <p class="placeholder-text">
             Notes module coming soon.
           </p>
         </div>
+<<<<<<< HEAD
 
         <div class="drawer-panel" id="calculatorTab">
           <h3 class="drawer-title">Calculators</h3>
@@ -214,6 +232,12 @@
               <button class="calculator-chip disabled" disabled>More calculators coming soon…</button>
             </div>
           </div>
+=======
+        <div class="drawer-panel" id="calculatorTab">
+          <p class="placeholder-text">
+            Calculator module coming soon.
+          </p>
+>>>>>>> e6d3907 (Initial project commit)
         </div>
       </section>
     </aside>
@@ -234,7 +258,11 @@
           <span class="month-label" id="monthLabel"></span>
           <span class="year-label" id="yearLabel"></span>
         </div>
+<<<<<<< HEAD
         <button class="nav-arrow aaa" id="nextMonthBtn">›</button>
+=======
+        <button class="nav-arrow" id="nextMonthBtn">›</button>
+>>>>>>> e6d3907 (Initial project commit)
       </section>
 
       <!-- Calendar -->
@@ -271,8 +299,13 @@
         </div>
       </div>
 
+<<<<<<< HEAD
       <!-- Office stats cards -->
       <section class="stats-section" id="officeStatsSection">
+=======
+      <!-- Stats cards -->
+      <section class="stats-section">
+>>>>>>> e6d3907 (Initial project commit)
         <div class="stat-card">
           <span class="stat-label">Days in Month</span>
           <span class="stat-value" id="statDaysInMonth">0</span>
@@ -313,6 +346,7 @@
           <span class="stat-label">Working Hours</span>
           <span class="stat-value" id="statWorkingHours">0h 0m</span>
         </div>
+<<<<<<< HEAD
       </section>
 
       <!-- Expenses stats cards -->
@@ -769,6 +803,16 @@
       </div>
     </div>
 
+=======
+        <div class="stat-card wide">
+          <span class="stat-label">Calculated Salary</span>
+          <span class="stat-value" id="statSalary">₹0</span>
+        </div>
+      </section>
+      <button class="primary-btn full-width" id="clearMonthBtn">Clear Month</button>
+    </div>
+
+>>>>>>> e6d3907 (Initial project commit)
     <!-- Standalone Settings Page -->
     <div class="settings-page" id="settingsPage">
       <div class="settings-page-panel">
@@ -933,6 +977,7 @@
       </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Payee-wise Expenses Report Modal -->
     <div class="modal" id="payeeReportModal">
       <div class="modal-content report-modal-content">
@@ -1229,6 +1274,22 @@
                 <button class="chip red" id="deleteExpenseConfirmBtn">Delete</button>
               </div>
             </section>
+=======
+    <!-- Clear Month Modal -->
+    <div class="modal" id="clearMonthModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title">Clear Month Data</div>
+            <div class="modal-subtitle" id="clearMonthLabel"></div>
+          </div>
+          <button class="icon-btn" id="clearMonthCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <p class="placeholder-text">
+            Are you sure you want to clear all entries for this month? This cannot be undone.
+>>>>>>> e6d3907 (Initial project commit)
           </p>
           <div class="chip-row">
             <button class="chip secondary" id="clearMonthCancelBtn">Cancel</button>
@@ -1274,7 +1335,10 @@
     <div class="modal center-modal" id="pinModal">
       <div class="modal-content">
         <header class="modal-header">
+<<<<<<< HEAD
           <div>
+=======
+>>>>>>> e6d3907 (Initial project commit)
             <div class="modal-title">Unlock Calendar</div>
             <div class="modal-subtitle" id="pinCalendarName"></div>
           </div>
@@ -1455,6 +1519,7 @@
       </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Gold Invoice Modal -->
     <div class="modal" id="goldInvoiceModal">
       <div class="modal-content report-modal-content">
@@ -1517,6 +1582,8 @@
       </div>
     </div>
 
+=======
+>>>>>>> e6d3907 (Initial project commit)
     <!-- End-of-day work reminder modal -->
     <div class="modal" id="endReminderModal">
       <div class="modal-content">
@@ -1545,6 +1612,7 @@
     </div>
 
     <script src="script.js"></script>
+<<<<<<< HEAD
     <script>
       const TROY_OUNCE_IN_GRAMS = 31.1034768; // 1 troy ounce = 31.1034768 grams
       const GOLD_API_KEY = "goldapi-hoa19mirlk17s-io";
@@ -1690,3 +1758,7 @@
     </script>
   </body>
 </html>
+=======
+  </body>
+</html>
+>>>>>>> e6d3907 (Initial project commit)

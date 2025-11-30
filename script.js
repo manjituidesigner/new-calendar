@@ -1,6 +1,9 @@
 // Basic in-memory + localStorage data model
 const STORAGE_KEY = "mobileWorkCalendars_v1"
+<<<<<<< HEAD
 const EXPENSES_STORAGE_KEY = "mobileExpensesCalendars_v1"
+=======
+>>>>>>> e6d3907 (Initial project commit)
 
 let calendars = []
 let activeCalendarId = null
@@ -8,6 +11,7 @@ let currentDate = new Date()
 let selectedDate = null
 let editingCalendarId = null
 
+<<<<<<< HEAD
 // Expenses data
 let expensesCalendars = []
 let activeExpensesCalendarId = null
@@ -15,6 +19,8 @@ let activeMode = "office" // "office" | "expenses" | "calculator"
 let lastCalculatorKey = null
 let shouldRestoreCalculatorOnInit = false
 
+=======
+>>>>>>> e6d3907 (Initial project commit)
 // Elements
 const monthLabel = document.getElementById("monthLabel")
 const yearLabel = document.getElementById("yearLabel")
@@ -33,7 +39,10 @@ const statLate = document.getElementById("statLate")
 const statExtra = document.getElementById("statExtra")
 
 // Session bar elements
+<<<<<<< HEAD
 const appTitleEl = document.querySelector(".app-title")
+=======
+>>>>>>> e6d3907 (Initial project commit)
 const sessionBar = document.getElementById("sessionBar")
 const sessionStatusEl = document.getElementById("sessionStatus")
 const sessionProductivityEl = document.getElementById("sessionProductivity")
@@ -56,6 +65,7 @@ const settingsCloseBtn = document.getElementById("settingsCloseBtn")
 const drawerTabs = document.querySelectorAll(".drawer-tab")
 const drawerPanels = document.querySelectorAll(".drawer-panel")
 
+<<<<<<< HEAD
 function applyModeVisibility() {
   // If Settings page is open, keep all stats / expenses sections hidden so
   // they do not appear behind the Settings + Holidays UI.
@@ -167,6 +177,8 @@ if (drawerTabs.length && drawerPanels.length) {
   }
 }
 
+=======
+>>>>>>> e6d3907 (Initial project commit)
 const calendarListEl = document.getElementById("calendarList")
 const createCalendarToggle = document.getElementById("createCalendarToggle")
 const calendarForm = document.getElementById("calendarForm")
@@ -196,6 +208,7 @@ const holidayList = document.getElementById("holidayList")
 const holidayPrevMonthBtn = document.getElementById("holidayPrevMonthBtn")
 const holidayNextMonthBtn = document.getElementById("holidayNextMonthBtn")
 
+<<<<<<< HEAD
 let holidaySettingsMonthOffset = 0
 
 function getHolidaySettingsYearMonth() {
@@ -870,6 +883,12 @@ function endSessionForDate(cal, key) {
     updateSessionBar()
   }
 }
+=======
+const prevMonthBtn = document.getElementById("prevMonthBtn")
+const nextMonthBtn = document.getElementById("nextMonthBtn")
+
+const appTitleEl = document.querySelector(".app-title")
+>>>>>>> e6d3907 (Initial project commit)
 
 // Modal elements
 const dateModal = document.getElementById("dateModal")
@@ -880,7 +899,11 @@ const inTimeCell = document.getElementById("inTimeCell") // now an <input type="
 const outTimeCell = document.getElementById("outTimeCell") // now an <input type="time">
 const saveTimeBtn = document.getElementById("saveTimeBtn")
 
+<<<<<<< HEAD
 // Report modal elements (office)
+=======
+// Report modal elements
+>>>>>>> e6d3907 (Initial project commit)
 const reportModal = document.getElementById("reportModal")
 const reportCloseBtn = document.getElementById("reportCloseBtn")
 const reportMonthTitle = document.getElementById("reportMonthTitle")
@@ -899,6 +922,7 @@ const repTotalSalary = document.getElementById("repTotalSalary")
 const repSalaryDeduction = document.getElementById("repSalaryDeduction")
 const repFinalSalary = document.getElementById("repFinalSalary")
 const repProductivity = document.getElementById("repProductivity")
+<<<<<<< HEAD
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
 
@@ -3754,6 +3778,771 @@ if (payeeReportShareBtn) {
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(url, "_blank")
   })
+=======
+const reportTableBody = document.getElementById("reportTableBody")
+const reportDownloadBtn = document.getElementById("reportDownloadBtn")
+const reportShareBtn = document.getElementById("reportShareBtn")
+
+// Clear month elements
+const clearMonthBtn = document.getElementById("clearMonthBtn")
+const clearMonthModal = document.getElementById("clearMonthModal")
+const clearMonthLabel = document.getElementById("clearMonthLabel")
+const clearMonthCloseBtn = document.getElementById("clearMonthCloseBtn")
+const clearMonthCancelBtn = document.getElementById("clearMonthCancelBtn")
+const clearMonthConfirmBtn = document.getElementById("clearMonthConfirmBtn")
+
+// PIN modal elements
+const pinModal = document.getElementById("pinModal")
+const pinModalCloseBtn = document.getElementById("pinModalCloseBtn")
+const pinCalendarName = document.getElementById("pinCalendarName")
+const pinInput = document.getElementById("pinInput")
+const pinUnlockBtn = document.getElementById("pinUnlockBtn")
+const pinCancelBtn = document.getElementById("pinCancelBtn")
+
+// Delete calendar modal elements
+const deleteModal = document.getElementById("deleteModal")
+const deleteModalCloseBtn = document.getElementById("deleteModalCloseBtn")
+const deleteCalendarName = document.getElementById("deleteCalendarName")
+const deleteCancelBtn = document.getElementById("deleteCancelBtn")
+const deleteConfirmBtn = document.getElementById("deleteConfirmBtn")
+
+// Running timer warning modal elements
+const runningModal = document.getElementById("runningModal")
+const runningModalCloseBtn = document.getElementById("runningModalCloseBtn")
+const runningModalCalendarName = document.getElementById("runningModalCalendarName")
+const runningOkBtn = document.getElementById("runningOkBtn")
+
+// End-of-day reminder modal elements
+const endReminderModal = document.getElementById("endReminderModal")
+const endReminderCloseBtn = document.getElementById("endReminderCloseBtn")
+const endReminderSubtitle = document.getElementById("endReminderSubtitle")
+const endReminderStopBtn = document.getElementById("endReminderStopBtn")
+const endReminderSnoozeButtons = document.querySelectorAll("#endReminderModal [data-snooze]")
+
+// Break modal elements
+const breakModal = document.getElementById("breakModal")
+const breakModalCloseBtn = document.getElementById("breakModalCloseBtn")
+const breakModalCalendarName = document.getElementById("breakModalCalendarName")
+const breakReasonInput = document.getElementById("breakReasonInput")
+const breakCancelBtn = document.getElementById("breakCancelBtn")
+const breakDoneBtn = document.getElementById("breakDoneBtn")
+
+let pendingPinCalendarId = null
+let pendingPinAction = null // "select" | "edit" | "delete"
+let pendingDeleteCalendarId = null
+let sessionIntervalId = null
+let activeSessionKey = null // date key that session bar is tracking
+let holidayViewDate = null
+
+// Utility
+const pad = (n) => (n < 10 ? "0" + n : "" + n)
+
+function dateKey(date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}`
+}
+
+function monthKeyFromYearMonth(year, monthIndex) {
+  // monthIndex is 0-based
+  return `${year}-${pad(monthIndex + 1)}`
+}
+
+function ensureCalendarHolidays(cal) {
+  if (!cal.holidays) cal.holidays = {}
+}
+
+function buildDateWithTime(baseDate, timeStr) {
+  if (!timeStr) return null
+  const [hStr, mStr] = timeStr.split(":")
+  const h = Number(hStr)
+  const m = Number(mStr)
+  if (Number.isNaN(h) || Number.isNaN(m)) return null
+  const d = new Date(baseDate.getTime())
+  d.setHours(h, m, 0, 0)
+  return d
+}
+
+function formatMinutesToHM(totalMinutes) {
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+  return `${h}h ${m}m`
+}
+
+// Format a timestamp (ms) or Date into HH:MM for UI labels
+function formatTime(value) {
+  const d = value instanceof Date ? value : new Date(value)
+  const hh = pad(d.getHours())
+  const mm = pad(d.getMinutes())
+  return `${hh}:${mm}`
+}
+
+// Storage helpers
+function loadCalendars() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY)
+    if (!data) {
+      calendars = [
+        {
+          id: "default",
+          name: "Default Office",
+          description: "Primary work calendar",
+          salaryMonthly: 0,
+          salaryHourly: 0,
+          workingDaysPerWeek: 6,
+          scheduleInMinutes: 9 * 60,
+          scheduleOutMinutes: 18 * 60,
+          runningDateKey: null,
+          pin: null,
+          days: {},
+          holidays: {},
+        },
+      ]
+
+      activeCalendarId = "default"
+      saveCalendars()
+    } else {
+      const parsed = JSON.parse(data)
+      calendars = parsed.calendars || []
+      activeCalendarId = parsed.activeCalendarId || (calendars[0]?.id ?? null)
+    }
+  } catch (e) {
+    calendars = []
+    activeCalendarId = null
+  }
+  updateAppTitle()
+}
+
+function saveCalendars() {
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({ calendars, activeCalendarId })
+  )
+}
+
+function getActiveCalendar() {
+  return calendars.find((c) => c.id === activeCalendarId) || null
+}
+
+function updateAppTitle() {
+  if (!appTitleEl) return
+  const cal = getActiveCalendar()
+  appTitleEl.textContent = cal ? cal.name : "Office Calendar"
+}
+
+// Backup / restore
+function exportBackup() {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    calendars,
+    activeCalendarId,
+  }
+
+  const json = JSON.stringify(payload, null, 2)
+  const blob = new Blob([json], { type: "application/json" })
+  const url = URL.createObjectURL(blob)
+
+  const a = document.createElement("a")
+  a.href = url
+  const ts = new Date().toISOString().replace(/[:.]/g, "-")
+  a.download = `work-calendar-backup-${ts}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function importBackup(file) {
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result
+      const data = JSON.parse(text)
+
+      if (!data || !Array.isArray(data.calendars)) {
+        alert("Invalid backup file.")
+        return
+      }
+
+      calendars = data.calendars
+      activeCalendarId = data.activeCalendarId || (calendars[0]?.id ?? null)
+      saveCalendars()
+      renderCalendarList()
+      renderCalendar()
+      renderStats()
+      updateAppTitle()
+      alert("Backup restored successfully.")
+    } catch (err) {
+      alert("Could not read backup file.")
+    }
+  }
+  reader.readAsText(file)
+}
+
+// Drawer + overlay
+function openDrawer() {
+  drawer.classList.add("open")
+  overlay.classList.add("active")
+}
+
+function closeDrawer() {
+  drawer.classList.remove("open")
+  overlay.classList.remove("active")
+}
+
+menuBtn.addEventListener("click", openDrawer)
+drawerCloseBtn.addEventListener("click", closeDrawer)
+
+function openSettingsPage() {
+  if (!settingsPage) return
+  settingsPage.classList.add("open")
+  overlay.classList.add("active")
+  // Initialize holiday view month from current calendar month
+  holidayViewDate = new Date(currentDate.getTime())
+  openHolidaySettingsForCurrentMonth()
+}
+
+function closeSettingsPage() {
+  if (!settingsPage) return
+  settingsPage.classList.remove("open")
+  overlay.classList.remove("active")
+}
+
+if (drawerSettingsBtn) {
+  drawerSettingsBtn.addEventListener("click", () => {
+    closeDrawer()
+    openSettingsPage()
+  })
+}
+
+if (settingsCloseBtn) {
+  settingsCloseBtn.addEventListener("click", () => {
+    closeSettingsPage()
+  })
+}
+
+overlay.addEventListener("click", () => {
+  if (drawer.classList.contains("open")) closeDrawer()
+  if (dateModal.classList.contains("open")) closeModal()
+  if (pinModal.classList.contains("open")) closePinModal()
+  if (deleteModal.classList.contains("open")) closeDeleteModal()
+  if (runningModal.classList.contains("open")) closeRunningModal()
+  if (breakModal.classList.contains("open")) closeBreakModal()
+  if (reportModal && reportModal.classList.contains("open")) closeReportModal()
+  if (clearMonthModal && clearMonthModal.classList.contains("open")) closeClearMonthModal()
+  if (settingsPage && settingsPage.classList.contains("open")) closeSettingsPage()
+  if (endReminderModal && endReminderModal.classList.contains("open")) closeEndReminderModal()
+})
+
+// Drawer tabs
+drawerTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    drawerTabs.forEach((t) => t.classList.remove("active"))
+    drawerPanels.forEach((p) => p.classList.remove("active"))
+    tab.classList.add("active")
+    const targetId = tab.dataset.tab + "Tab"
+    const panel = document.getElementById(targetId)
+    if (panel) panel.classList.add("active")
+  })
+})
+
+// Holidays settings logic
+function renderHolidayList(cal, monthKey) {
+  if (!holidayList) return
+  ensureCalendarHolidays(cal)
+  const holMonth = cal.holidays[monthKey] || {}
+  const days = Object.keys(holMonth)
+    .map((d) => Number(d))
+    .filter((d) => !Number.isNaN(d))
+    .sort((a, b) => a - b)
+
+  holidayList.innerHTML = ""
+
+  if (!days.length) {
+    const li = document.createElement("li")
+    li.className = "holiday-list-empty"
+    li.textContent = "No holidays added for this month yet."
+    holidayList.appendChild(li)
+    return
+  }
+
+  days.forEach((day) => {
+    const info = holMonth[day]
+    const li = document.createElement("li")
+    li.className = "holiday-list-item"
+    const label = document.createElement("span")
+    label.textContent = `${day} - ${info.name || "Holiday"}`
+    const removeBtn = document.createElement("button")
+    removeBtn.className = "small-btn"
+    removeBtn.textContent = "Remove"
+    removeBtn.addEventListener("click", () => {
+      delete holMonth[day]
+      if (!Object.keys(holMonth).length) {
+        delete cal.holidays[monthKey]
+      }
+      saveCalendars()
+      renderHolidayList(cal, monthKey)
+      renderCalendar()
+      renderStats()
+    })
+    li.appendChild(label)
+    li.appendChild(removeBtn)
+    holidayList.appendChild(li)
+  })
+}
+
+function openHolidaySettingsForCurrentMonth() {
+  const cal = getActiveCalendar()
+  if (!cal || !holidaySettings) return
+  if (!holidayViewDate) {
+    holidayViewDate = new Date(currentDate.getTime())
+  }
+  const year = holidayViewDate.getFullYear()
+  const month = holidayViewDate.getMonth()
+  const monthLabel = new Date(year, month, 1).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  })
+  if (holidayMonthLabel) holidayMonthLabel.textContent = monthLabel
+
+  if (holidayDayInput) holidayDayInput.value = ""
+  if (holidayNameInput) holidayNameInput.value = ""
+
+  const mKey = monthKeyFromYearMonth(year, month)
+  ensureCalendarHolidays(cal)
+  renderHolidayList(cal, mKey)
+
+  holidaySettings.style.display = "block"
+}
+
+if (settingsHolidaysCard) {
+  settingsHolidaysCard.addEventListener("click", () => {
+    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
+    openHolidaySettingsForCurrentMonth()
+  })
+}
+
+if (holidayAddBtn) {
+  holidayAddBtn.addEventListener("click", () => {
+    const cal = getActiveCalendar()
+    if (!cal) return
+    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
+    const year = holidayViewDate.getFullYear()
+    const month = holidayViewDate.getMonth()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+    const dayVal = holidayDayInput ? Number(holidayDayInput.value) : NaN
+    if (!dayVal || dayVal < 1 || dayVal > daysInMonth) {
+      alert(`Please enter a valid day between 1 and ${daysInMonth}.`)
+      return
+    }
+
+    const name = holidayNameInput
+      ? holidayNameInput.value.trim() || "Holiday"
+      : "Holiday"
+
+    ensureCalendarHolidays(cal)
+    const mKey = monthKeyFromYearMonth(year, month)
+    if (!cal.holidays[mKey]) cal.holidays[mKey] = {}
+    cal.holidays[mKey][dayVal] = { name }
+
+    saveCalendars()
+    renderHolidayList(cal, mKey)
+    renderCalendar()
+    renderStats()
+  })
+}
+
+if (holidayPrevMonthBtn) {
+  holidayPrevMonthBtn.addEventListener("click", () => {
+    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
+    holidayViewDate.setMonth(holidayViewDate.getMonth() - 1)
+    openHolidaySettingsForCurrentMonth()
+  })
+}
+
+if (holidayNextMonthBtn) {
+  holidayNextMonthBtn.addEventListener("click", () => {
+    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
+    holidayViewDate.setMonth(holidayViewDate.getMonth() + 1)
+    openHolidaySettingsForCurrentMonth()
+  })
+}
+
+// Calendar list rendering
+function renderCalendarList() {
+  calendarListEl.innerHTML = ""
+  if (!calendars.length) return
+
+  calendars.forEach((cal) => {
+    const item = document.createElement("div")
+    item.className = "calendar-list-item"
+
+    const main = document.createElement("div")
+    main.className = "calendar-list-main"
+
+    const name = document.createElement("div")
+    name.className = "calendar-list-name"
+    name.textContent = cal.name
+
+    const desc = document.createElement("div")
+    desc.className = "calendar-list-desc"
+    desc.textContent = cal.description || "No description"
+
+    const meta = document.createElement("div")
+    meta.className = "calendar-list-meta"
+    const salaryText =
+      cal.salaryMonthly || cal.salaryHourly
+        ? `Monthly: ${cal.salaryMonthly || 0} | Hourly: ${
+            cal.salaryHourly || 0
+          }`
+        : "No salary set"
+    meta.textContent =
+      cal.pin && cal.pin.length
+        ? `${salaryText}  PIN Protected`
+        : salaryText
+
+    main.appendChild(name)
+    main.appendChild(desc)
+    main.appendChild(meta)
+
+    const actions = document.createElement("div")
+    actions.className = "calendar-list-actions"
+
+    const editBtn = document.createElement("button")
+    editBtn.className = "small-btn"
+    editBtn.textContent = "Edit"
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      if (cal.pin) {
+        openPinModal(cal, "edit")
+      } else {
+        editCalendar(cal.id)
+      }
+    })
+
+    const delBtn = document.createElement("button")
+    delBtn.className = "small-btn"
+    delBtn.textContent = "Del"
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      if (cal.pin) {
+        openPinModal(cal, "delete")
+      } else {
+        openDeleteModal(cal)
+      }
+    })
+
+    actions.appendChild(editBtn)
+    actions.appendChild(delBtn)
+
+    item.appendChild(main)
+    item.appendChild(actions)
+
+    // Clicking anywhere on the row (except buttons) selects the calendar
+    item.addEventListener("click", (e) => {
+      if (e.target instanceof HTMLButtonElement) return
+      if (cal.pin) {
+        openPinModal(cal, "select")
+      } else {
+        selectCalendar(cal.id)
+      }
+    })
+
+    calendarListEl.appendChild(item)
+
+    if (cal.id === activeCalendarId) {
+      item.style.outline = "2px solid rgba(0,122,255,0.7)"
+    }
+  })
+}
+
+function selectCalendar(id) {
+  const cal = calendars.find((c) => c.id === id)
+  if (!cal) return
+  activeCalendarId = id
+
+  saveCalendars()
+  renderCalendarList()
+  renderCalendar()
+  renderStats()
+  updateAppTitle()
+  closeDrawer()
+}
+
+function editCalendar(id) {
+  const cal = calendars.find((c) => c.id === id)
+  if (!cal) return
+
+  // Switch form into edit mode
+  editingCalendarId = id
+
+  // Pre-fill fields from existing calendar
+  calendarNameInput.value = cal.name || ""
+  calendarDescriptionInput.value = cal.description || ""
+  salaryMonthlyInput.value = cal.salaryMonthly != null ? cal.salaryMonthly : ""
+  salaryHourlyInput.value = cal.salaryHourly != null ? cal.salaryHourly : ""
+  if (workingDaysPerWeekInput) {
+    workingDaysPerWeekInput.value = cal.workingDaysPerWeek || 6
+  }
+  calendarPinInput.value = cal.pin || ""
+
+  // Convert stored schedule minutes back to HH:MM for the time inputs
+  if (cal.scheduleInMinutes != null) {
+    const h = Math.floor(cal.scheduleInMinutes / 60)
+    const m = cal.scheduleInMinutes % 60
+    officeInTimeInput.value = `${pad(h)}:${pad(m)}`
+  } else {
+    officeInTimeInput.value = ""
+  }
+
+  if (cal.scheduleOutMinutes != null) {
+    const h2 = Math.floor(cal.scheduleOutMinutes / 60)
+    const m2 = cal.scheduleOutMinutes % 60
+    officeOutTimeInput.value = `${pad(h2)}:${pad(m2)}`
+  } else {
+    officeOutTimeInput.value = ""
+  }
+
+  // Show form and adjust button label
+  calendarForm.classList.add("visible")
+  if (calendarSubmitBtn) {
+    calendarSubmitBtn.textContent = "Save"
+  }
+}
+
+function deleteCalendar(id) {
+  if (calendars.length === 1) {
+    alert("At least one calendar must exist.")
+    return
+  }
+  const cal = calendars.find((c) => c.id === id)
+  if (!cal) return
+
+  calendars = calendars.filter((c) => c.id !== id)
+  if (activeCalendarId === id) {
+    activeCalendarId = calendars[0]?.id || null
+  }
+  // Clear any active session for deleted calendar
+  activeSessionKey = null
+  saveCalendars()
+  renderCalendarList()
+  renderCalendar()
+  renderStats()
+  updateAppTitle()
+}
+
+// Create calendar form
+createCalendarToggle.addEventListener("click", () => {
+  const willShow = !calendarForm.classList.contains("visible")
+  calendarForm.classList.toggle("visible")
+
+  // If opening the form via toggle, assume create mode
+  if (willShow) {
+    editingCalendarId = null
+    calendarNameInput.value = ""
+    calendarDescriptionInput.value = ""
+    salaryMonthlyInput.value = ""
+    salaryHourlyInput.value = ""
+    if (workingDaysPerWeekInput) {
+      workingDaysPerWeekInput.value = 6
+    }
+    calendarPinInput.value = ""
+    officeInTimeInput.value = ""
+    officeOutTimeInput.value = ""
+    if (calendarSubmitBtn) {
+      calendarSubmitBtn.textContent = "Add"
+    }
+  }
+})
+
+calendarForm.addEventListener("submit", (e) => {
+  e.preventDefault()
+  const name = calendarNameInput.value.trim()
+  if (!name) {
+    alert("Please enter a calendar name.")
+    return
+  }
+  const desc = calendarDescriptionInput.value.trim()
+  const salaryMonthly = Number(salaryMonthlyInput.value) || 0
+  const salaryHourly = Number(salaryHourlyInput.value) || 0
+  const pin = calendarPinInput.value.trim() || null
+  const workingDaysPerWeek = workingDaysPerWeekInput
+    ? Number(workingDaysPerWeekInput.value) || 6
+    : 6
+
+  // Parse office schedule times (HH:MM -> minutes)
+  const inStr = officeInTimeInput.value
+  const outStr = officeOutTimeInput.value
+  let scheduleInMinutes = null
+  let scheduleOutMinutes = null
+  if (inStr && outStr) {
+    const [ih, im] = inStr.split(":").map(Number)
+    const [oh, om] = outStr.split(":").map(Number)
+    if (!Number.isNaN(ih) && !Number.isNaN(im)) {
+      scheduleInMinutes = ih * 60 + im
+    }
+    if (!Number.isNaN(oh) && !Number.isNaN(om)) {
+      scheduleOutMinutes = oh * 60 + om
+    }
+  }
+
+  if (editingCalendarId) {
+    // Update existing calendar
+    const cal = calendars.find((c) => c.id === editingCalendarId)
+    if (cal) {
+      cal.name = name
+      cal.description = desc
+      cal.salaryMonthly = salaryMonthly
+      cal.salaryHourly = salaryHourly
+      cal.pin = pin
+      cal.workingDaysPerWeek = workingDaysPerWeek
+      cal.scheduleInMinutes = scheduleInMinutes
+      cal.scheduleOutMinutes = scheduleOutMinutes
+    }
+  } else {
+    // Create a new calendar
+    const id = "cal_" + Date.now()
+    calendars.push({
+      id,
+      name,
+      description: desc,
+      salaryMonthly,
+      salaryHourly,
+      workingDaysPerWeek,
+      scheduleInMinutes,
+      scheduleOutMinutes,
+      pin,
+      days: {},
+      holidays: {},
+    })
+    activeCalendarId = id
+  }
+
+  saveCalendars()
+  calendarNameInput.value = ""
+  calendarDescriptionInput.value = ""
+  salaryMonthlyInput.value = ""
+  salaryHourlyInput.value = ""
+  if (workingDaysPerWeekInput) {
+    workingDaysPerWeekInput.value = 6
+  }
+  calendarPinInput.value = ""
+  officeInTimeInput.value = ""
+  officeOutTimeInput.value = ""
+
+  calendarForm.classList.remove("visible")
+  editingCalendarId = null
+  if (calendarSubmitBtn) {
+    calendarSubmitBtn.textContent = "Add"
+  }
+  renderCalendarList()
+  renderCalendar()
+  renderStats()
+  updateAppTitle()
+})
+
+backupExportBtn.addEventListener("click", exportBackup)
+backupImportBtn.addEventListener("click", () => backupFileInput.click())
+backupFileInput.addEventListener("change", (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  importBackup(file)
+  backupFileInput.value = ""
+})
+
+// Calendar rendering
+function renderCalendar() {
+  const cal = getActiveCalendar()
+  const today = new Date()
+
+  updateAppTitle()
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+
+  monthLabel.textContent = currentDate.toLocaleString("default", {
+    month: "long",
+  })
+  yearLabel.textContent = String(year)
+
+  const firstDayOfMonth = new Date(year, month, 1)
+  const startingWeekday = firstDayOfMonth.getDay()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+  statDaysInMonth.textContent = daysInMonth
+
+  daysGrid.innerHTML = ""
+
+  // 6 rows x 7 cols (42 cells)
+  let dayNum = 1
+  for (let cell = 0; cell < 42; cell++) {
+    const cellDiv = document.createElement("div")
+    cellDiv.className = "day-cell"
+
+    if (cell < startingWeekday || dayNum > daysInMonth) {
+      cellDiv.classList.add("disabled")
+      daysGrid.appendChild(cellDiv)
+      continue
+    }
+
+    cellDiv.textContent = dayNum
+
+    const cellDate = new Date(year, month, dayNum)
+    const key = dateKey(cellDate)
+    let info = cal?.days?.[key]
+
+    // Apply configured holidays from settings (per month/day)
+    if (cal) {
+      ensureCalendarHolidays(cal)
+      const mKey = monthKeyFromYearMonth(year, month)
+      const holMonth = cal.holidays[mKey]
+      const holConfig = holMonth && holMonth[dayNum]
+      if (holConfig) {
+        if (!cal.days[key]) cal.days[key] = {}
+        cal.days[key].status = "holiday"
+        cal.days[key].holidayName = holConfig.name || null
+        info = cal.days[key]
+      }
+    }
+
+    const dow = cellDate.getDay()
+    if (dow === 0 || dow === 6) {
+      cellDiv.classList.add("weekend")
+    }
+
+    if (
+      cellDate.getFullYear() === today.getFullYear() &&
+      cellDate.getMonth() === today.getMonth() &&
+      cellDate.getDate() === today.getDate()
+    ) {
+      cellDiv.classList.add("today")
+    }
+
+    if (info?.status) {
+      applyStatusClass(cellDiv, info.status)
+    }
+
+    // Running timer indicator
+    if (cal && cal.runningDateKey === key) {
+      cellDiv.classList.add("running")
+    }
+
+    cellDiv.addEventListener("click", () => {
+      openModal(cellDate)
+    })
+
+    daysGrid.appendChild(cellDiv)
+    dayNum++
+  }
+
+  renderStats()
+
+  // Update session bar based on current active calendar and selectedDate
+  updateSessionBar()
+>>>>>>> e6d3907 (Initial project commit)
 }
 
 function applyStatusClass(el, status) {
@@ -3980,8 +4769,12 @@ function renderStats() {
     if (cal.scheduleInMinutes != null && cal.scheduleOutMinutes != null) {
       const perDay = cal.scheduleOutMinutes - cal.scheduleInMinutes
       if (perDay > 0) {
+<<<<<<< HEAD
         const dayCap =
           todayInfo.status === "halfday" ? Math.floor(perDay / 2) : perDay
+=======
+        const dayCap = todayInfo.status === "halfday" ? Math.floor(perDay / 2) : perDay
+>>>>>>> e6d3907 (Initial project commit)
         if (dayCap > 0 && cappedToday > dayCap) cappedToday = dayCap
       }
     }
@@ -4031,8 +4824,13 @@ function renderStats() {
     }
   }
 
+<<<<<<< HEAD
   if (statLate) statLate.textContent = `${lateMinutes}m`
   if (statExtra) statExtra.textContent = `${extraMinutes}m`
+=======
+  statLate.textContent = `${lateMinutes}m`
+  statExtra.textContent = `${extraMinutes}m`
+>>>>>>> e6d3907 (Initial project commit)
 
   // Salary calculation
   let salary = 0
@@ -4043,6 +4841,7 @@ function renderStats() {
     const perDay = cal.salaryMonthly / daysInMonth
     salary = workingEquiv * perDay
   }
+<<<<<<< HEAD
   if (statSalary) {
     statSalary.textContent = "₹" + Math.round(salary)
   }
@@ -4461,6 +5260,24 @@ function closeGoldInvoiceModal() {
   overlay.classList.remove('active')
 }
 
+=======
+  statSalary.textContent = "" + Math.round(salary)
+}
+
+// Month navigation
+prevMonthBtn.addEventListener("click", () => {
+  currentDate.setMonth(currentDate.getMonth() - 1)
+  renderCalendar()
+})
+
+nextMonthBtn.addEventListener("click", () => {
+  currentDate.setMonth(currentDate.getMonth() + 1)
+  renderCalendar()
+})
+
+// ===== Monthly report logic =====
+
+>>>>>>> e6d3907 (Initial project commit)
 function openReportModal() {
   const cal = getActiveCalendar()
   if (!cal || !reportModal) return
@@ -4684,6 +5501,7 @@ function closeReportModal() {
   overlay.classList.remove("active")
 }
 
+<<<<<<< HEAD
 // ===== Combined monthly expenses report (expenses mode) =====
 
 function openExpensesReport() {
@@ -5043,12 +5861,17 @@ if (reportBtn) {
       openReportModal()
     }
   })
+=======
+if (reportBtn) {
+  reportBtn.addEventListener("click", openReportModal)
+>>>>>>> e6d3907 (Initial project commit)
 }
 
 if (reportCloseBtn) {
   reportCloseBtn.addEventListener("click", closeReportModal)
 }
 
+<<<<<<< HEAD
 if (goldInvoiceCloseBtn) {
   goldInvoiceCloseBtn.addEventListener('click', closeGoldInvoiceModal)
 }
@@ -5087,6 +5910,8 @@ if (expCategoryTableBtn) {
   expCategoryTableBtn.addEventListener("click", () => setExpCategoryView("table"))
 }
 
+=======
+>>>>>>> e6d3907 (Initial project commit)
 // Download PDF: rely on browser print dialog (user can save as PDF)
 if (reportDownloadBtn) {
   reportDownloadBtn.addEventListener("click", () => {
@@ -5094,6 +5919,7 @@ if (reportDownloadBtn) {
   })
 }
 
+<<<<<<< HEAD
 if (expensesReportDownloadBtn) {
   expensesReportDownloadBtn.addEventListener("click", () => {
     window.print()
@@ -5106,6 +5932,8 @@ if (goldInvoicePrintBtn) {
   })
 }
 
+=======
+>>>>>>> e6d3907 (Initial project commit)
 // Share on Whatsapp: build a plain-text summary and open wa.me link
 if (reportShareBtn) {
   reportShareBtn.addEventListener("click", () => {
@@ -5142,6 +5970,7 @@ if (reportShareBtn) {
   })
 }
 
+<<<<<<< HEAD
 if (goldInvoiceShareBtn) {
   goldInvoiceShareBtn.addEventListener('click', () => {
     const lines = []
@@ -5221,6 +6050,8 @@ if (expensesReportShareBtn) {
   })
 }
 
+=======
+>>>>>>> e6d3907 (Initial project commit)
 // Modal logic
 function openModal(date) {
   selectedDate = date
@@ -5324,7 +6155,12 @@ dateModal.addEventListener("click", (e) => {
   if (!cal || !selectedDate) return
 
   const key = dateKey(selectedDate)
+<<<<<<< HEAD
   const info = cal.days[key] || {}
+=======
+  if (!cal.days[key]) cal.days[key] = {}
+  const info = cal.days[key]
+>>>>>>> e6d3907 (Initial project commit)
 
   if (action === "present") {
     info.status = "present"
@@ -5401,7 +6237,10 @@ dateModal.addEventListener("click", (e) => {
     }
   }
 
+<<<<<<< HEAD
   cal.days[key] = info
+=======
+>>>>>>> e6d3907 (Initial project commit)
   saveCalendars()
   renderCalendar()
   renderStats()
@@ -5469,6 +6308,7 @@ pinUnlockBtn.addEventListener("click", () => {
 })
 
 // Delete calendar modal
+<<<<<<< HEAD
 function openDeleteModal(calendar, type = "office") {
   pendingDeleteCalendarId = calendar.id
   pendingDeleteCalendarType = type === "expenses" ? "expenses" : "office"
@@ -5478,6 +6318,11 @@ function openDeleteModal(calendar, type = "office") {
       ? calendar.title || calendar.name || "Expenses Calendar"
       : calendar.name || calendar.title || "Calendar"
   deleteCalendarName.textContent = displayName
+=======
+function openDeleteModal(calendar) {
+  pendingDeleteCalendarId = calendar.id
+  deleteCalendarName.textContent = calendar.name
+>>>>>>> e6d3907 (Initial project commit)
 
   const warning = document.getElementById("deleteWarningText")
   if (warning) {
@@ -5498,7 +6343,10 @@ function closeDeleteModal() {
   deleteModal.classList.remove("open")
   overlay.classList.remove("active")
   pendingDeleteCalendarId = null
+<<<<<<< HEAD
   pendingDeleteCalendarType = "office"
+=======
+>>>>>>> e6d3907 (Initial project commit)
 }
 
 deleteModalCloseBtn.addEventListener("click", closeDeleteModal)
@@ -5510,6 +6358,7 @@ deleteConfirmBtn.addEventListener("click", () => {
     return
   }
 
+<<<<<<< HEAD
   if (pendingDeleteCalendarType === "expenses") {
     deleteExpensesCalendar(pendingDeleteCalendarId)
   } else {
@@ -5643,6 +6492,14 @@ if (expenseEntryDeleteConfirmBtn) {
 function openClearMonthModal() {
   const isExpensesMode = activeMode === "expenses"
   const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
+=======
+  deleteCalendar(pendingDeleteCalendarId)
+  closeDeleteModal()
+})
+
+function openClearMonthModal() {
+  const cal = getActiveCalendar()
+>>>>>>> e6d3907 (Initial project commit)
   if (!cal) return
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -5674,8 +6531,12 @@ if (clearMonthCancelBtn) {
 
 if (clearMonthConfirmBtn) {
   clearMonthConfirmBtn.addEventListener("click", () => {
+<<<<<<< HEAD
     const isExpensesMode = activeMode === "expenses"
     const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
+=======
+    const cal = getActiveCalendar()
+>>>>>>> e6d3907 (Initial project commit)
     if (!cal) {
       closeClearMonthModal()
       return
@@ -5691,11 +6552,16 @@ if (clearMonthConfirmBtn) {
       if (cal.days && cal.days[key]) {
         delete cal.days[key]
       }
+<<<<<<< HEAD
       if (!isExpensesMode && cal.runningDateKey === key) {
+=======
+      if (cal.runningDateKey === key) {
+>>>>>>> e6d3907 (Initial project commit)
         cal.runningDateKey = null
       }
     }
 
+<<<<<<< HEAD
     if (isExpensesMode) {
       saveExpensesCalendars()
       renderCalendar()
@@ -5707,6 +6573,12 @@ if (clearMonthConfirmBtn) {
       updateSessionBar()
     }
 
+=======
+    saveCalendars()
+    renderCalendar()
+    renderStats()
+    updateSessionBar()
+>>>>>>> e6d3907 (Initial project commit)
     closeClearMonthModal()
   })
 }
@@ -5906,6 +6778,21 @@ function updateSessionBar() {
     return
   }
 
+<<<<<<< HEAD
+=======
+  const key = activeSessionKey
+  const info = cal.days[key]
+
+  if (!info || !info.inTime) {
+    sessionBar.classList.add("hidden")
+    if (sessionIntervalId) {
+      clearInterval(sessionIntervalId)
+      sessionIntervalId = null
+    }
+    return
+  }
+
+>>>>>>> e6d3907 (Initial project commit)
   sessionBar.classList.remove("hidden")
 
   // Clear previous interval
@@ -5914,18 +6801,32 @@ function updateSessionBar() {
     sessionIntervalId = null
   }
 
+<<<<<<< HEAD
   const startMs = cal.days[activeSessionKey].inTime
   const endMs = cal.days[activeSessionKey].outTime || Date.now()
 
   function refresh() {
     const now = Date.now()
     const effectiveEnd = cal.days[activeSessionKey].outTime || now
+=======
+  const startMs = info.inTime
+  const endMs = info.outTime || Date.now()
+
+  function refresh() {
+    const now = Date.now()
+    const effectiveEnd = info.outTime || now
+>>>>>>> e6d3907 (Initial project commit)
     const totalMs = Math.max(0, effectiveEnd - startMs)
 
     // Compute break duration in seconds for live feeling
     let breakSeconds = 0
+<<<<<<< HEAD
     if (cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length) {
       for (const b of cal.days[activeSessionKey].breaks) {
+=======
+    if (info.breaks && info.breaks.length) {
+      for (const b of info.breaks) {
+>>>>>>> e6d3907 (Initial project commit)
         if (!b.start) continue
         const end = b.end != null ? b.end : now
         if (end > b.start) {
@@ -5960,17 +6861,28 @@ function updateSessionBar() {
     }
 
     if (sessionStatusEl) {
+<<<<<<< HEAD
       sessionStatusEl.textContent = cal.days[activeSessionKey].outTime ? "Finished" : "Working"
+=======
+      sessionStatusEl.textContent = info.outTime ? "Finished" : "Working"
+>>>>>>> e6d3907 (Initial project commit)
     }
 
     // Auto end-of-day reminder once scheduled out time is reached
     if (
       cal &&
       cal.scheduleOutMinutes != null &&
+<<<<<<< HEAD
       cal.runningDateKey === activeSessionKey &&
       !cal.days[activeSessionKey].outTime
     ) {
       const [yStr, mStr, dStr] = activeSessionKey.split("-")
+=======
+      cal.runningDateKey === key &&
+      !info.outTime
+    ) {
+      const [yStr, mStr, dStr] = key.split("-")
+>>>>>>> e6d3907 (Initial project commit)
       const y = Number(yStr)
       const m = Number(mStr)
       const d = Number(dStr)
@@ -5986,7 +6898,11 @@ function updateSessionBar() {
 
         if (now >= scheduled.getTime() && !snoozed) {
           if (!endReminderModal || !endReminderModal.classList.contains("open")) {
+<<<<<<< HEAD
             openEndReminderModal(cal, activeSessionKey)
+=======
+            openEndReminderModal(cal, key)
+>>>>>>> e6d3907 (Initial project commit)
           }
         }
       }
@@ -5999,13 +6915,21 @@ function updateSessionBar() {
 
   refresh()
 
+<<<<<<< HEAD
   if (!cal.days[activeSessionKey].outTime) {
+=======
+  if (!info.outTime) {
+>>>>>>> e6d3907 (Initial project commit)
     sessionIntervalId = setInterval(refresh, 1000)
   }
 
   // Update buttons visibility
   if (sessionBreakBtn && sessionBackBtn) {
+<<<<<<< HEAD
     const onBreak = cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length && cal.days[activeSessionKey].breaks[cal.days[activeSessionKey].breaks.length - 1].end == null
+=======
+    const onBreak = info.breaks && info.breaks.length && info.breaks[info.breaks.length - 1].end == null
+>>>>>>> e6d3907 (Initial project commit)
     if (onBreak) {
       sessionBreakBtn.style.display = "none"
       sessionBackBtn.style.display = "inline-block"
@@ -6060,6 +6984,7 @@ if (sessionEndBtn) {
   })
 }
 
+<<<<<<< HEAD
 // Expenses storage helpers
 function loadExpensesCalendars() {
   try {
@@ -6094,3 +7019,9 @@ loadExpensesCalendars()
 renderCalendarList()
 renderExpensesCalendarList()
 renderCalendar()
+=======
+// Init
+loadCalendars()
+renderCalendarList()
+renderCalendar()
+>>>>>>> e6d3907 (Initial project commit)
