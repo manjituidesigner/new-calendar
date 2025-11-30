@@ -6,18 +6,21 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
-    <title>Mobile Work Calendar</title>
+    <title>Mobile Work Calendar </title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Overlay for drawer and modal -->
+    <!-- Overlay for drawer aaa and modal -->
     <div class="overlay" id="overlay"></div>
 
     <!-- Side Drawer -->
     <aside class="drawer" id="drawer">
       <header class="drawer-header">
         <h2>Menu</h2>
-        <button class="icon-btn" id="drawerCloseBtn">✕</button>
+        <div class="drawer-header-actions">
+          <button class="icon-btn" id="drawerSettingsBtn">⚙️</button>
+          <button class="icon-btn" id="drawerCloseBtn">✕</button>
+        </div>
       </header>
 
       <nav class="drawer-tabs">
@@ -155,7 +158,7 @@
           <span class="month-label" id="monthLabel"></span>
           <span class="year-label" id="yearLabel"></span>
         </div>
-        <button class="nav-arrow" id="nextMonthBtn">›</button>
+        <button class="nav-arrow aaa" id="nextMonthBtn">›</button>
       </section>
 
       <!-- Calendar -->
@@ -239,6 +242,92 @@
           <span class="stat-value" id="statSalary">₹0</span>
         </div>
       </section>
+      <button class="primary-btn full-width" id="clearMonthBtn">Clear Month</button>
+    </div>
+
+    <!-- Standalone Settings Page -->
+    <div class="settings-page" id="settingsPage">
+      <div class="settings-page-panel">
+        <header class="settings-page-header">
+          <button class="icon-btn" id="settingsCloseBtn">✕</button>
+          <h2 class="settings-page-title">Settings</h2>
+          <div class="settings-page-header-spacer"></div>
+        </header>
+
+        <section class="settings-page-body">
+          <div class="settings-grid">
+            <button class="settings-card" id="settingsHolidaysCard">
+              <span class="settings-icon">🏖️</span>
+              <span class="settings-label">Holidays</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">🔔</span>
+              <span class="settings-label">Notifications</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">👥</span>
+              <span class="settings-label">People</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">💰</span>
+              <span class="settings-label">Expenses</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">📝</span>
+              <span class="settings-label">Notes</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">➗</span>
+              <span class="settings-label">Calculator</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">✈️</span>
+              <span class="settings-label">Travel</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">⏰</span>
+              <span class="settings-label">Reminder</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">🎉</span>
+              <span class="settings-label">Events</span>
+            </button>
+            <button class="settings-card" disabled>
+              <span class="settings-icon">🧠</span>
+              <span class="settings-label">Memory</span>
+            </button>
+          </div>
+
+          <div class="holiday-settings" id="holidaySettings" style="display: none;">
+            <div class="holiday-month-row">
+              <button class="icon-btn small" id="holidayPrevMonthBtn">‹</button>
+              <span id="holidayMonthLabel"></span>
+              <button class="icon-btn small" id="holidayNextMonthBtn">›</button>
+            </div>
+            <p class="placeholder-text">
+              Add important holidays for this month. They will show in the calendar as robin blue
+              and in the day modal.
+            </p>
+            <div class="field-row">
+              <div class="field">
+                <label>Day of month</label>
+                <input type="number" id="holidayDayInput" min="1" max="31" />
+              </div>
+              <div class="field">
+                <label>Holiday name</label>
+                <input
+                  type="text"
+                  id="holidayNameInput"
+                  placeholder="e.g. Diwali, Christmas"
+                />
+              </div>
+            </div>
+            <button class="primary-btn full-width" id="holidayAddBtn">Add Holiday</button>
+
+            <ul class="holiday-list" id="holidayList"></ul>
+          </div>
+        </section>
+      </div>
     </div>
 
     <!-- Date Modal -->
@@ -315,6 +404,29 @@
             >
               Save Time
             </button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Clear Month Modal -->
+    <div class="modal" id="clearMonthModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title">Clear Month Data</div>
+            <div class="modal-subtitle" id="clearMonthLabel"></div>
+          </div>
+          <button class="icon-btn" id="clearMonthCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <p class="placeholder-text">
+            Are you sure you want to clear all entries for this month? This cannot be undone.
+          </p>
+          <div class="chip-row">
+            <button class="chip secondary" id="clearMonthCancelBtn">Cancel</button>
+            <button class="chip red" id="clearMonthConfirmBtn">Clear</button>
           </div>
         </section>
       </div>
@@ -524,6 +636,40 @@
               </thead>
               <tbody id="reportTableBody"></tbody>
             </table>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <div class="report-footer-actions">
+            <button class="primary-btn" id="reportDownloadBtn">Download PDF</button>
+            <button class="primary-btn" id="reportShareBtn">Share on Whatsapp</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- End-of-day work reminder modal -->
+    <div class="modal" id="endReminderModal">
+      <div class="modal-content">
+        <header class="modal-header">
+          <div>
+            <div class="modal-title">Work Time Over</div>
+            <div class="modal-subtitle" id="endReminderSubtitle"></div>
+          </div>
+          <button class="icon-btn" id="endReminderCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <p class="placeholder-text">
+            Your scheduled office time is over. Do you want to stop today’s work timer or continue a bit more?
+          </p>
+          <div class="chip-row">
+            <button class="chip primary" id="endReminderStopBtn">Stop now</button>
+          </div>
+          <div class="chip-row">
+            <button class="chip secondary" data-snooze="10">+10 min</button>
+            <button class="chip secondary" data-snooze="30">+30 min</button>
+            <button class="chip secondary" data-snooze="60">+1 hour</button>
           </div>
         </section>
       </div>
