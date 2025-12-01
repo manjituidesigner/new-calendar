@@ -998,12 +998,6 @@ body {
   gap: 8px;
 }
 
-.report-header-actions .small-btn {
-  font-size: 11px;
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-
 .report-summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1156,6 +1150,108 @@ body {
 
 .report-table tbody tr:nth-child(even) {
   background: #ffffff;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.expenses-payee-section {
+  margin-top: 12px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.radio-inline,
+.checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+.radio-inline input,
+.checkbox-inline input {
+  width: 14px;
+  height: 14px;
+}
+
+.expenses-items-header {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 1.2fr auto;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.expenses-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.expenses-item-row {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 1.2fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.expenses-item-row input {
+  width: 100%;
+}
+
+.expenses-item-remove-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent-red);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.expenses-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  font-size: 13px;
+}
+
+.expenses-total-value {
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.expenses-payee-table td:nth-child(3) {
+  font-weight: 700;
+}
+
+.expenses-amount-paid {
+  color: var(--accent-green);
+}
+
+.expenses-amount-pending {
+  color: var(--accent-red);
+}
+
+.day-cell.expenses-paid {
+  background: var(--accent-green);
+  color: #ffffff;
+}
+
+.day-cell.expenses-pending {
+  background: var(--accent-red);
+  color: #ffffff;
 }
 
 /* Responsive */

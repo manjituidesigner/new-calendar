@@ -1,11 +1,17 @@
 // Basic in-memory + localStorage data model
 const STORAGE_KEY = "mobileWorkCalendars_v1"
+const EXPENSES_STORAGE_KEY = "mobileExpensesCalendars_v1"
 
 let calendars = []
 let activeCalendarId = null
 let currentDate = new Date()
 let selectedDate = null
 let editingCalendarId = null
+
+// Expenses data
+let expensesCalendars = []
+let activeExpensesCalendarId = null
+let activeMode = "office" // "office" | "expenses"
 
 // Elements
 const monthLabel = document.getElementById("monthLabel")
@@ -46,6 +52,32 @@ const settingsCloseBtn = document.getElementById("settingsCloseBtn")
 
 const drawerTabs = document.querySelectorAll(".drawer-tab")
 const drawerPanels = document.querySelectorAll(".drawer-panel")
+
+drawerTabs.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    drawerTabs.forEach((b) => b.classList.remove("active"))
+    btn.classList.add("active")
+
+    const target = btn.dataset.tab
+    drawerPanels.forEach((p) => p.classList.remove("active"))
+    const panel = document.getElementById(`${target}Tab`)
+    if (panel) panel.classList.add("active")
+
+    if (target === "expenses") {
+      activeMode = "expenses"
+      if (officeStatsSection) officeStatsSection.classList.add("hidden")
+      if (expensesStatsSection) expensesStatsSection.classList.remove("hidden")
+      if (expensesPayeeSection) expensesPayeeSection.classList.remove("hidden")
+    } else {
+      activeMode = "office"
+      if (officeStatsSection) officeStatsSection.classList.remove("hidden")
+      if (expensesStatsSection) expensesStatsSection.classList.add("hidden")
+      if (expensesPayeeSection) expensesPayeeSection.classList.add("hidden")
+    }
+
+    updateAppTitle()
+  })
+})
 
 const calendarListEl = document.getElementById("calendarList")
 const createCalendarToggle = document.getElementById("createCalendarToggle")
@@ -112,6 +144,93 @@ const repProductivity = document.getElementById("repProductivity")
 const reportTableBody = document.getElementById("reportTableBody")
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
+
+// Expenses stats & drawer elements
+const officeStatsSection = document.getElementById("officeStatsSection")
+const expensesStatsSection = document.getElementById("expensesStatsSection")
+const expensesPayeeSection = document.getElementById("expensesPayeeSection")
+const expTodayEl = document.getElementById("expToday")
+const expTotalSpentEl = document.getElementById("expTotalSpent")
+const expMonthlyBudgetEl = document.getElementById("expMonthlyBudget")
+const expRemainingEl = document.getElementById("expRemaining")
+const expOverBudgetEl = document.getElementById("expOverBudget")
+const expWalletBalanceEl = document.getElementById("expWalletBalance")
+const expensesPayeeTableBody = document.getElementById("expensesPayeeTableBody")
+const expensesViewReportBtn = document.getElementById("expensesViewReportBtn")
+
+const expensesCalendarListEl = document.getElementById("expensesCalendarList")
+const createExpensesCalendarToggle = document.getElementById(
+  "createExpensesCalendarToggle"
+)
+const expensesCalendarForm = document.getElementById("expensesCalendarForm")
+const expensesTitleInput = document.getElementById("expensesTitle")
+const expensesDescriptionInput = document.getElementById("expensesDescription")
+const expensesBudgetAmountInput = document.getElementById("expensesBudgetAmount")
+const expensesWalletAmountInput = document.getElementById("expensesWalletAmount")
+const expensesPinInput = document.getElementById("expensesPin")
+
+if (createExpensesCalendarToggle && expensesCalendarForm) {
+  createExpensesCalendarToggle.setAttribute("type", "button")
+
+  createExpensesCalendarToggle.addEventListener("click", () => {
+    const willShow = !expensesCalendarForm.classList.contains("visible")
+    expensesCalendarForm.classList.toggle("visible")
+
+    if (willShow) {
+      if (expensesTitleInput) expensesTitleInput.value = ""
+      if (expensesDescriptionInput) expensesDescriptionInput.value = ""
+      if (expensesBudgetAmountInput) expensesBudgetAmountInput.value = ""
+      if (expensesWalletAmountInput) expensesWalletAmountInput.value = ""
+      if (expensesPinInput) expensesPinInput.value = ""
+      setTimeout(() => {
+        if (expensesCalendarForm) {
+          expensesCalendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+      }, 0)
+    }
+  })
+
+  expensesCalendarForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+  })
+}
+
+// Expenses date modal elements
+const expensesModal = document.getElementById("expensesModal")
+const expensesModalCloseBtn = document.getElementById("expensesModalCloseBtn")
+const expensesModalDateLabel = document.getElementById("expensesModalDateLabel")
+const expensesModalCalendarName = document.getElementById(
+  "expensesModalCalendarName"
+)
+const expPayeeNameInput = document.getElementById("expPayeeName")
+const expRecurringInput = document.getElementById("expRecurring")
+const expCategorySelect = document.getElementById("expCategory")
+const expSubCategorySelect = document.getElementById("expSubCategory")
+const expPaymentStatusSelect = document.getElementById("expPaymentStatus")
+const expPaymentModeGroup = document.getElementById("expPaymentModeGroup")
+const expDateDisplay = document.getElementById("expDateDisplay")
+const expTimeDisplay = document.getElementById("expTimeDisplay")
+const expensesItemsList = document.getElementById("expensesItemsList")
+const expAddItemRowBtn = document.getElementById("expAddItemRowBtn")
+const expTotalForDateEl = document.getElementById("expTotalForDate")
+const expSaveEntryBtn = document.getElementById("expSaveEntryBtn")
+
+// Expenses monthly report modal
+const expensesReportModal = document.getElementById("expensesReportModal")
+const expensesReportCloseBtn = document.getElementById("expensesReportCloseBtn")
+const expensesReportTitle = document.getElementById("expensesReportTitle")
+const expensesReportSubtitle = document.getElementById("expensesReportSubtitle")
+const expReportPayeeNameEl = document.getElementById("expReportPayeeName")
+const expReportTotalEl = document.getElementById("expReportTotal")
+const expReportPaidEl = document.getElementById("expReportPaid")
+const expReportPendingEl = document.getElementById("expReportPending")
+const expReportCarryLabelEl = document.getElementById("expReportCarryLabel")
+const expReportCarryValueEl = document.getElementById("expReportCarryValue")
+const expensesReportTableBody = document.getElementById("expensesReportTableBody")
+const expensesReportDownloadBtn = document.getElementById(
+  "expensesReportDownloadBtn"
+)
+const expensesReportShareBtn = document.getElementById("expensesReportShareBtn")
 
 // Clear month elements
 const clearMonthBtn = document.getElementById("clearMonthBtn")
@@ -254,61 +373,19 @@ function getActiveCalendar() {
   return calendars.find((c) => c.id === activeCalendarId) || null
 }
 
+function getActiveExpensesCalendar() {
+  return expensesCalendars.find((c) => c.id === activeExpensesCalendarId) || null
+}
+
 function updateAppTitle() {
   if (!appTitleEl) return
-  const cal = getActiveCalendar()
-  appTitleEl.textContent = cal ? cal.name : "Office Calendar"
-}
-
-// Backup / restore
-function exportBackup() {
-  const payload = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    calendars,
-    activeCalendarId,
+  if (activeMode === "office") {
+    const cal = getActiveCalendar()
+    appTitleEl.textContent = cal ? cal.name : "Office Calendar"
+  } else {
+    const expCal = getActiveExpensesCalendar()
+    appTitleEl.textContent = expCal ? expCal.title : "Expenses Calendar"
   }
-
-  const json = JSON.stringify(payload, null, 2)
-  const blob = new Blob([json], { type: "application/json" })
-  const url = URL.createObjectURL(blob)
-
-  const a = document.createElement("a")
-  a.href = url
-  const ts = new Date().toISOString().replace(/[:.]/g, "-")
-  a.download = `work-calendar-backup-${ts}.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
-
-function importBackup(file) {
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    try {
-      const text = e.target.result
-      const data = JSON.parse(text)
-
-      if (!data || !Array.isArray(data.calendars)) {
-        alert("Invalid backup file.")
-        return
-      }
-
-      calendars = data.calendars
-      activeCalendarId = data.activeCalendarId || (calendars[0]?.id ?? null)
-      saveCalendars()
-      renderCalendarList()
-      renderCalendar()
-      renderStats()
-      updateAppTitle()
-      alert("Backup restored successfully.")
-    } catch (err) {
-      alert("Could not read backup file.")
-    }
-  }
-  reader.readAsText(file)
 }
 
 // Drawer + overlay
@@ -325,344 +402,7 @@ function closeDrawer() {
 menuBtn.addEventListener("click", openDrawer)
 drawerCloseBtn.addEventListener("click", closeDrawer)
 
-function openSettingsPage() {
-  if (!settingsPage) return
-  settingsPage.classList.add("open")
-  overlay.classList.add("active")
-  // Initialize holiday view month from current calendar month
-  holidayViewDate = new Date(currentDate.getTime())
-  openHolidaySettingsForCurrentMonth()
-}
-
-function closeSettingsPage() {
-  if (!settingsPage) return
-  settingsPage.classList.remove("open")
-  overlay.classList.remove("active")
-}
-
-if (drawerSettingsBtn) {
-  drawerSettingsBtn.addEventListener("click", () => {
-    closeDrawer()
-    openSettingsPage()
-  })
-}
-
-if (settingsCloseBtn) {
-  settingsCloseBtn.addEventListener("click", () => {
-    closeSettingsPage()
-  })
-}
-
-overlay.addEventListener("click", () => {
-  if (drawer.classList.contains("open")) closeDrawer()
-  if (dateModal.classList.contains("open")) closeModal()
-  if (pinModal.classList.contains("open")) closePinModal()
-  if (deleteModal.classList.contains("open")) closeDeleteModal()
-  if (runningModal.classList.contains("open")) closeRunningModal()
-  if (breakModal.classList.contains("open")) closeBreakModal()
-  if (reportModal && reportModal.classList.contains("open")) closeReportModal()
-  if (clearMonthModal && clearMonthModal.classList.contains("open")) closeClearMonthModal()
-  if (settingsPage && settingsPage.classList.contains("open")) closeSettingsPage()
-  if (endReminderModal && endReminderModal.classList.contains("open")) closeEndReminderModal()
-})
-
-// Drawer tabs
-drawerTabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    drawerTabs.forEach((t) => t.classList.remove("active"))
-    drawerPanels.forEach((p) => p.classList.remove("active"))
-    tab.classList.add("active")
-    const targetId = tab.dataset.tab + "Tab"
-    const panel = document.getElementById(targetId)
-    if (panel) panel.classList.add("active")
-  })
-})
-
-// Holidays settings logic
-function renderHolidayList(cal, monthKey) {
-  if (!holidayList) return
-  ensureCalendarHolidays(cal)
-  const holMonth = cal.holidays[monthKey] || {}
-  const days = Object.keys(holMonth)
-    .map((d) => Number(d))
-    .filter((d) => !Number.isNaN(d))
-    .sort((a, b) => a - b)
-
-  holidayList.innerHTML = ""
-
-  if (!days.length) {
-    const li = document.createElement("li")
-    li.className = "holiday-list-empty"
-    li.textContent = "No holidays added for this month yet."
-    holidayList.appendChild(li)
-    return
-  }
-
-  days.forEach((day) => {
-    const info = holMonth[day]
-    const li = document.createElement("li")
-    li.className = "holiday-list-item"
-    const label = document.createElement("span")
-    label.textContent = `${day} - ${info.name || "Holiday"}`
-    const removeBtn = document.createElement("button")
-    removeBtn.className = "small-btn"
-    removeBtn.textContent = "Remove"
-    removeBtn.addEventListener("click", () => {
-      delete holMonth[day]
-      if (!Object.keys(holMonth).length) {
-        delete cal.holidays[monthKey]
-      }
-      saveCalendars()
-      renderHolidayList(cal, monthKey)
-      renderCalendar()
-      renderStats()
-    })
-    li.appendChild(label)
-    li.appendChild(removeBtn)
-    holidayList.appendChild(li)
-  })
-}
-
-function openHolidaySettingsForCurrentMonth() {
-  const cal = getActiveCalendar()
-  if (!cal || !holidaySettings) return
-  if (!holidayViewDate) {
-    holidayViewDate = new Date(currentDate.getTime())
-  }
-  const year = holidayViewDate.getFullYear()
-  const month = holidayViewDate.getMonth()
-  const monthLabel = new Date(year, month, 1).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  })
-  if (holidayMonthLabel) holidayMonthLabel.textContent = monthLabel
-
-  if (holidayDayInput) holidayDayInput.value = ""
-  if (holidayNameInput) holidayNameInput.value = ""
-
-  const mKey = monthKeyFromYearMonth(year, month)
-  ensureCalendarHolidays(cal)
-  renderHolidayList(cal, mKey)
-
-  holidaySettings.style.display = "block"
-}
-
-if (settingsHolidaysCard) {
-  settingsHolidaysCard.addEventListener("click", () => {
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    openHolidaySettingsForCurrentMonth()
-  })
-}
-
-if (holidayAddBtn) {
-  holidayAddBtn.addEventListener("click", () => {
-    const cal = getActiveCalendar()
-    if (!cal) return
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    const year = holidayViewDate.getFullYear()
-    const month = holidayViewDate.getMonth()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-    const dayVal = holidayDayInput ? Number(holidayDayInput.value) : NaN
-    if (!dayVal || dayVal < 1 || dayVal > daysInMonth) {
-      alert(`Please enter a valid day between 1 and ${daysInMonth}.`)
-      return
-    }
-
-    const name = holidayNameInput
-      ? holidayNameInput.value.trim() || "Holiday"
-      : "Holiday"
-
-    ensureCalendarHolidays(cal)
-    const mKey = monthKeyFromYearMonth(year, month)
-    if (!cal.holidays[mKey]) cal.holidays[mKey] = {}
-    cal.holidays[mKey][dayVal] = { name }
-
-    saveCalendars()
-    renderHolidayList(cal, mKey)
-    renderCalendar()
-    renderStats()
-  })
-}
-
-if (holidayPrevMonthBtn) {
-  holidayPrevMonthBtn.addEventListener("click", () => {
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    holidayViewDate.setMonth(holidayViewDate.getMonth() - 1)
-    openHolidaySettingsForCurrentMonth()
-  })
-}
-
-if (holidayNextMonthBtn) {
-  holidayNextMonthBtn.addEventListener("click", () => {
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    holidayViewDate.setMonth(holidayViewDate.getMonth() + 1)
-    openHolidaySettingsForCurrentMonth()
-  })
-}
-
-// Calendar list rendering
-function renderCalendarList() {
-  calendarListEl.innerHTML = ""
-  if (!calendars.length) return
-
-  calendars.forEach((cal) => {
-    const item = document.createElement("div")
-    item.className = "calendar-list-item"
-
-    const main = document.createElement("div")
-    main.className = "calendar-list-main"
-
-    const name = document.createElement("div")
-    name.className = "calendar-list-name"
-    name.textContent = cal.name
-
-    const desc = document.createElement("div")
-    desc.className = "calendar-list-desc"
-    desc.textContent = cal.description || "No description"
-
-    const meta = document.createElement("div")
-    meta.className = "calendar-list-meta"
-    const salaryText =
-      cal.salaryMonthly || cal.salaryHourly
-        ? `Monthly: ${cal.salaryMonthly || 0} | Hourly: ${
-            cal.salaryHourly || 0
-          }`
-        : "No salary set"
-    meta.textContent =
-      cal.pin && cal.pin.length
-        ? `${salaryText}  PIN Protected`
-        : salaryText
-
-    main.appendChild(name)
-    main.appendChild(desc)
-    main.appendChild(meta)
-
-    const actions = document.createElement("div")
-    actions.className = "calendar-list-actions"
-
-    const editBtn = document.createElement("button")
-    editBtn.className = "small-btn"
-    editBtn.textContent = "Edit"
-    editBtn.addEventListener("click", (e) => {
-      e.stopPropagation()
-      if (cal.pin) {
-        openPinModal(cal, "edit")
-      } else {
-        editCalendar(cal.id)
-      }
-    })
-
-    const delBtn = document.createElement("button")
-    delBtn.className = "small-btn"
-    delBtn.textContent = "Del"
-    delBtn.addEventListener("click", (e) => {
-      e.stopPropagation()
-      if (cal.pin) {
-        openPinModal(cal, "delete")
-      } else {
-        openDeleteModal(cal)
-      }
-    })
-
-    actions.appendChild(editBtn)
-    actions.appendChild(delBtn)
-
-    item.appendChild(main)
-    item.appendChild(actions)
-
-    // Clicking anywhere on the row (except buttons) selects the calendar
-    item.addEventListener("click", (e) => {
-      if (e.target instanceof HTMLButtonElement) return
-      if (cal.pin) {
-        openPinModal(cal, "select")
-      } else {
-        selectCalendar(cal.id)
-      }
-    })
-
-    calendarListEl.appendChild(item)
-
-    if (cal.id === activeCalendarId) {
-      item.style.outline = "2px solid rgba(0,122,255,0.7)"
-    }
-  })
-}
-
-function selectCalendar(id) {
-  const cal = calendars.find((c) => c.id === id)
-  if (!cal) return
-  activeCalendarId = id
-
-  saveCalendars()
-  renderCalendarList()
-  renderCalendar()
-  renderStats()
-  updateAppTitle()
-  closeDrawer()
-}
-
-function editCalendar(id) {
-  const cal = calendars.find((c) => c.id === id)
-  if (!cal) return
-
-  // Switch form into edit mode
-  editingCalendarId = id
-
-  // Pre-fill fields from existing calendar
-  calendarNameInput.value = cal.name || ""
-  calendarDescriptionInput.value = cal.description || ""
-  salaryMonthlyInput.value = cal.salaryMonthly != null ? cal.salaryMonthly : ""
-  salaryHourlyInput.value = cal.salaryHourly != null ? cal.salaryHourly : ""
-  if (workingDaysPerWeekInput) {
-    workingDaysPerWeekInput.value = cal.workingDaysPerWeek || 6
-  }
-  calendarPinInput.value = cal.pin || ""
-
-  // Convert stored schedule minutes back to HH:MM for the time inputs
-  if (cal.scheduleInMinutes != null) {
-    const h = Math.floor(cal.scheduleInMinutes / 60)
-    const m = cal.scheduleInMinutes % 60
-    officeInTimeInput.value = `${pad(h)}:${pad(m)}`
-  } else {
-    officeInTimeInput.value = ""
-  }
-
-  if (cal.scheduleOutMinutes != null) {
-    const h2 = Math.floor(cal.scheduleOutMinutes / 60)
-    const m2 = cal.scheduleOutMinutes % 60
-    officeOutTimeInput.value = `${pad(h2)}:${pad(m2)}`
-  } else {
-    officeOutTimeInput.value = ""
-  }
-
-  // Show form and adjust button label
-  calendarForm.classList.add("visible")
-  if (calendarSubmitBtn) {
-    calendarSubmitBtn.textContent = "Save"
-  }
-}
-
-function deleteCalendar(id) {
-  if (calendars.length === 1) {
-    alert("At least one calendar must exist.")
-    return
-  }
-  const cal = calendars.find((c) => c.id === id)
-  if (!cal) return
-
-  calendars = calendars.filter((c) => c.id !== id)
-  if (activeCalendarId === id) {
-    activeCalendarId = calendars[0]?.id || null
-  }
-  // Clear any active session for deleted calendar
-  activeSessionKey = null
-  saveCalendars()
-  renderCalendarList()
-  renderCalendar()
-  renderStats()
-  updateAppTitle()
-}
+// ...
 
 // Create calendar form
 createCalendarToggle.addEventListener("click", () => {
@@ -774,14 +514,126 @@ calendarForm.addEventListener("submit", (e) => {
   updateAppTitle()
 })
 
+// Backup / restore for office calendars
+function exportBackup() {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    calendars,
+    activeCalendarId,
+  }
+
+  const json = JSON.stringify(payload, null, 2)
+  const blob = new Blob([json], { type: "application/json" })
+  const url = URL.createObjectURL(blob)
+
+  const a = document.createElement("a")
+  a.href = url
+  const ts = new Date().toISOString().replace(/[:.]/g, "-")
+  a.download = `work-calendar-backup-${ts}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 backupExportBtn.addEventListener("click", exportBackup)
 backupImportBtn.addEventListener("click", () => backupFileInput.click())
+
 backupFileInput.addEventListener("change", (e) => {
   const file = e.target.files?.[0]
   if (!file) return
   importBackup(file)
   backupFileInput.value = ""
 })
+
+// Calendar list rendering (office calendars)
+function renderCalendarList() {
+  calendarListEl.innerHTML = ""
+  if (!calendars.length) return
+
+  calendars.forEach((cal) => {
+    const item = document.createElement("div")
+    item.className = "calendar-list-item"
+
+    const main = document.createElement("div")
+    main.className = "calendar-list-main"
+
+    const name = document.createElement("div")
+    name.className = "calendar-list-name"
+    name.textContent = cal.name
+
+    const desc = document.createElement("div")
+    desc.className = "calendar-list-desc"
+    desc.textContent = cal.description || "No description"
+
+    const meta = document.createElement("div")
+    meta.className = "calendar-list-meta"
+    const salaryText =
+      cal.salaryMonthly || cal.salaryHourly
+        ? `Monthly:  ${cal.salaryMonthly || 0} | Hourly:  ${
+            cal.salaryHourly || 0
+          }`
+        : "No salary set"
+    meta.textContent =
+      cal.pin && cal.pin.length
+        ? `${salaryText}   PIN Protected`
+        : salaryText
+
+    main.appendChild(name)
+    main.appendChild(desc)
+    main.appendChild(meta)
+
+    const actions = document.createElement("div")
+    actions.className = "calendar-list-actions"
+
+    const editBtn = document.createElement("button")
+    editBtn.className = "small-btn"
+    editBtn.textContent = "Edit"
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      if (cal.pin) {
+        openPinModal(cal, "edit")
+      } else {
+        editCalendar(cal.id)
+      }
+    })
+
+    const delBtn = document.createElement("button")
+    delBtn.className = "small-btn"
+    delBtn.textContent = "Del"
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      if (cal.pin) {
+        openPinModal(cal, "delete")
+      } else {
+        openDeleteModal(cal)
+      }
+    })
+
+    actions.appendChild(editBtn)
+    actions.appendChild(delBtn)
+
+    item.appendChild(main)
+    item.appendChild(actions)
+
+    // Clicking anywhere on the row (except buttons) selects the calendar
+    item.addEventListener("click", (e) => {
+      if (e.target instanceof HTMLButtonElement) return
+      if (cal.pin) {
+        openPinModal(cal, "select")
+      } else {
+        selectCalendar(cal.id)
+      }
+    })
+
+    calendarListEl.appendChild(item)
+
+    if (cal.id === activeCalendarId) {
+      item.style.outline = "2px solid rgba(0,122,255,0.7)"
+    }
+  })
+}
 
 // Calendar rendering
 function renderCalendar() {
