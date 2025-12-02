@@ -336,16 +336,16 @@
           <table class="report-table expenses-payee-table">
             <thead>
               <tr>
+                <th>Date</th>
                 <th>Payee Name</th>
                 <th>Status</th>
                 <th>Amount</th>
+                <th>Edit</th>
+                <th>View</th>
               </tr>
             </thead>
             <tbody id="expensesPayeeTableBody"></tbody>
           </table>
-        </div>
-        <div class="report-footer-actions" style="margin-top: 10px;">
-          <button class="primary-btn full-width" id="expensesViewReportBtn">View Report</button>
         </div>
       </section>
 
@@ -511,6 +511,72 @@
             >
               Save Time
             </button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Payee-wise Expenses Report Modal -->
+    <div class="modal" id="payeeReportModal">
+      <div class="modal-content report-modal-content">
+        <header class="modal-header report-modal-header">
+          <div>
+            <div class="modal-title" id="payeeReportTitle">Payee Report</div>
+            <div class="modal-subtitle" id="payeeReportSubtitle"></div>
+          </div>
+          <button class="icon-btn" id="payeeReportCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <div class="report-summary-grid">
+            <div class="report-pill primary">
+              <span class="pill-label">Payee Name</span>
+              <span class="pill-value" id="payeeReportPayeeName">-</span>
+            </div>
+            <div class="report-pill green-soft">
+              <span class="pill-label">Month Expenses Payment</span>
+              <span class="pill-value" id="payeeReportMonthTotal">₹0</span>
+            </div>
+            <div class="report-pill red">
+              <span class="pill-label">Pending Payment</span>
+              <span class="pill-value" id="payeeReportPending">₹0</span>
+            </div>
+            <div class="report-pill orange-soft">
+              <span class="pill-label">Last Month Pending</span>
+              <span class="pill-value" id="payeeReportLastPending">₹0</span>
+            </div>
+            <div class="report-pill blue">
+              <span class="pill-label">Total Payment</span>
+              <span class="pill-value" id="payeeReportTotalPaid">₹0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <h4 class="section-title">Date wise details</h4>
+          <div class="report-table-wrapper">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total Bill</th>
+                  <th>Status</th>
+                  <th>Mode</th>
+                </tr>
+              </thead>
+              <tbody id="payeeReportTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <div class="report-footer-actions">
+            <button class="primary-btn" id="payeeReportDownloadBtn">Download Report</button>
+            <button class="primary-btn" id="payeeReportShareBtn">Share on WhatsApp</button>
           </div>
         </section>
       </div>
