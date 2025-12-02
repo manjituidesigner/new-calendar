@@ -120,6 +120,7 @@ let pendingPinCalendarId = null
 let pendingPinAction = null
 let pendingDeleteCalendarId = null
 let editingExpensesCalendarId = null
+let editingExpenseEntryId = null
 
 const pinModal = document.getElementById("pinModal")
 const pinModalCloseBtn = document.getElementById("pinModalCloseBtn")
@@ -421,7 +422,7 @@ const inTimeCell = document.getElementById("inTimeCell") // now an <input type="
 const outTimeCell = document.getElementById("outTimeCell") // now an <input type="time">
 const saveTimeBtn = document.getElementById("saveTimeBtn")
 
-// Report modal elements
+// Report modal elements (office)
 const reportModal = document.getElementById("reportModal")
 const reportCloseBtn = document.getElementById("reportCloseBtn")
 const reportMonthTitle = document.getElementById("reportMonthTitle")
@@ -443,6 +444,21 @@ const repProductivity = document.getElementById("repProductivity")
 const reportTableBody = document.getElementById("reportTableBody")
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
+
+// Expenses combined monthly report modal elements
+const expensesReportModal = document.getElementById("expensesReportModal")
+const expensesReportCloseBtn = document.getElementById("expensesReportCloseBtn")
+const expensesReportTitle = document.getElementById("expensesReportTitle")
+const expensesReportSubtitle = document.getElementById("expensesReportSubtitle")
+const expReportPayeeName = document.getElementById("expReportPayeeName")
+const expReportTotal = document.getElementById("expReportTotal")
+const expReportPaid = document.getElementById("expReportPaid")
+const expReportPending = document.getElementById("expReportPending")
+const expReportCarryLabel = document.getElementById("expReportCarryLabel")
+const expReportCarryValue = document.getElementById("expReportCarryValue")
+const expensesReportTableBody = document.getElementById("expensesReportTableBody")
+const expensesReportDownloadBtn = document.getElementById("expensesReportDownloadBtn")
+const expensesReportShareBtn = document.getElementById("expensesReportShareBtn")
 const endReminderSnoozeButtons = document.querySelectorAll('#endReminderModal [data-snooze]')
 
 // Expenses stats & drawer elements
@@ -646,11 +662,20 @@ function openExpensesModal(date, options) {
   selectedDate = date
 
   const key = dateKey(date)
-  if (!cal.days) cal.days = {}
+  const day = normalizeExpensesDay(cal, key)
 
-  // If explicitly editing, load existing info; otherwise treat as new entry
+  // If explicitly editing, load existing entry; otherwise treat as new entry
   const isEdit = options && options.edit === true
-  const info = isEdit && cal.days[key] ? cal.days[key] : {}
+  const entryId = options && options.entryId
+  let info = {}
+  editingExpenseEntryId = null
+  if (isEdit && entryId && Array.isArray(day.entries)) {
+    const found = day.entries.find((e) => e.id === entryId)
+    if (found) {
+      info = found
+      editingExpenseEntryId = found.id
+    }
+  }
 
   if (expensesModalDateLabel) {
     expensesModalDateLabel.textContent = date.toLocaleDateString("en-US", {
@@ -683,11 +708,9 @@ function openExpensesModal(date, options) {
   if (expPayeeNameInput) expPayeeNameInput.value = info.payeeName || ""
   if (expRecurringInput) expRecurringInput.checked = !!info.recurring
 
-  if (expCategorySelect && info.category) expCategorySelect.value = info.category
-  if (expSubCategorySelect && info.subCategory)
-    expSubCategorySelect.value = info.subCategory
-  if (expPaymentStatusSelect && info.paymentStatus)
-    expPaymentStatusSelect.value = info.paymentStatus
+  if (expCategorySelect) expCategorySelect.value = info.category || ""
+  if (expSubCategorySelect) expSubCategorySelect.value = info.subCategory || ""
+  if (expPaymentStatusSelect) expPaymentStatusSelect.value = info.paymentStatus || "paid"
 
   if (expPaymentModeGroup) {
     const mode = info.paymentMode || "online"
@@ -711,12 +734,7 @@ function openExpensesModal(date, options) {
     }
   }
 
-  if (expTotalForDateEl) {
-    const total = info.total || 0
-    expTotalForDateEl.textContent = `₹${total}`
-  }
-
-  // Always recompute total from current DOM rows
+  // Always recompute total from current DOM rows and update label
   expRecomputeTotal()
 
   expensesModal.classList.add("open")
@@ -732,6 +750,7 @@ function closeExpensesModal() {
   overlay.classList.remove("active")
   document.body.style.overflow = ""
   selectedDate = null
+   editingExpenseEntryId = null
 }
 
 if (expensesModalCloseBtn) {
@@ -813,28 +832,60 @@ if (expSaveEntryBtn) {
     const cal = getActiveExpensesCalendar()
     if (!cal || !selectedDate) return
     const key = dateKey(selectedDate)
-    if (!cal.days) cal.days = {}
-    const info = cal.days[key] || {}
-    info.payeeName = expPayeeNameInput ? expPayeeNameInput.value.trim() : ""
-    info.recurring = expRecurringInput ? !!expRecurringInput.checked : false
-    info.category = expCategorySelect ? (expCategorySelect.value || "") : ""
-    info.subCategory = expSubCategorySelect ? (expSubCategorySelect.value || "") : ""
-    info.paymentStatus = expPaymentStatusSelect ? expPaymentStatusSelect.value : "paid"
-    let mode = "online"
-    if (expPaymentModeGroup && (!expPaymentStatusSelect || expPaymentStatusSelect.value !== "pending")) {
-      const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
-      if (picked) mode = picked.value
-    } else if (expPaymentStatusSelect && expPaymentStatusSelect.value === "pending") {
-      mode = "none"
-    }
-    info.paymentMode = mode
+    const day = normalizeExpensesDay(cal, key)
+
     const items = getExpItemsFromDOM()
-    info.items = items
     let total = 0
     for (const it of items) total += (Number(it.qty) || 0) * (Number(it.price) || 0)
-    info.total = Math.round(total)
-    if (!info.createdAt) info.createdAt = Date.now()
-    cal.days[key] = info
+    const roundedTotal = Math.round(total)
+
+    let paymentStatus = expPaymentStatusSelect
+      ? expPaymentStatusSelect.value
+      : "paid"
+    let mode = "online"
+    if (expPaymentModeGroup && (!expPaymentStatusSelect || paymentStatus !== "pending")) {
+      const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
+      if (picked) mode = picked.value
+    } else if (paymentStatus === "pending") {
+      mode = "none"
+    }
+
+    const baseEntry = {
+      id: editingExpenseEntryId || `exp_${Date.now()}`,
+      payeeName: expPayeeNameInput ? expPayeeNameInput.value.trim() : "",
+      recurring: expRecurringInput ? !!expRecurringInput.checked : false,
+      category: expCategorySelect ? expCategorySelect.value || "" : "",
+      subCategory: expSubCategorySelect ? expSubCategorySelect.value || "" : "",
+      paymentStatus,
+      paymentMode: mode,
+      items,
+      total: roundedTotal,
+      createdAt: Date.now(),
+    }
+
+    // Insert or replace entry in this day's list
+    if (!Array.isArray(day.entries)) day.entries = []
+    const idx = editingExpenseEntryId
+      ? day.entries.findIndex((e) => e.id === editingExpenseEntryId)
+      : -1
+    if (idx >= 0) {
+      day.entries[idx] = baseEntry
+    } else {
+      day.entries.push(baseEntry)
+    }
+
+    // Recompute per-day aggregate total and a synthetic status used by old code
+    let dayTotal = 0
+    let anyPending = false
+    day.entries.forEach((e) => {
+      const t = Number(e.total) || 0
+      dayTotal += t
+      if (e.paymentStatus === "pending") anyPending = true
+    })
+    day.total = dayTotal
+    // Keep a top-level paymentStatus for backward compatibility (used in some views)
+    day.paymentStatus = anyPending ? "pending" : "paid"
+
     saveExpensesCalendars()
     closeExpensesModal()
     renderCalendar()
@@ -868,42 +919,46 @@ function renderExpensesSummary() {
   let paidTotal = 0
   let pendingTotal = 0
 
-  // For table: group by payee, then date-wise rows within each payee
+  // For table: group by payee, then date-wise rows within each payee, using
+  // all entries stored for that date.
   const payeeRowsMap = new Map()
 
   if (cal.days) {
-    Object.entries(cal.days).forEach(([key, rawInfo]) => {
-      const info = rawInfo || {}
-      const total = Number(info.total) || 0
-      if (!total) return
-
+    Object.entries(cal.days).forEach(([key]) => {
       const [yStr, mStr, dStr] = key.split("-")
       const y = Number(yStr)
       const m = Number(mStr) - 1
       const d = Number(dStr)
       if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
 
-      if (y === year && m === month) {
-        totalSpent += total
+      if (y !== year || m !== month) return
 
+      const day = normalizeExpensesDay(cal, key)
+      if (!Array.isArray(day.entries) || !day.entries.length) return
+
+      const dateLabel = new Date(y, m, d).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+
+      day.entries.forEach((entry) => {
+        const entryTotal = Number(entry.total) || 0
+        if (!entryTotal) return
+
+        // Monthly aggregates
+        totalSpent += entryTotal
         if (key === todayKey) {
-          todayTotal += total
+          todayTotal += entryTotal
+        }
+        if (entry.paymentStatus === "paid") {
+          paidTotal += entryTotal
+        } else if (entry.paymentStatus === "pending") {
+          pendingTotal += entryTotal
         }
 
-        if (info.paymentStatus === "paid") {
-          paidTotal += total
-        } else if (info.paymentStatus === "pending") {
-          pendingTotal += total
-        }
-
-        const payeeName = (info.payeeName || "Unknown").trim() || "Unknown"
-        const status = info.paymentStatus || "paid"
-
-        const dateLabel = new Date(y, m, d).toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-        })
+        const payeeName = (entry.payeeName || "Unknown").trim() || "Unknown"
+        const status = entry.paymentStatus || "paid"
 
         let list = payeeRowsMap.get(payeeName)
         if (!list) {
@@ -911,20 +966,14 @@ function renderExpensesSummary() {
           payeeRowsMap.set(payeeName, list)
         }
 
-        // One row per item so multiple entries on same date are visible
-        if (Array.isArray(info.items) && info.items.length) {
-          info.items.forEach((it) => {
-            const qty = Number(it.qty) || 0
-            const price = Number(it.price) || 0
-            const lineTotal = qty * price
-            if (!lineTotal) return
-            list.push({ key, dateLabel, total: lineTotal, status })
-          })
-        } else {
-          // Fallback: single row for the day's total
-          list.push({ key, dateLabel, total, status })
-        }
-      }
+        list.push({
+          key,
+          entryId: entry.id,
+          dateLabel,
+          total: entryTotal,
+          status,
+        })
+      })
     })
   }
 
@@ -1009,11 +1058,11 @@ function renderExpensesSummary() {
 
         amtTd.textContent = `₹${row.total}`
 
-        // Edit button: open this exact date entry in edit mode
+        // Edit button: open this exact date+entry in edit mode
         editBtn.textContent = "Edit"
         editBtn.className = "small-btn"
         editBtn.addEventListener("click", () => {
-          openExpensesModalForKey(row.key)
+          openExpensesModalForKey(row.key, row.entryId)
         })
         editTd.appendChild(editBtn)
 
@@ -1029,7 +1078,7 @@ function renderExpensesSummary() {
   }
 }
 
-function openExpensesModalForKey(key) {
+function openExpensesModalForKey(key, entryId) {
   if (!key) return
   const parts = String(key).split("-")
   if (parts.length !== 3) return
@@ -1038,7 +1087,13 @@ function openExpensesModalForKey(key) {
   const d = Number(parts[2])
   if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
   const date = new Date(y, m, d)
-  openExpensesModal(date, { edit: true })
+  // When entryId is provided, open that specific entry for editing.
+  // Fallback: edit mode without a specific entry still works for legacy data.
+  if (entryId) {
+    openExpensesModal(date, { edit: true, entryId })
+  } else {
+    openExpensesModal(date, { edit: true })
+  }
 }
 
 function buildPayeeMonthlyData(cal, payeeName) {
@@ -1047,92 +1102,100 @@ function buildPayeeMonthlyData(cal, payeeName) {
   const nowYear = currentDate.getFullYear()
   const nowMonth = currentDate.getMonth()
 
-  // Previous month
-  let prevYear = nowYear
-  let prevMonth = nowMonth - 1
-  if (prevMonth < 0) {
-    prevMonth = 11
-    prevYear = nowYear - 1
-  }
-
   let monthTotal = 0
   let monthPaid = 0
   let monthPending = 0
-  let lastMonthPending = 0
+  const pendingByMonth = {}
   const rows = []
 
   if (cal.days) {
-    Object.entries(cal.days).forEach(([key, rawInfo]) => {
-      const info = rawInfo || {}
-      const total = Number(info.total) || 0
-      if (!total) return
-
+    Object.entries(cal.days).forEach(([key]) => {
       const [yStr, mStr, dStr] = key.split("-")
       const y = Number(yStr)
       const m = Number(mStr) - 1
       const d = Number(dStr)
       if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
 
-      const name = (info.payeeName || "Unknown").trim() || "Unknown"
-      if (name !== payeeName) return
+      const day = normalizeExpensesDay(cal, key)
+      if (!Array.isArray(day.entries) || !day.entries.length) return
 
-      if (y === nowYear && m === nowMonth) {
-        monthTotal += total
-        if (info.paymentStatus === "paid") monthPaid += total
-        if (info.paymentStatus === "pending") monthPending += total
+      day.entries.forEach((entry) => {
+        const entryTotal = Number(entry.total) || 0
+        if (!entryTotal) return
 
-        const createdAt = info.createdAt ? new Date(info.createdAt) : new Date(y, m, d)
-        const dateLabel = createdAt.toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-        })
-        const timeLabel = createdAt.toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+        const name = (entry.payeeName || "Unknown").trim() || "Unknown"
+        if (name !== payeeName) return
 
-        if (Array.isArray(info.items) && info.items.length) {
-          info.items.forEach((it) => {
-            const qty = Number(it.qty) || 0
-            const price = Number(it.price) || 0
-            const lineTotal = qty * price
+        const isCurrentMonth = y === nowYear && m === nowMonth
+
+        if (isCurrentMonth) {
+          monthTotal += entryTotal
+          if (entry.paymentStatus === "paid") monthPaid += entryTotal
+          if (entry.paymentStatus === "pending") monthPending += entryTotal
+
+          const createdAt = entry.createdAt
+            ? new Date(entry.createdAt)
+            : new Date(y, m, d)
+          const dateLabel = createdAt.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          })
+          const timeLabel = createdAt.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+
+          if (Array.isArray(entry.items) && entry.items.length) {
+            entry.items.forEach((it) => {
+              const qty = Number(it.qty) || 0
+              const price = Number(it.price) || 0
+              const lineTotal = qty * price
+              rows.push({
+                dateLabel,
+                timeLabel,
+                itemName: it.name || "-",
+                qty,
+                price,
+                lineTotal,
+                status: entry.paymentStatus || "-",
+                mode: entry.paymentMode || "-",
+              })
+            })
+          } else {
             rows.push({
               dateLabel,
               timeLabel,
-              itemName: it.name || "-",
-              qty,
-              price,
-              lineTotal,
-              status: info.paymentStatus || "-",
-              mode: info.paymentMode || "-",
+              itemName: "-",
+              qty: 0,
+              price: 0,
+              lineTotal: entryTotal,
+              status: entry.paymentStatus || "-",
+              mode: entry.paymentMode || "-",
             })
-          })
+          }
         } else {
-          rows.push({
-            dateLabel,
-            timeLabel,
-            itemName: "-",
-            qty: 0,
-            price: 0,
-            lineTotal: total,
-            status: info.paymentStatus || "-",
-            mode: info.paymentMode || "-",
-          })
+          if (entry.paymentStatus === "pending") {
+            const mKey = monthKeyFromYearMonth(y, m)
+            const prev = pendingByMonth[mKey] || 0
+            pendingByMonth[mKey] = prev + entryTotal
+          }
         }
-      } else if (y === prevYear && m === prevMonth) {
-        if (info.paymentStatus === "pending") {
-          lastMonthPending += total
-        }
-      }
+      })
     })
   }
+
+  let previousMonthsPendingTotal = 0
+  Object.values(pendingByMonth).forEach((amt) => {
+    previousMonthsPendingTotal += Number(amt) || 0
+  })
 
   return {
     monthTotal,
     monthPaid,
     monthPending,
-    lastMonthPending,
+    pendingByMonth,
+    totalPending: monthPending + previousMonthsPendingTotal,
     rows,
   }
 }
@@ -1147,6 +1210,15 @@ function openPayeeReport(payeeName) {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
   const monthStart = new Date(year, month, 1)
+  const thisMonthLabel = monthStart.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  })
+  const prevMonthDate = new Date(year, month - 1, 1)
+  const prevMonthLabel = prevMonthDate.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  })
 
   if (payeeReportTitle) {
     payeeReportTitle.textContent = "Payee Report"
@@ -1164,13 +1236,44 @@ function openPayeeReport(payeeName) {
     payeeReportMonthTotal.textContent = `₹${data.monthTotal}`
   }
   if (payeeReportPending) {
-    payeeReportPending.textContent = `₹${data.monthPending}`
+    // Show this month's pending with month name
+    payeeReportPending.textContent = `${thisMonthLabel}: ₹${data.monthPending}`
   }
   if (payeeReportLastPending) {
-    payeeReportLastPending.textContent = `₹${data.lastMonthPending}`
+    // Show all previous months that have pending amounts in a small table
+    const map = data.pendingByMonth || {}
+    const entries = Object.entries(map).filter(([, amount]) => Number(amount) > 0)
+
+    if (!entries.length) {
+      payeeReportLastPending.textContent = "No previous pending"
+    } else {
+      let totalPrev = 0
+      // Sort by year-month ascending for a consistent order
+      entries.sort((a, b) => {
+        return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0
+      })
+
+      let html = '<table class="pill-mini-table"><tbody>'
+      entries.forEach(([mKey, amount]) => {
+        const [yStr, mmStr] = mKey.split("-")
+        const yy = Number(yStr)
+        const mm = Number(mmStr) - 1
+        const label = new Date(yy, mm, 1).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        })
+        const amt = Number(amount) || 0
+        totalPrev += amt
+        html += `<tr><td>${label}</td><td style="text-align:right;">₹${amt}</td></tr>`
+      })
+      html += `<tr class="pill-mini-total"><td><strong>Total</strong></td><td style="text-align:right;"><strong>₹${totalPrev}</strong></td></tr>`
+      html += "</tbody></table>"
+      payeeReportLastPending.innerHTML = html
+    }
   }
   if (payeeReportTotalPaid) {
-    payeeReportTotalPaid.textContent = `₹${data.monthPaid}`
+    // Repurpose this pill to show total pending across all months for this payee
+    payeeReportTotalPaid.textContent = `₹${data.totalPending}`
   }
 
   if (payeeReportTableBody) {
@@ -1561,6 +1664,47 @@ function getActiveExpensesCalendar() {
   return expensesCalendars.find((c) => c.id === activeExpensesCalendarId) || null
 }
 
+// Ensure a day's expenses are stored in the normalized multi-entry shape:
+// { entries: [ { id, payeeName, items, paymentStatus, paymentMode, total, createdAt, ... } ], total }
+function normalizeExpensesDay(cal, key) {
+  if (!cal.days) cal.days = {}
+  let day = cal.days[key]
+
+  // If already normalized
+  if (day && Array.isArray(day.entries)) {
+    return day
+  }
+
+  // Legacy single-entry shape: wrap into entries[0]
+  if (day && (!day.entries || !Array.isArray(day.entries))) {
+    const legacy = day
+    const entryId = legacy.id || `exp_${Date.now()}`
+    const entry = {
+      id: entryId,
+      payeeName: legacy.payeeName || "",
+      recurring: !!legacy.recurring,
+      category: legacy.category || "",
+      subCategory: legacy.subCategory || "",
+      paymentStatus: legacy.paymentStatus || "paid",
+      paymentMode: legacy.paymentMode || "online",
+      items: Array.isArray(legacy.items) ? legacy.items : [],
+      total: Number(legacy.total) || 0,
+      createdAt: legacy.createdAt || Date.now(),
+    }
+    day = {
+      entries: [entry],
+      total: entry.total,
+    }
+    cal.days[key] = day
+    return day
+  }
+
+  // No data yet for this date
+  day = { entries: [], total: 0 }
+  cal.days[key] = day
+  return day
+}
+
 function renderCalendarList() {
   if (!calendarListEl) return
   calendarListEl.innerHTML = ""
@@ -1799,16 +1943,21 @@ function renderCalendar() {
       cellDiv.classList.add("running")
     }
 
-    // Expenses mode: color dates by payment status
-    if (isExpensesMode && info && Array.isArray(info.items) && info.items.length) {
-      const hasTotal = Number(info.total) > 0
-      if (hasTotal) {
-        const status = info.paymentStatus || "paid"
-        if (status === "pending") {
-          // Reuse absent style as "pending" (typically red)
+    // Expenses mode: color dates by aggregated payment status across all entries
+    if (isExpensesMode && info) {
+      const day = normalizeExpensesDay(cal, key)
+      if (Array.isArray(day.entries) && day.entries.length) {
+        let anyPending = false
+        let anyPaid = false
+        day.entries.forEach((e) => {
+          const t = Number(e.total) || 0
+          if (!t) return
+          if (e.paymentStatus === "pending") anyPending = true
+          if (e.paymentStatus === "paid") anyPaid = true
+        })
+        if (anyPending) {
           cellDiv.classList.add("status-absent")
-        } else {
-          // Reuse present style for fully paid (typically green)
+        } else if (anyPaid) {
           cellDiv.classList.add("status-present")
         }
       }
@@ -2075,17 +2224,230 @@ function closeReportModal() {
   overlay.classList.remove("active")
 }
 
+// ===== Combined monthly expenses report (expenses mode) =====
+
+function openExpensesReport() {
+  const cal = getActiveExpensesCalendar()
+  if (!cal || !expensesReportModal) return
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+  const monthStart = new Date(year, month, 1)
+
+  if (expensesReportTitle) {
+    expensesReportTitle.textContent = "Expenses Report"
+  }
+  if (expensesReportSubtitle) {
+    expensesReportSubtitle.textContent = monthStart.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+  }
+  if (expReportPayeeName) {
+    expReportPayeeName.textContent = "All Payees"
+  }
+
+  let grandTotal = 0
+  let totalPaid = 0
+  let totalPending = 0
+  let carryForwardPending = 0
+  const payeeTotals = {}
+  const rows = []
+
+  if (cal.days) {
+    Object.entries(cal.days).forEach(([key]) => {
+      const [yStr, mStr, dStr] = key.split("-")
+      const y = Number(yStr)
+      const m = Number(mStr) - 1
+      const d = Number(dStr)
+      if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
+
+      const day = normalizeExpensesDay(cal, key)
+      if (!Array.isArray(day.entries) || !day.entries.length) return
+
+      const isCurrentMonth = y === year && m === month
+
+      day.entries.forEach((entry) => {
+        const entryTotal = Number(entry.total) || 0
+        if (!entryTotal) return
+
+        const payeeName = (entry.payeeName || "Unknown").trim() || "Unknown"
+
+        if (isCurrentMonth) {
+          grandTotal += entryTotal
+          if (entry.paymentStatus === "paid") totalPaid += entryTotal
+          if (entry.paymentStatus === "pending") totalPending += entryTotal
+
+          const prev = payeeTotals[payeeName] || 0
+          payeeTotals[payeeName] = prev + entryTotal
+
+          const createdAt = entry.createdAt
+            ? new Date(entry.createdAt)
+            : new Date(y, m, d)
+          const dateLabel = createdAt.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          })
+          const timeLabel = createdAt.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+
+          if (Array.isArray(entry.items) && entry.items.length) {
+            entry.items.forEach((it) => {
+              const qty = Number(it.qty) || 0
+              const price = Number(it.price) || 0
+              const lineTotal = qty * price
+              rows.push({
+                payeeName,
+                dateLabel,
+                timeLabel,
+                itemName: it.name || "-",
+                qty,
+                price,
+                lineTotal,
+                status: entry.paymentStatus || "-",
+                mode: entry.paymentMode || "-",
+                category: entry.category || "-",
+                subCategory: entry.subCategory || "-",
+              })
+            })
+          } else {
+            rows.push({
+              payeeName,
+              dateLabel,
+              timeLabel,
+              itemName: "-",
+              qty: 0,
+              price: 0,
+              lineTotal: entryTotal,
+              status: entry.paymentStatus || "-",
+              mode: entry.paymentMode || "-",
+              category: entry.category || "-",
+              subCategory: entry.subCategory || "-",
+            })
+          }
+        } else if (entry.paymentStatus === "pending") {
+          carryForwardPending += entryTotal
+        }
+      })
+    })
+  }
+
+  if (expReportTotal) expReportTotal.textContent = `₹${grandTotal}`
+  if (expReportPaid) expReportPaid.textContent = `₹${totalPaid}`
+  if (expReportPending) expReportPending.textContent = `₹${totalPending}`
+  if (expReportCarryLabel) {
+    expReportCarryLabel.textContent = "Carry forward pending amount"
+  }
+  if (expReportCarryValue) {
+    expReportCarryValue.textContent = `₹${carryForwardPending}`
+  }
+
+  if (expensesReportTableBody) {
+    expensesReportTableBody.innerHTML = ""
+
+    rows.sort((a, b) => {
+      if (a.payeeName < b.payeeName) return -1
+      if (a.payeeName > b.payeeName) return 1
+      if (a.dateLabel < b.dateLabel) return -1
+      if (a.dateLabel > b.dateLabel) return 1
+      if (a.timeLabel < b.timeLabel) return -1
+      if (a.timeLabel > b.timeLabel) return 1
+      return 0
+    })
+
+    let lastPayee = null
+    rows.forEach((row) => {
+      if (row.payeeName !== lastPayee) {
+        lastPayee = row.payeeName
+        const headerTr = document.createElement("tr")
+        const headerTd = document.createElement("td")
+        headerTd.colSpan = 11
+        const totalForPayee = payeeTotals[lastPayee] || 0
+        headerTd.innerHTML = `<strong>${lastPayee} - Total: ₹${totalForPayee}</strong>`
+        headerTr.appendChild(headerTd)
+        expensesReportTableBody.appendChild(headerTr)
+      }
+
+      const tr = document.createElement("tr")
+      const dateTd = document.createElement("td")
+      const timeTd = document.createElement("td")
+      const payeeTd = document.createElement("td")
+      const itemTd = document.createElement("td")
+      const qtyTd = document.createElement("td")
+      const priceTd = document.createElement("td")
+      const totalTd = document.createElement("td")
+      const statusTd = document.createElement("td")
+      const modeTd = document.createElement("td")
+      const catTd = document.createElement("td")
+      const subCatTd = document.createElement("td")
+
+      dateTd.textContent = row.dateLabel
+      timeTd.textContent = row.timeLabel
+      payeeTd.textContent = row.payeeName
+      itemTd.textContent = row.itemName
+      qtyTd.textContent = row.qty ? String(row.qty) : "0"
+      priceTd.textContent = row.price ? `₹${row.price}` : "₹0"
+      totalTd.textContent = `₹${row.lineTotal}`
+      statusTd.textContent = row.status
+      modeTd.textContent = row.mode
+      catTd.textContent = row.category
+      subCatTd.textContent = row.subCategory
+
+      tr.appendChild(dateTd)
+      tr.appendChild(timeTd)
+      tr.appendChild(payeeTd)
+      tr.appendChild(itemTd)
+      tr.appendChild(qtyTd)
+      tr.appendChild(priceTd)
+      tr.appendChild(totalTd)
+      tr.appendChild(statusTd)
+      tr.appendChild(modeTd)
+      tr.appendChild(catTd)
+      tr.appendChild(subCatTd)
+      expensesReportTableBody.appendChild(tr)
+    })
+  }
+
+  expensesReportModal.classList.add("open")
+  overlay.classList.add("active")
+}
+
+function closeExpensesReport() {
+  if (!expensesReportModal) return
+  expensesReportModal.classList.remove("open")
+  overlay.classList.remove("active")
+}
+
 if (reportBtn) {
-  reportBtn.addEventListener("click", openReportModal)
+  reportBtn.addEventListener("click", () => {
+    if (activeMode === "expenses") {
+      openExpensesReport()
+    } else {
+      openReportModal()
+    }
+  })
 }
 
 if (reportCloseBtn) {
   reportCloseBtn.addEventListener("click", closeReportModal)
 }
 
+if (expensesReportCloseBtn) {
+  expensesReportCloseBtn.addEventListener("click", closeExpensesReport)
+}
+
 // Download PDF: rely on browser print dialog (user can save as PDF)
 if (reportDownloadBtn) {
   reportDownloadBtn.addEventListener("click", () => {
+    window.print()
+  })
+}
+
+if (expensesReportDownloadBtn) {
+  expensesReportDownloadBtn.addEventListener("click", () => {
     window.print()
   })
 }
@@ -2121,6 +2483,48 @@ if (reportShareBtn) {
     summaryLines.push(`Productivity: ${repProductivity ? repProductivity.textContent : ""}`)
 
     const text = summaryLines.join("\n")
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, "_blank")
+  })
+}
+
+if (expensesReportShareBtn) {
+  expensesReportShareBtn.addEventListener("click", () => {
+    const cal = getActiveExpensesCalendar()
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
+    const monthLabel = new Date(year, month, 1).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+
+    const lines = []
+    lines.push(`Expenses Report - ${cal ? cal.title : "Expenses Calendar"}`)
+    lines.push(monthLabel)
+    lines.push("")
+    lines.push(`Total Expenses: ${expReportTotal ? expReportTotal.textContent : ""}`)
+    lines.push(`Paid Payment: ${expReportPaid ? expReportPaid.textContent : ""}`)
+    lines.push(`Pending Payment: ${expReportPending ? expReportPending.textContent : ""}`)
+    lines.push(`Carry forward pending: ${expReportCarryValue ? expReportCarryValue.textContent : ""}`)
+    lines.push("")
+    lines.push("Date | Time | Payee | Item | Qty | Price | Total | Status | Mode | Category | Sub Category")
+
+    if (expensesReportTableBody) {
+      const trs = expensesReportTableBody.querySelectorAll("tr")
+      trs.forEach((tr) => {
+        const tds = tr.querySelectorAll("td")
+        if (!tds.length) return
+        if (tds.length === 1) {
+          lines.push("")
+          lines.push(tds[0].textContent || "")
+        } else if (tds.length >= 11) {
+          const parts = Array.from(tds).map((td) => td.textContent || "")
+          lines.push(parts.join(" | "))
+        }
+      })
+    }
+
+    const text = lines.join("\n")
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(url, "_blank")
   })
