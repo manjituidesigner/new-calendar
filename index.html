@@ -545,14 +545,28 @@
           <div class="field-row">
             <div class="field">
               <label>Item Category</label>
-              <select id="expCategory"></select>
+              <select id="expCategory"><option value="">No value</option></select>
             </div>
             <div class="field">
               <label>Sub Category (optional)</label>
-              <select id="expSubCategory"></select>
+              <select id="expSubCategory"><option value="">No value</option></select>
             </div>
           </div>
+        </section>
 
+        <section class="modal-section">
+          <h4 class="section-title">Items</h4>
+          <div class="expenses-items-header">
+            <span>Item</span>
+            <span>Qty</span>
+            <span>Price</span>
+            <span></span>
+          </div>
+          <div class="expenses-items-list" id="expensesItemsList"></div>
+          <button class="small-btn full-width" id="expAddItemRowBtn">+ Add another item</button>
+        </section>
+
+        <section class="modal-section">
           <div class="field-row">
             <div class="field">
               <label>Payment Status</label>
@@ -586,18 +600,6 @@
               <input type="text" id="expTimeDisplay" readonly />
             </div>
           </div>
-        </section>
-
-        <section class="modal-section">
-          <h4 class="section-title">Items</h4>
-          <div class="expenses-items-header">
-            <span>Item</span>
-            <span>Qty</span>
-            <span>Price</span>
-            <span></span>
-          </div>
-          <div class="expenses-items-list" id="expensesItemsList"></div>
-          <button class="small-btn full-width" id="expAddItemRowBtn">+ Add another item</button>
         </section>
 
         <section class="modal-section">

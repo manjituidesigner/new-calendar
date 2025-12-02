@@ -1254,6 +1254,53 @@ body {
   color: #ffffff;
 }
 
+#expensesModal {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+#expensesModal .modal-content {
+  height: 100%;
+  max-width: 380px;
+  border-radius: 16px 0 0 16px;
+  transform: translateX(100%);
+  transition: transform 0.22s ease-out;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#expensesModal.open .modal-content {
+  transform: translateX(0);
+}
+
+#expensesModal .modal-header {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 1;
+}
+
+#expensesModal .field label {
+  font-size: 13px;
+}
+
+#expensesModal .field input,
+#expensesModal .field textarea,
+#expensesModal .field select {
+  font-size: 14px;
+  padding: 8px 10px;
+}
+
+#expensesModal .radio-inline,
+#expensesModal .checkbox-inline {
+  font-size: 13px;
+}
+
+#expensesModal .small-btn {
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
 /* Responsive */
 
 @media (max-width: 400px) {
