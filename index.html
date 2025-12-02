@@ -538,15 +538,15 @@
               <span class="pill-value" id="payeeReportMonthTotal">₹0</span>
             </div>
             <div class="report-pill red">
-              <span class="pill-label">Pending Payment</span>
+              <span class="pill-label">This Month Pending</span>
               <span class="pill-value" id="payeeReportPending">₹0</span>
             </div>
             <div class="report-pill orange-soft">
-              <span class="pill-label">Last Month Pending</span>
+              <span class="pill-label">Previous Month Pending</span>
               <span class="pill-value" id="payeeReportLastPending">₹0</span>
             </div>
             <div class="report-pill blue">
-              <span class="pill-label">Total Payment</span>
+              <span class="pill-label">Total Pending</span>
               <span class="pill-value" id="payeeReportTotalPaid">₹0</span>
             </div>
           </div>
@@ -721,9 +721,16 @@
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Items</th>
+                  <th>Time</th>
+                  <th>Payee</th>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total Bill</th>
                   <th>Status</th>
-                  <th>Amount</th>
+                  <th>Mode</th>
+                  <th>Category</th>
+                  <th>Sub Category</th>
                 </tr>
               </thead>
               <tbody id="expensesReportTableBody"></tbody>
