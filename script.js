@@ -119,6 +119,7 @@ let activeSessionKey = null
 let pendingPinCalendarId = null
 let pendingPinAction = null
 let pendingDeleteCalendarId = null
+let editingExpensesCalendarId = null
 
 const pinModal = document.getElementById("pinModal")
 const pinModalCloseBtn = document.getElementById("pinModalCloseBtn")
@@ -156,6 +157,106 @@ const breakCancelBtn = document.getElementById("breakCancelBtn")
 const breakDoneBtn = document.getElementById("breakDoneBtn")
 const breakModalCalendarName = document.getElementById("breakModalCalendarName")
 const breakReasonInput = document.getElementById("breakReasonInput")
+
+if (createCalendarToggle && calendarForm && calendarSubmitBtn) {
+  createCalendarToggle.setAttribute("type", "button")
+
+  createCalendarToggle.addEventListener("click", () => {
+    const willShow = !calendarForm.classList.contains("visible")
+    calendarForm.classList.toggle("visible")
+
+    if (willShow) {
+      if (calendarNameInput) calendarNameInput.value = ""
+      if (calendarDescriptionInput) calendarDescriptionInput.value = ""
+      if (salaryMonthlyInput) salaryMonthlyInput.value = ""
+      if (salaryHourlyInput) salaryHourlyInput.value = ""
+      if (workingDaysPerWeekInput) workingDaysPerWeekInput.value = "6"
+      if (calendarPinInput) calendarPinInput.value = ""
+      if (officeInTimeInput) officeInTimeInput.value = ""
+      if (officeOutTimeInput) officeOutTimeInput.value = ""
+      editingCalendarId = null
+      setTimeout(() => {
+        calendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 0)
+    }
+  })
+
+  calendarForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+
+    if (!calendarNameInput) return
+
+    const name = calendarNameInput.value.trim()
+    if (!name) {
+      alert("Please enter a calendar name.")
+      return
+    }
+
+    const description = calendarDescriptionInput
+      ? calendarDescriptionInput.value.trim()
+      : ""
+    const salaryMonthly = salaryMonthlyInput
+      ? Number(salaryMonthlyInput.value) || 0
+      : 0
+    const salaryHourly = salaryHourlyInput
+      ? Number(salaryHourlyInput.value) || 0
+      : 0
+    const workingDaysPerWeek = workingDaysPerWeekInput
+      ? Number(workingDaysPerWeekInput.value) || 6
+      : 6
+    const pin = calendarPinInput ? calendarPinInput.value.trim() || null : null
+
+    let scheduleInMinutes = null
+    let scheduleOutMinutes = null
+    if (officeInTimeInput && officeInTimeInput.value) {
+      const dt = buildDateWithTime(new Date(), officeInTimeInput.value)
+      if (dt) scheduleInMinutes = dt.getHours() * 60 + dt.getMinutes()
+    }
+    if (officeOutTimeInput && officeOutTimeInput.value) {
+      const dt = buildDateWithTime(new Date(), officeOutTimeInput.value)
+      if (dt) scheduleOutMinutes = dt.getHours() * 60 + dt.getMinutes()
+    }
+
+    if (editingCalendarId) {
+      const existing = calendars.find((c) => c.id === editingCalendarId)
+      if (existing) {
+        existing.name = name
+        existing.description = description
+        existing.salaryMonthly = salaryMonthly
+        existing.salaryHourly = salaryHourly
+        existing.workingDaysPerWeek = workingDaysPerWeek
+        existing.pin = pin
+        existing.scheduleInMinutes = scheduleInMinutes
+        existing.scheduleOutMinutes = scheduleOutMinutes
+      }
+    } else {
+      const id = "cal_" + Date.now()
+      calendars.push({
+        id,
+        name,
+        description,
+        salaryMonthly,
+        salaryHourly,
+        workingDaysPerWeek,
+        pin,
+        scheduleInMinutes,
+        scheduleOutMinutes,
+        days: {},
+        holidays: {},
+      })
+      activeCalendarId = id
+    }
+
+    saveCalendars()
+    renderCalendarList()
+    renderCalendar()
+    renderStats()
+    updateSessionBar()
+
+    editingCalendarId = null
+    calendarForm.classList.remove("visible")
+  })
+}
 
 function pad(n) {
   return String(n).padStart(2, "0")
@@ -355,7 +456,19 @@ const expRemainingEl = document.getElementById("expRemaining")
 const expOverBudgetEl = document.getElementById("expOverBudget")
 const expWalletBalanceEl = document.getElementById("expWalletBalance")
 const expensesPayeeTableBody = document.getElementById("expensesPayeeTableBody")
-const expensesViewReportBtn = document.getElementById("expensesViewReportBtn")
+// Payee report modal elements
+const payeeReportModal = document.getElementById("payeeReportModal")
+const payeeReportCloseBtn = document.getElementById("payeeReportCloseBtn")
+const payeeReportTitle = document.getElementById("payeeReportTitle")
+const payeeReportSubtitle = document.getElementById("payeeReportSubtitle")
+const payeeReportPayeeName = document.getElementById("payeeReportPayeeName")
+const payeeReportMonthTotal = document.getElementById("payeeReportMonthTotal")
+const payeeReportPending = document.getElementById("payeeReportPending")
+const payeeReportLastPending = document.getElementById("payeeReportLastPending")
+const payeeReportTotalPaid = document.getElementById("payeeReportTotalPaid")
+const payeeReportTableBody = document.getElementById("payeeReportTableBody")
+const payeeReportDownloadBtn = document.getElementById("payeeReportDownloadBtn")
+const payeeReportShareBtn = document.getElementById("payeeReportShareBtn")
 
 const expensesCalendarListEl = document.getElementById("expensesCalendarList")
 const createExpensesCalendarToggle = document.getElementById(
@@ -381,6 +494,7 @@ if (createExpensesCalendarToggle && expensesCalendarForm) {
       if (expensesBudgetAmountInput) expensesBudgetAmountInput.value = ""
       if (expensesWalletAmountInput) expensesWalletAmountInput.value = ""
       if (expensesPinInput) expensesPinInput.value = ""
+      editingExpensesCalendarId = null
       setTimeout(() => {
         if (expensesCalendarForm) {
           expensesCalendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -411,17 +525,28 @@ if (createExpensesCalendarToggle && expensesCalendarForm) {
       : 0
     const pin = expensesPinInput ? expensesPinInput.value.trim() || null : null
 
-    const id = "exp_" + Date.now()
-    expensesCalendars.push({
-      id,
-      title,
-      description,
-      budgetAmount,
-      walletAmount,
-      pin,
-      days: {},
-    })
-    activeExpensesCalendarId = id
+    if (editingExpensesCalendarId) {
+      const existing = expensesCalendars.find((c) => c.id === editingExpensesCalendarId)
+      if (existing) {
+        existing.title = title
+        existing.description = description
+        existing.budgetAmount = budgetAmount
+        existing.walletAmount = walletAmount
+        existing.pin = pin
+      }
+    } else {
+      const id = "exp_" + Date.now()
+      expensesCalendars.push({
+        id,
+        title,
+        description,
+        budgetAmount,
+        walletAmount,
+        pin,
+        days: {},
+      })
+      activeExpensesCalendarId = id
+    }
     saveExpensesCalendars()
 
     expensesTitleInput.value = ""
@@ -431,9 +556,38 @@ if (createExpensesCalendarToggle && expensesCalendarForm) {
     if (expensesPinInput) expensesPinInput.value = ""
 
     expensesCalendarForm.classList.remove("visible")
+    editingExpensesCalendarId = null
     renderExpensesCalendarList()
     updateAppTitle()
   })
+}
+
+function editExpensesCalendar(id) {
+  const cal = expensesCalendars.find((c) => c.id === id)
+  if (!cal || !expensesCalendarForm) return
+
+  if (expensesTitleInput) expensesTitleInput.value = cal.title || ""
+  if (expensesDescriptionInput) expensesDescriptionInput.value = cal.description || ""
+  if (expensesBudgetAmountInput) expensesBudgetAmountInput.value = cal.budgetAmount || ""
+  if (expensesWalletAmountInput) expensesWalletAmountInput.value = cal.walletAmount || ""
+  if (expensesPinInput) expensesPinInput.value = cal.pin || ""
+
+  editingExpensesCalendarId = id
+  expensesCalendarForm.classList.add("visible")
+  setTimeout(() => {
+    expensesCalendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, 0)
+}
+
+function deleteExpensesCalendar(id) {
+  expensesCalendars = expensesCalendars.filter((c) => c.id !== id)
+  if (activeExpensesCalendarId === id) {
+    activeExpensesCalendarId = expensesCalendars[0]?.id ?? null
+  }
+  saveExpensesCalendars()
+  renderExpensesCalendarList()
+  renderCalendar()
+  renderExpensesSummary()
 }
 
 // Expenses date modal elements
@@ -456,7 +610,36 @@ const expAddItemRowBtn = document.getElementById("expAddItemRowBtn")
 const expTotalForDateEl = document.getElementById("expTotalForDate")
 const expSaveEntryBtn = document.getElementById("expSaveEntryBtn")
 
-function openExpensesModal(date) {
+function updateExpPaymentModeAvailability() {
+  if (!expPaymentStatusSelect || !expPaymentModeGroup) return
+  const status = expPaymentStatusSelect.value
+  const radios = expPaymentModeGroup.querySelectorAll('input[name="expPaymentMode"]')
+  if (!radios.length) return
+
+  if (status === "pending") {
+    radios.forEach((r) => {
+      r.checked = false
+      r.disabled = true
+    })
+  } else {
+    let anyChecked = false
+    radios.forEach((r) => {
+      r.disabled = false
+      if (r.checked) anyChecked = true
+    })
+    if (!anyChecked) {
+      radios.forEach((r) => {
+        if (r.value === "online") r.checked = true
+      })
+    }
+  }
+}
+
+if (expPaymentStatusSelect) {
+  expPaymentStatusSelect.addEventListener("change", updateExpPaymentModeAvailability)
+}
+
+function openExpensesModal(date, options) {
   const cal = getActiveExpensesCalendar()
   if (!cal || !expensesModal) return
 
@@ -464,7 +647,10 @@ function openExpensesModal(date) {
 
   const key = dateKey(date)
   if (!cal.days) cal.days = {}
-  const info = cal.days[key] || {}
+
+  // If explicitly editing, load existing info; otherwise treat as new entry
+  const isEdit = options && options.edit === true
+  const info = isEdit && cal.days[key] ? cal.days[key] : {}
 
   if (expensesModalDateLabel) {
     expensesModalDateLabel.textContent = date.toLocaleDateString("en-US", {
@@ -515,6 +701,14 @@ function openExpensesModal(date) {
 
   if (expensesItemsList) {
     expensesItemsList.innerHTML = ""
+
+    if (Array.isArray(info.items) && info.items.length) {
+      // Edit mode with existing items
+      info.items.forEach((it) => addExpItemRow(it))
+    } else {
+      // New entry: start with a single empty row
+      addExpItemRow()
+    }
   }
 
   if (expTotalForDateEl) {
@@ -522,18 +716,14 @@ function openExpensesModal(date) {
     expTotalForDateEl.textContent = `₹${total}`
   }
 
-  if (expensesItemsList) {
-    if (Array.isArray(info.items) && info.items.length) {
-      info.items.forEach((it) => addExpItemRow(it))
-    } else {
-      addExpItemRow()
-    }
-    expRecomputeTotal()
-  }
+  // Always recompute total from current DOM rows
+  expRecomputeTotal()
 
   expensesModal.classList.add("open")
   overlay.classList.add("active")
   document.body.style.overflow = "hidden"
+
+  updateExpPaymentModeAvailability()
 }
 
 function closeExpensesModal() {
@@ -592,7 +782,11 @@ function getExpItemsFromDOM() {
   rows.forEach((row) => {
     const inputs = row.querySelectorAll("input")
     const n = inputs[0] ? inputs[0].value.trim() : ""
-    const q = inputs[1] ? Number(inputs[1].value) || 0 : 0
+    let q = 0
+    if (inputs[1]) {
+      const raw = inputs[1].value.trim()
+      q = raw === "" ? 1 : Number(raw) || 1
+    }
     const p = inputs[2] ? Number(inputs[2].value) || 0 : 0
     if (n || q || p) items.push({ name: n, qty: q, price: p })
   })
@@ -627,9 +821,11 @@ if (expSaveEntryBtn) {
     info.subCategory = expSubCategorySelect ? (expSubCategorySelect.value || "") : ""
     info.paymentStatus = expPaymentStatusSelect ? expPaymentStatusSelect.value : "paid"
     let mode = "online"
-    if (expPaymentModeGroup) {
+    if (expPaymentModeGroup && (!expPaymentStatusSelect || expPaymentStatusSelect.value !== "pending")) {
       const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
       if (picked) mode = picked.value
+    } else if (expPaymentStatusSelect && expPaymentStatusSelect.value === "pending") {
+      mode = "none"
     }
     info.paymentMode = mode
     const items = getExpItemsFromDOM()
@@ -642,6 +838,431 @@ if (expSaveEntryBtn) {
     saveExpensesCalendars()
     closeExpensesModal()
     renderCalendar()
+  })
+}
+
+function renderExpensesSummary() {
+  if (!expTodayEl || !expTotalSpentEl || !expMonthlyBudgetEl || !expRemainingEl || !expOverBudgetEl || !expWalletBalanceEl) {
+    return
+  }
+
+  const cal = getActiveExpensesCalendar()
+  if (!cal) {
+    expTodayEl.textContent = "₹0"
+    expTotalSpentEl.textContent = "₹0"
+    expMonthlyBudgetEl.textContent = "₹0"
+    expRemainingEl.textContent = "₹0"
+    expOverBudgetEl.textContent = "₹0"
+    expWalletBalanceEl.textContent = "₹0"
+    if (expensesPayeeTableBody) expensesPayeeTableBody.innerHTML = ""
+    return
+  }
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+  const today = new Date()
+  const todayKey = dateKey(today)
+
+  let todayTotal = 0
+  let totalSpent = 0
+  let paidTotal = 0
+  let pendingTotal = 0
+
+  // For table: group by payee, then date-wise rows within each payee
+  const payeeRowsMap = new Map()
+
+  if (cal.days) {
+    Object.entries(cal.days).forEach(([key, rawInfo]) => {
+      const info = rawInfo || {}
+      const total = Number(info.total) || 0
+      if (!total) return
+
+      const [yStr, mStr, dStr] = key.split("-")
+      const y = Number(yStr)
+      const m = Number(mStr) - 1
+      const d = Number(dStr)
+      if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
+
+      if (y === year && m === month) {
+        totalSpent += total
+
+        if (key === todayKey) {
+          todayTotal += total
+        }
+
+        if (info.paymentStatus === "paid") {
+          paidTotal += total
+        } else if (info.paymentStatus === "pending") {
+          pendingTotal += total
+        }
+
+        const payeeName = (info.payeeName || "Unknown").trim() || "Unknown"
+        const status = info.paymentStatus || "paid"
+
+        const dateLabel = new Date(y, m, d).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        })
+
+        let list = payeeRowsMap.get(payeeName)
+        if (!list) {
+          list = []
+          payeeRowsMap.set(payeeName, list)
+        }
+
+        // One row per item so multiple entries on same date are visible
+        if (Array.isArray(info.items) && info.items.length) {
+          info.items.forEach((it) => {
+            const qty = Number(it.qty) || 0
+            const price = Number(it.price) || 0
+            const lineTotal = qty * price
+            if (!lineTotal) return
+            list.push({ key, dateLabel, total: lineTotal, status })
+          })
+        } else {
+          // Fallback: single row for the day's total
+          list.push({ key, dateLabel, total, status })
+        }
+      }
+    })
+  }
+
+  const budget = Number(cal.budgetAmount) || 0
+  const walletBase = Number(cal.walletAmount) || 0
+  const remaining = budget - totalSpent
+  const over = remaining < 0 ? -remaining : 0
+  const remainingDisplay = remaining > 0 ? remaining : 0
+  const walletBalance = walletBase - paidTotal
+
+  expTodayEl.textContent = `₹${todayTotal}`
+  expTotalSpentEl.textContent = `₹${totalSpent}`
+  expMonthlyBudgetEl.textContent = `₹${budget}`
+  expRemainingEl.textContent = `₹${remainingDisplay}`
+  expOverBudgetEl.textContent = `₹${over}`
+  expWalletBalanceEl.textContent = `₹${walletBalance}`
+
+  if (expensesPayeeTableBody) {
+    expensesPayeeTableBody.innerHTML = ""
+
+    // Sort payees alphabetically, then each payee's rows by date key
+    const payeeNames = Array.from(payeeRowsMap.keys()).sort((a, b) =>
+      a.localeCompare(b)
+    )
+
+    payeeNames.forEach((payeeName) => {
+      const list = payeeRowsMap.get(payeeName) || []
+      list.sort((a, b) => {
+        if (a.key < b.key) return -1
+        if (a.key > b.key) return 1
+        return 0
+      })
+
+      // Group header row for this payee with a single View button
+      const headerTr = document.createElement("tr")
+      headerTr.className = "payee-group-header"
+      const headerTd = document.createElement("td")
+      headerTd.colSpan = 6
+
+      // Inner flex container so View button can sit at far right
+      const headerContainer = document.createElement("div")
+      headerContainer.style.display = "flex"
+      headerContainer.style.alignItems = "center"
+      headerContainer.style.width = "100%"
+
+      const headerLabel = document.createElement("span")
+      headerLabel.textContent = payeeName
+
+      const headerViewBtn = document.createElement("button")
+      headerViewBtn.textContent = "View"
+      headerViewBtn.className = "small-btn"
+      headerViewBtn.style.marginLeft = "auto"
+      headerViewBtn.addEventListener("click", () => {
+        openPayeeReport(payeeName)
+      })
+
+      headerContainer.appendChild(headerLabel)
+      headerContainer.appendChild(headerViewBtn)
+      headerTd.appendChild(headerContainer)
+      headerTr.appendChild(headerTd)
+      expensesPayeeTableBody.appendChild(headerTr)
+
+      // Date-wise item rows under this payee
+      list.forEach((row) => {
+        const tr = document.createElement("tr")
+        const dateTd = document.createElement("td")
+        const nameTd = document.createElement("td")
+        const statusTd = document.createElement("td")
+        const amtTd = document.createElement("td")
+        const editTd = document.createElement("td")
+        const viewTd = document.createElement("td")
+        const editBtn = document.createElement("button")
+
+        dateTd.textContent = row.dateLabel
+        nameTd.textContent = "" // payee name shown in group header
+
+        let statusLabel = "Paid"
+        if (row.status === "pending") {
+          statusLabel = "Pending"
+        }
+        statusTd.textContent = statusLabel
+
+        amtTd.textContent = `₹${row.total}`
+
+        // Edit button: open this exact date entry in edit mode
+        editBtn.textContent = "Edit"
+        editBtn.className = "small-btn"
+        editBtn.addEventListener("click", () => {
+          openExpensesModalForKey(row.key)
+        })
+        editTd.appendChild(editBtn)
+
+        tr.appendChild(dateTd)
+        tr.appendChild(nameTd)
+        tr.appendChild(statusTd)
+        tr.appendChild(amtTd)
+        tr.appendChild(editTd)
+        tr.appendChild(viewTd) // empty: group header holds the View button
+        expensesPayeeTableBody.appendChild(tr)
+      })
+    })
+  }
+}
+
+function openExpensesModalForKey(key) {
+  if (!key) return
+  const parts = String(key).split("-")
+  if (parts.length !== 3) return
+  const y = Number(parts[0])
+  const m = Number(parts[1]) - 1
+  const d = Number(parts[2])
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
+  const date = new Date(y, m, d)
+  openExpensesModal(date, { edit: true })
+}
+
+function buildPayeeMonthlyData(cal, payeeName) {
+  if (!cal || !payeeName) return null
+
+  const nowYear = currentDate.getFullYear()
+  const nowMonth = currentDate.getMonth()
+
+  // Previous month
+  let prevYear = nowYear
+  let prevMonth = nowMonth - 1
+  if (prevMonth < 0) {
+    prevMonth = 11
+    prevYear = nowYear - 1
+  }
+
+  let monthTotal = 0
+  let monthPaid = 0
+  let monthPending = 0
+  let lastMonthPending = 0
+  const rows = []
+
+  if (cal.days) {
+    Object.entries(cal.days).forEach(([key, rawInfo]) => {
+      const info = rawInfo || {}
+      const total = Number(info.total) || 0
+      if (!total) return
+
+      const [yStr, mStr, dStr] = key.split("-")
+      const y = Number(yStr)
+      const m = Number(mStr) - 1
+      const d = Number(dStr)
+      if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
+
+      const name = (info.payeeName || "Unknown").trim() || "Unknown"
+      if (name !== payeeName) return
+
+      if (y === nowYear && m === nowMonth) {
+        monthTotal += total
+        if (info.paymentStatus === "paid") monthPaid += total
+        if (info.paymentStatus === "pending") monthPending += total
+
+        const createdAt = info.createdAt ? new Date(info.createdAt) : new Date(y, m, d)
+        const dateLabel = createdAt.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        })
+        const timeLabel = createdAt.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+
+        if (Array.isArray(info.items) && info.items.length) {
+          info.items.forEach((it) => {
+            const qty = Number(it.qty) || 0
+            const price = Number(it.price) || 0
+            const lineTotal = qty * price
+            rows.push({
+              dateLabel,
+              timeLabel,
+              itemName: it.name || "-",
+              qty,
+              price,
+              lineTotal,
+              status: info.paymentStatus || "-",
+              mode: info.paymentMode || "-",
+            })
+          })
+        } else {
+          rows.push({
+            dateLabel,
+            timeLabel,
+            itemName: "-",
+            qty: 0,
+            price: 0,
+            lineTotal: total,
+            status: info.paymentStatus || "-",
+            mode: info.paymentMode || "-",
+          })
+        }
+      } else if (y === prevYear && m === prevMonth) {
+        if (info.paymentStatus === "pending") {
+          lastMonthPending += total
+        }
+      }
+    })
+  }
+
+  return {
+    monthTotal,
+    monthPaid,
+    monthPending,
+    lastMonthPending,
+    rows,
+  }
+}
+
+function openPayeeReport(payeeName) {
+  const cal = getActiveExpensesCalendar()
+  if (!cal || !payeeReportModal) return
+
+  const data = buildPayeeMonthlyData(cal, payeeName)
+  if (!data) return
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+  const monthStart = new Date(year, month, 1)
+
+  if (payeeReportTitle) {
+    payeeReportTitle.textContent = "Payee Report"
+  }
+  if (payeeReportSubtitle) {
+    payeeReportSubtitle.textContent = monthStart.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+  }
+  if (payeeReportPayeeName) {
+    payeeReportPayeeName.textContent = payeeName
+  }
+  if (payeeReportMonthTotal) {
+    payeeReportMonthTotal.textContent = `₹${data.monthTotal}`
+  }
+  if (payeeReportPending) {
+    payeeReportPending.textContent = `₹${data.monthPending}`
+  }
+  if (payeeReportLastPending) {
+    payeeReportLastPending.textContent = `₹${data.lastMonthPending}`
+  }
+  if (payeeReportTotalPaid) {
+    payeeReportTotalPaid.textContent = `₹${data.monthPaid}`
+  }
+
+  if (payeeReportTableBody) {
+    payeeReportTableBody.innerHTML = ""
+    data.rows.forEach((row) => {
+      const tr = document.createElement("tr")
+      const dateTd = document.createElement("td")
+      const timeTd = document.createElement("td")
+      const itemTd = document.createElement("td")
+      const qtyTd = document.createElement("td")
+      const priceTd = document.createElement("td")
+      const totalTd = document.createElement("td")
+      const statusTd = document.createElement("td")
+      const modeTd = document.createElement("td")
+
+      dateTd.textContent = row.dateLabel
+      timeTd.textContent = row.timeLabel
+      itemTd.textContent = row.itemName
+      qtyTd.textContent = row.qty ? String(row.qty) : "0"
+      priceTd.textContent = row.price ? `₹${row.price}` : "₹0"
+      totalTd.textContent = `₹${row.lineTotal}`
+      statusTd.textContent = row.status
+      modeTd.textContent = row.mode
+
+      tr.appendChild(dateTd)
+      tr.appendChild(timeTd)
+      tr.appendChild(itemTd)
+      tr.appendChild(qtyTd)
+      tr.appendChild(priceTd)
+      tr.appendChild(totalTd)
+      tr.appendChild(statusTd)
+      tr.appendChild(modeTd)
+      payeeReportTableBody.appendChild(tr)
+    })
+  }
+
+  payeeReportModal.classList.add("open")
+  overlay.classList.add("active")
+}
+
+function closePayeeReport() {
+  if (!payeeReportModal) return
+  payeeReportModal.classList.remove("open")
+  overlay.classList.remove("active")
+}
+
+if (payeeReportCloseBtn) {
+  payeeReportCloseBtn.addEventListener("click", closePayeeReport)
+}
+
+if (payeeReportDownloadBtn) {
+  payeeReportDownloadBtn.addEventListener("click", () => {
+    // Use browser print; user can choose "Save as PDF" to download
+    window.print()
+  })
+}
+
+if (payeeReportShareBtn) {
+  payeeReportShareBtn.addEventListener("click", () => {
+    const payeeName = payeeReportPayeeName ? payeeReportPayeeName.textContent || "" : ""
+    const monthTotal = payeeReportMonthTotal ? payeeReportMonthTotal.textContent || "" : ""
+    const pending = payeeReportPending ? payeeReportPending.textContent || "" : ""
+    const lastPending = payeeReportLastPending ? payeeReportLastPending.textContent || "" : ""
+    const totalPaid = payeeReportTotalPaid ? payeeReportTotalPaid.textContent || "" : ""
+
+    const lines = []
+    lines.push(`Payee Expenses Report - ${payeeName}`)
+    if (payeeReportSubtitle && payeeReportSubtitle.textContent) {
+      lines.push(payeeReportSubtitle.textContent)
+    }
+    lines.push("")
+    lines.push(`Month Expenses Payment: ${monthTotal}`)
+    lines.push(`Pending Payment: ${pending}`)
+    lines.push(`Last Month Pending: ${lastPending}`)
+    lines.push(`Total Payment: ${totalPaid}`)
+    lines.push("")
+    lines.push("Date | Time | Item | Qty | Price | Total | Status | Mode")
+
+    if (payeeReportTableBody) {
+      const rows = payeeReportTableBody.querySelectorAll("tr")
+      rows.forEach((tr) => {
+        const tds = tr.querySelectorAll("td")
+        if (tds.length >= 8) {
+          const parts = Array.from(tds).map((td) => td.textContent || "")
+          lines.push(parts.join(" | "))
+        }
+      })
+    }
+
+    const text = lines.join("\n")
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, "_blank")
   })
 }
 
@@ -1056,21 +1677,37 @@ function renderExpensesCalendarList() {
     const actions = document.createElement("div")
     actions.className = "calendar-list-actions"
 
-    const selectBtn = document.createElement("button")
-    selectBtn.className = "small-btn"
-    selectBtn.textContent = "Use"
-    selectBtn.addEventListener("click", (e) => {
+    const editBtn = document.createElement("button")
+    editBtn.className = "small-btn"
+    editBtn.textContent = "Edit"
+    editBtn.addEventListener("click", (e) => {
       e.stopPropagation()
+      editExpensesCalendar(cal.id)
+    })
+
+    const delBtn = document.createElement("button")
+    delBtn.className = "small-btn"
+    delBtn.textContent = "Del"
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      deleteExpensesCalendar(cal.id)
+    })
+
+    actions.appendChild(editBtn)
+    actions.appendChild(delBtn)
+
+    item.appendChild(main)
+    item.appendChild(actions)
+
+    item.addEventListener("click", (e) => {
+      if (e.target instanceof HTMLButtonElement) return
       activeExpensesCalendarId = cal.id
       saveExpensesCalendars()
       renderExpensesCalendarList()
       updateAppTitle()
+      renderCalendar()
+      closeDrawer()
     })
-
-    actions.appendChild(selectBtn)
-
-    item.appendChild(main)
-    item.appendChild(actions)
 
     if (cal.id === activeExpensesCalendarId) {
       item.classList.add("active")
@@ -1162,8 +1799,24 @@ function renderCalendar() {
       cellDiv.classList.add("running")
     }
 
+    // Expenses mode: color dates by payment status
+    if (isExpensesMode && info && Array.isArray(info.items) && info.items.length) {
+      const hasTotal = Number(info.total) > 0
+      if (hasTotal) {
+        const status = info.paymentStatus || "paid"
+        if (status === "pending") {
+          // Reuse absent style as "pending" (typically red)
+          cellDiv.classList.add("status-absent")
+        } else {
+          // Reuse present style for fully paid (typically green)
+          cellDiv.classList.add("status-present")
+        }
+      }
+    }
+
     cellDiv.addEventListener("click", () => {
       if (isExpensesMode) {
+        // Always treat date click in expenses mode as creating a new entry
         openExpensesModal(cellDate)
       } else {
         openModal(cellDate)
@@ -1177,6 +1830,8 @@ function renderCalendar() {
   if (!isExpensesMode) {
     renderStats()
     updateSessionBar()
+  } else {
+    renderExpensesSummary()
   }
 }
 
@@ -1651,6 +2306,7 @@ dateModal.addEventListener("click", (e) => {
     }
   }
 
+  cal.days[key] = info
   saveCalendars()
   renderCalendar()
   renderStats()
@@ -1757,7 +2413,8 @@ deleteConfirmBtn.addEventListener("click", () => {
 })
 
 function openClearMonthModal() {
-  const cal = getActiveCalendar()
+  const isExpensesMode = activeMode === "expenses"
+  const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
   if (!cal) return
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -1789,7 +2446,8 @@ if (clearMonthCancelBtn) {
 
 if (clearMonthConfirmBtn) {
   clearMonthConfirmBtn.addEventListener("click", () => {
-    const cal = getActiveCalendar()
+    const isExpensesMode = activeMode === "expenses"
+    const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
     if (!cal) {
       closeClearMonthModal()
       return
@@ -1805,15 +2463,22 @@ if (clearMonthConfirmBtn) {
       if (cal.days && cal.days[key]) {
         delete cal.days[key]
       }
-      if (cal.runningDateKey === key) {
+      if (!isExpensesMode && cal.runningDateKey === key) {
         cal.runningDateKey = null
       }
     }
 
-    saveCalendars()
-    renderCalendar()
-    renderStats()
-    updateSessionBar()
+    if (isExpensesMode) {
+      saveExpensesCalendars()
+      renderCalendar()
+      renderExpensesSummary()
+    } else {
+      saveCalendars()
+      renderCalendar()
+      renderStats()
+      updateSessionBar()
+    }
+
     closeClearMonthModal()
   })
 }
@@ -2185,6 +2850,7 @@ function loadExpensesCalendars() {
     activeExpensesCalendarId = null
   }
   updateAppTitle()
+  renderExpensesSummary()
 }
 
 function saveExpensesCalendars() {
