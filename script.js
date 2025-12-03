@@ -5125,3 +5125,179 @@ function updateSessionBar() {
   const endMs = cal.days[activeSessionKey].outTime || Date.now()
 
   function refresh() {
+    const now = Date.now()
+    const effectiveEnd = cal.days[activeSessionKey].outTime || now
+    const totalMs = Math.max(0, effectiveEnd - startMs)
+
+    // Compute break duration in seconds for live feeling
+    let breakSeconds = 0
+    if (cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length) {
+      for (const b of cal.days[activeSessionKey].breaks) {
+        if (!b.start) continue
+        const end = b.end != null ? b.end : now
+        if (end > b.start) {
+          breakSeconds += Math.floor((end - b.start) / 1000)
+        }
+      }
+    }
+
+    const totalSeconds = Math.floor(totalMs / 1000)
+    const workSeconds = Math.max(0, totalSeconds - breakSeconds)
+
+    if (sessionStartTimeEl) {
+      sessionStartTimeEl.textContent = `Start: ${formatTime(startMs)}`
+    }
+    if (sessionWorkedEl) {
+      const h = Math.floor(workSeconds / 3600)
+      const m = Math.floor((workSeconds % 3600) / 60)
+      const s = workSeconds % 60
+      sessionWorkedEl.textContent = `Worked: ${h}h ${m}m ${s}s`
+    }
+    if (sessionBreakEl) {
+      const bh = Math.floor(breakSeconds / 3600)
+      const bm = Math.floor((breakSeconds % 3600) / 60)
+      const bs = breakSeconds % 60
+      sessionBreakEl.textContent = `Break: ${bh}h ${bm}m ${bs}s`
+    }
+
+    const productivity = totalSeconds > 0 ? Math.round((workSeconds / totalSeconds) * 100) : 0
+
+    if (sessionProductivityEl) {
+      sessionProductivityEl.textContent = `${productivity}% productive`
+    }
+
+    if (sessionStatusEl) {
+      sessionStatusEl.textContent = cal.days[activeSessionKey].outTime ? "Finished" : "Working"
+    }
+
+    // Auto end-of-day reminder once scheduled out time is reached
+    if (
+      cal &&
+      cal.scheduleOutMinutes != null &&
+      cal.runningDateKey === activeSessionKey &&
+      !cal.days[activeSessionKey].outTime
+    ) {
+      const [yStr, mStr, dStr] = activeSessionKey.split("-")
+      const y = Number(yStr)
+      const m = Number(mStr)
+      const d = Number(dStr)
+      if (!Number.isNaN(y) && !Number.isNaN(m) && !Number.isNaN(d)) {
+        const scheduled = new Date(y, m - 1, d)
+        const totalMinutes = cal.scheduleOutMinutes
+        const sh = Math.floor(totalMinutes / 60)
+        const sm = totalMinutes % 60
+        scheduled.setHours(sh, sm, 0, 0)
+
+        const snoozeUntil = cal.endReminderSnoozeUntil || null
+        const snoozed = snoozeUntil && now < snoozeUntil
+
+        if (now >= scheduled.getTime() && !snoozed) {
+          if (!endReminderModal || !endReminderModal.classList.contains("open")) {
+            openEndReminderModal(cal, activeSessionKey)
+          }
+        }
+      }
+    }
+
+    // Also refresh stats so monthly Working Hours and Today Worked
+    // reflect the live session progress.
+    renderStats()
+  }
+
+  refresh()
+
+  if (!cal.days[activeSessionKey].outTime) {
+    sessionIntervalId = setInterval(refresh, 1000)
+  }
+
+  // Update buttons visibility
+  if (sessionBreakBtn && sessionBackBtn) {
+    const onBreak = cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length && cal.days[activeSessionKey].breaks[cal.days[activeSessionKey].breaks.length - 1].end == null
+    if (onBreak) {
+      sessionBreakBtn.style.display = "none"
+      sessionBackBtn.style.display = "inline-block"
+    } else {
+      sessionBreakBtn.style.display = "inline-block"
+      sessionBackBtn.style.display = "none"
+    }
+  }
+}
+
+// Session bar buttons
+if (sessionBreakBtn) {
+  sessionBreakBtn.addEventListener("click", () => {
+    const cal = getActiveCalendar()
+    if (!cal || !activeSessionKey) return
+    const key = activeSessionKey
+    if (!cal.days[key]) cal.days[key] = {}
+    const info = cal.days[key]
+
+    // If already on break, ignore
+    if (info.breaks && info.breaks.length && info.breaks[info.breaks.length - 1].end == null) {
+      return
+    }
+
+    openBreakModal(cal)
+  })
+}
+
+if (sessionBackBtn) {
+  sessionBackBtn.addEventListener("click", () => {
+    const cal = getActiveCalendar()
+    if (!cal || !activeSessionKey) return
+    const key = activeSessionKey
+    if (!cal.days[key]) cal.days[key] = {}
+    const info = cal.days[key]
+    if (!info.breaks || !info.breaks.length) return
+    const last = info.breaks[info.breaks.length - 1]
+    if (last.end == null) {
+      last.end = Date.now()
+    }
+    saveCalendars()
+    updateSessionBar()
+  })
+}
+
+if (sessionEndBtn) {
+  sessionEndBtn.addEventListener("click", () => {
+    const cal = getActiveCalendar()
+    if (!cal || !activeSessionKey) return
+    const key = activeSessionKey
+    endSessionForDate(cal, key)
+  })
+}
+
+// Expenses storage helpers
+function loadExpensesCalendars() {
+  try {
+    const data = localStorage.getItem(EXPENSES_STORAGE_KEY)
+    if (!data) {
+      expensesCalendars = []
+      activeExpensesCalendarId = null
+    } else {
+      const parsed = JSON.parse(data)
+      expensesCalendars = parsed.expensesCalendars || []
+      activeExpensesCalendarId =
+        parsed.activeExpensesCalendarId || (expensesCalendars[0]?.id ?? null)
+    }
+  } catch (e) {
+    expensesCalendars = []
+    activeExpensesCalendarId = null
+  }
+  updateAppTitle()
+  renderExpensesSummary()
+}
+
+function saveExpensesCalendars() {
+  localStorage.setItem(
+    EXPENSES_STORAGE_KEY,
+    JSON.stringify({ expensesCalendars, activeExpensesCalendarId })
+  )
+}
+
+// Init
+loadCalendars()
+loadExpensesCalendars()
+renderCalendarList()
+renderExpensesCalendarList()
+renderCalendar()
