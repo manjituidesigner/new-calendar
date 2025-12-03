@@ -1032,7 +1032,11 @@
             <span>Total Expenses</span>
             <span class="expenses-total-value" id="expTotalForDate">₹0</span>
           </div>
-          <button class="primary-btn full-width" id="expSaveEntryBtn">Add</button>
+          <div class="field-row" style="margin-top: 8px; flex-direction: column; gap: 8px;">
+            <button class="primary-btn full-width" id="expSaveEntryBtn">Add</button>
+            <button class="primary-btn full-width" id="expPrintBillBtn">Print Bill</button>
+            <button class="primary-btn full-width" id="expShareBillBtn">Share bill on WhatsApp</button>
+          </div>
         </section>
       </div>
     </div>
@@ -1238,7 +1242,7 @@
       </div>
     </div>
 
-    <!-- Monthly Report Modal  -->
+    <!-- Monthly Report Modal -->
     <div class="modal" id="reportModal">
       <div class="modal-content report-modal-content">
         <header class="modal-header report-modal-header">
