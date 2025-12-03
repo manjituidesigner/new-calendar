@@ -134,6 +134,7 @@ const deleteModalCloseBtn = document.getElementById("deleteModalCloseBtn")
 const deleteCancelBtn = document.getElementById("deleteCancelBtn")
 const deleteConfirmBtn = document.getElementById("deleteConfirmBtn")
 const deleteCalendarName = document.getElementById("deleteCalendarName")
+let pendingDeleteCalendarType = "office" // "office" | "expenses"
 
 const clearMonthBtn = document.getElementById("clearMonthBtn")
 const clearMonthModal = document.getElementById("clearMonthModal")
@@ -257,6 +258,126 @@ if (createCalendarToggle && calendarForm && calendarSubmitBtn) {
     editingCalendarId = null
     calendarForm.classList.remove("visible")
   })
+}
+
+function renderExpensesCategorySummary(cal) {
+  if (!expensesCategorySection || !expCategoryList) return
+  if (!cal) {
+    expensesCategorySection.classList.add("hidden")
+    expCategoryList.innerHTML = ""
+    if (expCategoryTableBody) expCategoryTableBody.innerHTML = ""
+    return
+  }
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+
+  if (expCategoryMonthLabel) {
+    const label = new Date(year, month, 1).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+    expCategoryMonthLabel.textContent = label
+  }
+
+  const totals = new Map()
+  const comboTotals = new Map() // key: `${cat}||${sub}` -> { amount, count }
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(year, month, d)
+    const key = dateKey(dt)
+    const day = cal.days && cal.days[key]
+    if (!day || !Array.isArray(day.entries) || !day.entries.length) continue
+
+    day.entries.forEach((entry) => {
+      const cat = entry.category || "Uncategorized"
+      const subRaw = entry.subCategory || ""
+      const sub = subRaw || "-"
+      const total = Number(entry.total) || 0
+      if (!total) return
+
+      const current = totals.get(cat) || 0
+      totals.set(cat, current + total)
+
+      const comboKey = `${cat}||${sub}`
+      const prev = comboTotals.get(comboKey) || { amount: 0, count: 0 }
+      prev.amount += total
+      prev.count += 1
+      comboTotals.set(comboKey, prev)
+    })
+  }
+
+  expCategoryList.innerHTML = ""
+  if (expCategoryTableBody) expCategoryTableBody.innerHTML = ""
+
+  if (!totals.size) {
+    const span = document.createElement("span")
+    span.className = "placeholder-text"
+    span.textContent = "No expenses recorded for this month."
+    expCategoryList.appendChild(span)
+    if (expCategoryTableBody) {
+      expCategoryTableBody.innerHTML = ""
+    }
+    expensesCategorySection.classList.remove("hidden")
+    return
+  }
+
+  const entries = Array.from(totals.entries()).sort((a, b) => b[1] - a[1])
+  const max = entries[0][1] || 1
+
+  entries.forEach(([name, amount]) => {
+    const row = document.createElement("div")
+    row.className = "exp-category-row"
+
+    const top = document.createElement("div")
+    top.className = "exp-category-row-top"
+    const nameEl = document.createElement("span")
+    nameEl.className = "exp-category-name"
+    nameEl.textContent = name
+    const amtEl = document.createElement("span")
+    amtEl.className = "exp-category-amount"
+    amtEl.textContent = `₹${Math.round(amount)}`
+    top.appendChild(nameEl)
+    top.appendChild(amtEl)
+
+    const bar = document.createElement("div")
+    bar.className = "exp-category-bar"
+    const fill = document.createElement("div")
+    fill.className = "exp-category-bar-fill"
+    const pct = Math.max(4, Math.round((amount / max) * 100))
+    fill.style.width = pct + "%"
+    bar.appendChild(fill)
+
+    row.appendChild(top)
+    row.appendChild(bar)
+    expCategoryList.appendChild(row)
+  })
+
+  if (expCategoryTableBody) {
+    const comboEntries = Array.from(comboTotals.entries()).sort((a, b) => b[1].amount - a[1].amount)
+    comboEntries.forEach(([key, value]) => {
+      const [cat, sub] = key.split("||")
+      const tr = document.createElement("tr")
+      const tdCat = document.createElement("td")
+      const tdSub = document.createElement("td")
+      const tdAmt = document.createElement("td")
+      const tdCount = document.createElement("td")
+
+      tdCat.textContent = cat
+      tdSub.textContent = sub
+      tdAmt.textContent = `₹${Math.round(value.amount)}`
+      tdCount.textContent = String(value.count)
+
+      tr.appendChild(tdCat)
+      tr.appendChild(tdSub)
+      tr.appendChild(tdAmt)
+      tr.appendChild(tdCount)
+      expCategoryTableBody.appendChild(tr)
+    })
+  }
+
+  expensesCategorySection.classList.remove("hidden")
 }
 
 function pad(n) {
@@ -441,17 +562,17 @@ const repTotalSalary = document.getElementById("repTotalSalary")
 const repSalaryDeduction = document.getElementById("repSalaryDeduction")
 const repFinalSalary = document.getElementById("repFinalSalary")
 const repProductivity = document.getElementById("repProductivity")
-const reportTableBody = document.getElementById("reportTableBody")
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
 
 // Expenses combined monthly report modal elements
-const expensesReportModal = document.getElementById("expensesReportModal")
-const expensesReportCloseBtn = document.getElementById("expensesReportCloseBtn")
-const expensesReportTitle = document.getElementById("expensesReportTitle")
-const expensesReportSubtitle = document.getElementById("expensesReportSubtitle")
-const expReportPayeeName = document.getElementById("expReportPayeeName")
-const expReportTotal = document.getElementById("expReportTotal")
+const expWalletBalanceEl = document.getElementById("expWalletBalance")
+const expensesPayeeTableBody = document.getElementById("expensesPayeeTableBody")
+const expensesViewReportBtn = document.getElementById("expensesViewReportBtn")
+const expensesCategorySection = document.getElementById("expensesCategorySection")
+const expCategoryMonthLabel = document.getElementById("expCategoryMonthLabel")
+const expCategoryList = document.getElementById("expCategoryList")
+const expCategoryTableBody = document.getElementById("expCategoryTableBody")
 const expReportPaid = document.getElementById("expReportPaid")
 const expReportPending = document.getElementById("expReportPending")
 const expReportCarryLabel = document.getElementById("expReportCarryLabel")
@@ -470,8 +591,6 @@ const expTotalSpentEl = document.getElementById("expTotalSpent")
 const expMonthlyBudgetEl = document.getElementById("expMonthlyBudget")
 const expRemainingEl = document.getElementById("expRemaining")
 const expOverBudgetEl = document.getElementById("expOverBudget")
-const expWalletBalanceEl = document.getElementById("expWalletBalance")
-const expensesPayeeTableBody = document.getElementById("expensesPayeeTableBody")
 // Payee report modal elements
 const payeeReportModal = document.getElementById("payeeReportModal")
 const payeeReportCloseBtn = document.getElementById("payeeReportCloseBtn")
@@ -631,6 +750,555 @@ const expensesItemsList = document.getElementById("expensesItemsList")
 const expAddItemRowBtn = document.getElementById("expAddItemRowBtn")
 const expTotalForDateEl = document.getElementById("expTotalForDate")
 const expSaveEntryBtn = document.getElementById("expSaveEntryBtn")
+
+// Expenses preset categories and subcategories
+const expensesCategories = [
+  /* 1. GROCERY */
+  {
+    category: "Grocery",
+    subcategories: [
+      /* GRAINS & FLOURS */
+      "Wheat",
+      "Atta",
+      "Besan",
+      "Maida",
+      "Suji / Rava",
+      "Poha",
+      "Dalia",
+      "Oats",
+      "Corn Flour",
+      "Rice Flour",
+      "Ragi Flour",
+
+      /* RICE VARIETIES */
+      "Basmati Rice",
+      "Kolam Rice",
+      "Sona Masoori Rice",
+      "Brown Rice",
+      "Parboiled Rice",
+      "Idli Rice",
+      "Raw Rice",
+
+      /* DAL & PULSES */
+      "Toor Dal",
+      "Moong Dal",
+      "Chana Dal",
+      "Masoor Dal",
+      "Urad Dal",
+      "Rajma (Red)",
+      "Rajma (Chitra)",
+      "Kabuli Chana",
+      "Kala Chana",
+      "Green Moong",
+      "Lobia",
+      "Horse Gram",
+
+      /* OILS */
+      "Sunflower Oil",
+      "Mustard Oil",
+      "Groundnut Oil",
+      "Rice Bran Oil",
+      "Olive Oil",
+      "Coconut Oil",
+      "Sesame Oil",
+      "Soybean Oil",
+      "Palm Oil",
+
+      /* GHEE / BUTTER */
+      "Ghee",
+      "Butter",
+      "White Butter",
+
+      /* SPICES (INDIAN MASALA) */
+      "Turmeric Powder",
+      "Red Chilli Powder",
+      "Coriander Powder",
+      "Cumin Powder",
+      "Garam Masala",
+      "Black Pepper",
+      "Green Cardamom",
+      "Black Cardamom",
+      "Cloves",
+      "Cinnamon",
+      "Jeera",
+      "Ajwain",
+      "Methi Seeds",
+      "Kasuri Methi",
+      "Bay Leaf",
+      "Mustard Seeds",
+      "Fennel Seeds",
+      "Dry Coconut",
+      "Poppy Seeds",
+      "Star Anise",
+      "Nutmeg",
+      "Mace",
+
+      /* SPICE MIXES */
+      "Chole Masala",
+      "Pav Bhaji Masala",
+      "Biryani Masala",
+      "Chicken Masala",
+      "Meat Masala",
+      "Sabzi Masala",
+      "Sambar Powder",
+      "Rasam Powder",
+
+      /* SALT & SWEET */
+      "Salt",
+      "Rock Salt",
+      "Jaggery",
+      "Sugar",
+      "Brown Sugar",
+      "Honey",
+
+      /* TEA & COFFEE */
+      "Tea Powder",
+      "Green Tea",
+      "Coffee Powder",
+      "Instant Coffee",
+
+      /* BREAD ITEMS */
+      "Bread",
+      "Buns",
+      "Rusk",
+      "Khari",
+
+      /* SNACKS */
+      "Namkeen",
+      "Chips",
+      "Bhujia",
+      "Peanuts Roasted",
+      "Popcorn",
+      "Cookies",
+      "Biscuits All Types",
+      "Chocolates",
+      "Ice Cream",
+
+      /* DAIRY */
+      "Milk",
+      "Curd",
+      "Paneer",
+      "Cheese",
+      "Buttermilk",
+      "Cream",
+
+      /* VEGETABLES (COMMON) */
+      "Potato",
+      "Onion",
+      "Tomato",
+      "Carrot",
+      "Cucumber",
+      "Beans",
+      "Peas",
+      "Cabbage",
+      "Cauliflower",
+      "Spinach",
+      "Coriander",
+      "Mint",
+      "Garlic",
+      "Ginger",
+      "Green Chillies",
+
+      /* FRUITS */
+      "Apple",
+      "Banana",
+      "Orange",
+      "Papaya",
+      "Mango",
+      "Grapes",
+      "Pomegranate",
+      "Watermelon",
+      "Strawberry",
+      "Avocado",
+
+      /* DRY FRUITS */
+      "Almonds",
+      "Cashews",
+      "Raisins",
+      "Pistachios",
+      "Walnuts",
+      "Dates",
+      "Anjeer",
+
+      /* PACKAGED FOODS */
+      "Noodles",
+      "Pasta",
+      "Macaroni",
+      "Soups",
+      "Vermicelli",
+      "Pickles",
+      "Ketchup",
+      "Mayonnaise",
+      "Sauces",
+      "Instant Mixes",
+      "Cereals",
+
+      /* CLEANING ITEMS */
+      "Detergent Powder",
+      "Detergent Liquid",
+      "Dishwash Liquid",
+      "Dishwash Bar",
+      "Toilet Cleaner",
+      "Phenyl",
+      "Floor Cleaner",
+      "Room Freshener",
+      "Garbage Bags",
+
+      /* PERSONAL HYGIENE */
+      "Bath Soap",
+      "Shampoo",
+      "Toothpaste",
+      "Toothbrush",
+      "Face Wash",
+      "Hand Wash",
+      "Shaving Cream",
+      "Deodorant",
+      "Sanitary Pads",
+
+      /* KITCHEN BASICS */
+      "Aluminum Foil",
+      "Tissue Paper",
+      "Zip Lock Bags",
+      "Matchbox",
+      "Lighter",
+      "Plastic Bags",
+      "Cling Film",
+
+      /* OTHER */
+      "Eggs",
+      "Instant Tea",
+      "Instant Coffee",
+      "Ready to Eat Items",
+      "Frozen Food",
+      "Butter Paper",
+      "Vinegar",
+      "Lemon Juice",
+      "Soda",
+      "Soft Drinks",
+      "Energy Drinks",
+      "Mineral Water",
+
+      /* EXTRA ITEMS */
+      "Moong Whole",
+      "Urad Whole",
+      "Kidney Beans Small",
+      "Pumpkin Seeds",
+      "Chia Seeds",
+      "Sunflower Seeds",
+      "Flax Seeds",
+      "Dry Ginger",
+      "Tamarind",
+      "Rice Cakes",
+      "Couscous",
+      "Quinoa",
+      "Wheat Rava",
+      "Idli Rava",
+      "Jowar Atta",
+      "Bajra Atta",
+      "Multigrain Atta",
+      "Bread Crumbs",
+      "Yeast",
+      "Baking Soda",
+      "Baking Powder",
+      "Cocoa Powder",
+      "Custard Powder",
+      "Cornflakes",
+      "Muesli",
+      "Peanut Butter",
+      "Jam",
+      "Syrups",
+      "Chutney Bottles",
+      "Gravy Masala Packs",
+      "Frozen Vegetables",
+      "Paneer Cubes",
+      "Sweet Corn",
+      "Herbal Tea",
+      "Protein Powder",
+      "Health Drinks",
+      "Khakhra",
+      "Laddu",
+      "Barfi",
+      "Samosa Ready Mix",
+      "Kheer Mix",
+      "Idli & Dosa Batter",
+    ],
+  },
+
+  /* 2. TRAVEL */
+  {
+    category: "Travel",
+    subcategories: [
+      "Bus",
+      "Train",
+      "Cab / Taxi",
+      "Auto",
+      "Bike",
+      "Car",
+      "Flight",
+      "Metro",
+      "Fuel (Petrol)",
+      "Fuel (Diesel)",
+      "Toll",
+      "Parking",
+      "Hotel",
+      "Resort",
+      "Local Transport",
+    ],
+  },
+
+  /* 3. MEDICAL */
+  {
+    category: "Medical",
+    subcategories: [
+      "Medicines",
+      "Doctor Consultation",
+      "Lab Tests",
+      "Hospital Bills",
+      "Surgery",
+      "Dental",
+      "Eye Care",
+      "Health Insurance",
+      "Baby Medicine",
+    ],
+  },
+
+  /* 4. SHOPPING */
+  {
+    category: "Shopping",
+    subcategories: [
+      "Clothes",
+      "Footwear",
+      "Electronics",
+      "Home Items",
+      "Kitchen Items",
+      "Beauty Products",
+      "Furniture",
+      "Accessories",
+      "Mobile & Gadgets",
+    ],
+  },
+
+  /* 5. ENTERTAINMENT */
+  {
+    category: "Entertainment",
+    subcategories: [
+      "Movies",
+      "OTT Subscriptions",
+      "Shows & Events",
+      "Games",
+      "Sports",
+      "Music",
+      "Books",
+    ],
+  },
+
+  /* 6. PARTY / OCCASIONS */
+  {
+    category: "Party",
+    subcategories: [
+      "Birthday",
+      "Anniversary",
+      "Drinks",
+      "Food",
+      "Decorations",
+      "Gifts",
+    ],
+  },
+
+  /* 7. HOLIDAYS */
+  {
+    category: "Holidays",
+    subcategories: [
+      "Flight Tickets",
+      "Hotels",
+      "Resorts",
+      "Travel Packages",
+      "Food",
+      "Local Transport",
+      "Activities",
+    ],
+  },
+
+  /* 8. BILLS */
+  {
+    category: "Bills",
+    subcategories: [
+      "Electricity",
+      "Water",
+      "Gas",
+      "Mobile Recharge",
+      "Internet",
+      "DTH",
+      "Rent",
+      "Maintenance",
+    ],
+  },
+
+  /* 9. SERVICE */
+  {
+    category: "Service",
+    subcategories: [
+      "Electrician",
+      "Plumber",
+      "Carpenter",
+      "AC Repair",
+      "Home Cleaning",
+      "Pest Control",
+      "Mobile Repair",
+      "Software Services",
+      "Internet Services",
+    ],
+  },
+
+  /* 10. PERSONAL CARE */
+  {
+    category: "Personal Care",
+    subcategories: [
+      "Salon",
+      "Spa",
+      "Gym",
+      "Cosmetics",
+      "Skincare",
+      "Hair Care",
+      "Fitness Items",
+    ],
+  },
+
+  /* 11. HOME */
+  {
+    category: "Home",
+    subcategories: [
+      "Repair",
+      "Cleaning Items",
+      "Furniture",
+      "Decor",
+      "Bedding",
+      "Curtains",
+      "Lights",
+      "Tools",
+    ],
+  },
+
+  /* 12. FAMILY & KIDS */
+  {
+    category: "Family & Kids",
+    subcategories: [
+      "School Fees",
+      "Kids Clothes",
+      "Baby Care",
+      "Toys",
+      "Medical",
+      "Snacks",
+    ],
+  },
+
+  /* 13. EDUCATION */
+  {
+    category: "Education",
+    subcategories: [
+      "School Fees",
+      "College Fees",
+      "Books",
+      "Courses",
+      "Online Learning",
+      "Coaching",
+    ],
+  },
+
+  /* 14. INVESTMENT */
+  {
+    category: "Investment",
+    subcategories: [
+      "Mutual Funds",
+      "Stocks",
+      "Gold",
+      "FD",
+      "RD",
+      "Crypto",
+      "Insurance Premium",
+    ],
+  },
+
+  /* 15. OTHER */
+  {
+    category: "Other",
+    subcategories: [
+      "Donations",
+      "Charity",
+      "Unexpected Expense",
+      "Fine / Penalty",
+      "Miscellaneous",
+    ],
+  },
+]
+
+function initExpensesCategoryDropdowns() {
+  if (!expCategorySelect || !expSubCategorySelect) return
+
+  // Helper to remember a current value if present
+  const currentCategory = expCategorySelect.value || ""
+
+  // Rebuild category options with leading "No value"
+  expCategorySelect.innerHTML = ""
+  const noneOpt = document.createElement("option")
+  noneOpt.value = ""
+  noneOpt.textContent = "No value"
+  expCategorySelect.appendChild(noneOpt)
+
+  expensesCategories.forEach((c) => {
+    const opt = document.createElement("option")
+    opt.value = c.category
+    opt.textContent = c.category
+    expCategorySelect.appendChild(opt)
+  })
+
+  // Restore selection if it still exists, otherwise keep "No value"
+  if (currentCategory && Array.from(expCategorySelect.options).some((o) => o.value === currentCategory)) {
+    expCategorySelect.value = currentCategory
+  } else {
+    expCategorySelect.value = ""
+  }
+
+  // Always refresh subcategories based on current category
+  populateSubCategories(expCategorySelect.value, expSubCategorySelect.value || "")
+}
+
+function populateSubCategories(categoryValue, currentSubValue) {
+  if (!expSubCategorySelect) return
+
+  expSubCategorySelect.innerHTML = ""
+  const noneOpt = document.createElement("option")
+  noneOpt.value = ""
+  noneOpt.textContent = "No value"
+  expSubCategorySelect.appendChild(noneOpt)
+
+  const cat = expensesCategories.find((c) => c.category === categoryValue)
+  if (cat && Array.isArray(cat.subcategories)) {
+    cat.subcategories.forEach((name) => {
+      const opt = document.createElement("option")
+      opt.value = name
+      opt.textContent = name
+      expSubCategorySelect.appendChild(opt)
+    })
+  }
+
+  if (
+    currentSubValue &&
+    Array.from(expSubCategorySelect.options).some((o) => o.value === currentSubValue)
+  ) {
+    expSubCategorySelect.value = currentSubValue
+  } else {
+    expSubCategorySelect.value = ""
+  }
+}
+
+if (expCategorySelect) {
+  initExpensesCategoryDropdowns()
+  expCategorySelect.addEventListener("change", () => {
+    const catVal = expCategorySelect.value || ""
+    populateSubCategories(catVal, "")
+  })
+}
 
 function updateExpPaymentModeAvailability() {
   if (!expPaymentStatusSelect || !expPaymentModeGroup) return
@@ -840,7 +1508,11 @@ if (expSaveEntryBtn) {
     const key = dateKey(selectedDate)
     const day = normalizeExpensesDay(cal, key)
 
-    const items = getExpItemsFromDOM()
+    const items = getExpItemsFromDOM(true)
+    if (items === null) {
+      alert("Please enter item name or choose a sub category for each item.")
+      return
+    }
     let total = 0
     for (const it of items) total += (Number(it.qty) || 0) * (Number(it.price) || 0)
     const roundedTotal = Math.round(total)
@@ -1959,7 +2631,7 @@ function renderExpensesCalendarList() {
     delBtn.textContent = "Del"
     delBtn.addEventListener("click", (e) => {
       e.stopPropagation()
-      deleteExpensesCalendar(cal.id)
+      openDeleteModal(cal, "expenses")
     })
 
     actions.appendChild(editBtn)
@@ -2104,8 +2776,10 @@ function renderCalendar() {
   if (!isExpensesMode) {
     renderStats()
     updateSessionBar()
+    if (expensesCategorySection) expensesCategorySection.classList.add("hidden")
   } else {
     renderExpensesSummary()
+    renderExpensesCategorySummary(cal)
   }
 }
 
@@ -2903,9 +3577,15 @@ pinUnlockBtn.addEventListener("click", () => {
 })
 
 // Delete calendar modal
-function openDeleteModal(calendar) {
+function openDeleteModal(calendar, type = "office") {
   pendingDeleteCalendarId = calendar.id
-  deleteCalendarName.textContent = calendar.name
+  pendingDeleteCalendarType = type === "expenses" ? "expenses" : "office"
+
+  const displayName =
+    type === "expenses"
+      ? calendar.title || calendar.name || "Expenses Calendar"
+      : calendar.name || calendar.title || "Calendar"
+  deleteCalendarName.textContent = displayName
 
   const warning = document.getElementById("deleteWarningText")
   if (warning) {
@@ -2926,6 +3606,7 @@ function closeDeleteModal() {
   deleteModal.classList.remove("open")
   overlay.classList.remove("active")
   pendingDeleteCalendarId = null
+  pendingDeleteCalendarType = "office"
 }
 
 deleteModalCloseBtn.addEventListener("click", closeDeleteModal)
@@ -2937,7 +3618,11 @@ deleteConfirmBtn.addEventListener("click", () => {
     return
   }
 
-  deleteCalendar(pendingDeleteCalendarId)
+  if (pendingDeleteCalendarType === "expenses") {
+    deleteExpensesCalendar(pendingDeleteCalendarId)
+  } else {
+    deleteCalendar(pendingDeleteCalendarId)
+  }
   closeDeleteModal()
 })
 

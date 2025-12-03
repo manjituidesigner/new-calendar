@@ -295,13 +295,9 @@
           <span class="stat-label">Working Hours</span>
           <span class="stat-value" id="statWorkingHours">0h 0m</span>
         </div>
-        <div class="stat-card wide">
-          <span class="stat-label">Calculated Salary</span>
-          <span class="stat-value" id="statSalary">₹0</span>
-        </div>
       </section>
 
-      <!-- Expenses summary cards -->
+      <!-- Expenses stats cards -->
       <section class="stats-section hidden" id="expensesStatsSection">
         <div class="stat-card">
           <span class="stat-label">Today Expenses</span>
@@ -326,6 +322,30 @@
         <div class="stat-card">
           <span class="stat-label">Wallet Balance</span>
           <span class="stat-value purple" id="expWalletBalance">₹0</span>
+        </div>
+      </section>
+
+      <section class="expenses-category-section hidden" id="expensesCategorySection">
+        <div class="exp-category-card">
+          <div class="exp-category-header">
+            <span class="exp-category-title">Category wise spend</span>
+            <span class="exp-category-subtitle" id="expCategoryMonthLabel"></span>
+          </div>
+          <div class="exp-category-list" id="expCategoryList"></div>
+
+          <div class="report-table-wrapper" style="margin-top: 8px;">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Sub Category</th>
+                  <th>Amount</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody id="expCategoryTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 

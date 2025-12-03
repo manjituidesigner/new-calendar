@@ -851,11 +851,11 @@ body {
 
 .modal .modal-content {
   width: 100%;
-  max-width: 360px;
+  max-width: 390px;
   background: #ffffff;
-  border-radius: 20px 20px 0 0;
-  box-shadow: none;
-  padding: 10px 14px 16px;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.18);
+  padding: 14px 18px 20px;
   transform: translateY(100%);
   transition: transform 0.22s ease-out;
 }
@@ -872,26 +872,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .modal-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
 }
 
 .modal-subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .modal-section {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .section-title {
-  font-size: 13px;
-  margin: 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 0 6px;
 }
 
 /* Chips */
@@ -1001,7 +1002,7 @@ body {
 .report-summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: 10px;
 }
 
 .report-footer-actions {
@@ -1011,12 +1012,12 @@ body {
 }
 
 .report-pill {
-  border-radius: 14px;
-  padding: 8px 10px;
+  border-radius: 16px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: 11px;
+  gap: 4px;
+  font-size: 12px;
   background: #f3f4f6;
 }
 
@@ -1024,10 +1025,11 @@ body {
 .report-pill .pill-label {
   color: var(--text-muted);
   opacity: 1;
+  font-size: 11px;
 }
 
 .report-pill .pill-value {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -1166,6 +1168,79 @@ body {
 
 .expenses-payee-section {
   margin-top: 12px;
+}
+
+.expenses-category-section {
+  margin-top: 12px;
+}
+
+.exp-category-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 10px 12px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.exp-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.exp-category-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.exp-category-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.exp-category-list {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exp-category-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.exp-category-row-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.exp-category-name {
+  font-weight: 600;
+}
+
+.exp-category-amount {
+  font-weight: 600;
+}
+
+.exp-category-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.exp-category-bar-fill {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #ef4444);
 }
 
 .radio-group {
