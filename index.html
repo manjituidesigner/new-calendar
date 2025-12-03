@@ -348,21 +348,40 @@
           <div class="exp-category-header">
             <span class="exp-category-title">Category wise spend</span>
             <span class="exp-category-subtitle" id="expCategoryMonthLabel"></span>
+            <div class="exp-category-view-toggle">
+              <button class="exp-cat-view-btn active" id="expCategoryBarBtn" type="button" data-exp-category-view="bar" title="Bar view">
+                <i class="ri-bar-chart-2-line"></i>
+              </button>
+              <button class="exp-cat-view-btn" id="expCategoryPieBtn" type="button" data-exp-category-view="pie" title="Pie view">
+                <i class="ri-pie-chart-2-line"></i>
+              </button>
+              <button class="exp-cat-view-btn" id="expCategoryTableBtn" type="button" data-exp-category-view="table" title="Table view">
+                <i class="ri-table-2"></i>
+              </button>
+            </div>
           </div>
-          <div class="exp-category-list" id="expCategoryList"></div>
-
-          <div class="report-table-wrapper" style="margin-top: 8px;">
-            <table class="report-table">
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Sub Category</th>
-                  <th>Amount</th>
-                  <th>Count</th>
-                </tr>
-              </thead>
-              <tbody id="expCategoryTableBody"></tbody>
-            </table>
+          <div class="exp-category-body">
+            <div class="exp-category-view exp-category-view-bar" id="expCategoryBarView">
+              <div class="exp-category-list" id="expCategoryList"></div>
+            </div>
+            <div class="exp-category-view exp-category-view-pie hidden" id="expCategoryPieView">
+              <div class="exp-category-pie-wrapper" id="expCategoryPieWrapper"></div>
+            </div>
+            <div class="exp-category-view exp-category-view-table hidden" id="expCategoryTableView">
+              <div class="report-table-wrapper" style="margin-top: 8px;">
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Sub Category</th>
+                      <th>Amount</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody id="expCategoryTableBody"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </section>
