@@ -192,10 +192,24 @@
             Notes module coming soon.
           </p>
         </div>
+
         <div class="drawer-panel" id="calculatorTab">
-          <p class="placeholder-text">
-            Calculator module coming soon.
-          </p>
+          <h3 class="drawer-title">Calculators</h3>
+
+          <div class="calculator-layout">
+            <div class="calculator-list" id="calculatorList">
+              <button class="calculator-chip" data-calc="basic">Basic Calculator</button>
+              <button class="calculator-chip" data-calc="emi">EMI Calculator</button>
+              <button class="calculator-chip" data-calc="gold">Gold Calculator</button>
+              <button class="calculator-chip" data-calc="unit">Unit Converter</button>
+              <button class="calculator-chip" data-calc="gst">GST Calculator</button>
+              <button class="calculator-chip" data-calc="discount">Discount Calculator</button>
+              <button class="calculator-chip" data-calc="incomeTax">Income Tax Calculator</button>
+              <button class="calculator-chip" data-calc="splitBill">Split Bill Calculator</button>
+              <button class="calculator-chip" data-calc="currency">Currency Converter</button>
+              <button class="calculator-chip disabled" disabled>More calculators coming soon…</button>
+            </div>
+          </div>
         </div>
       </section>
     </aside>
@@ -370,6 +384,155 @@
       </section>
 
       <button class="primary-btn full-width" id="clearMonthBtn">Clear Month</button>
+    </div>
+
+    <!-- Calculator full page -->
+    <div class="calculator-page" id="calculatorPage">
+      <div class="calculator-page-panel">
+        <section class="calculator-page-body">
+          <div class="calculator-panel">
+
+            <!-- Basic Calculator: keypad style -->
+            <div class="calculator-view" data-calc-view="basic">
+              <div class="calc-display" id="basicDisplay">0</div>
+
+              <div class="calc-keypad">
+                <button class="calc-btn calc-func" data-key="mc">MC</button>
+                <button class="calc-btn calc-func" data-key="mr">MR</button>
+                <button class="calc-btn calc-func" data-key="mplus">M+</button>
+                <button class="calc-btn calc-func" data-key="mminus">M-</button>
+
+                <button class="calc-btn calc-func" data-key="percent">%</button>
+                <button class="calc-btn calc-func" data-key="ce">CE</button>
+                <button class="calc-btn calc-func" data-key="c">C</button>
+                <button class="calc-btn calc-func" data-key="back">⌫</button>
+
+                <button class="calc-btn calc-func" data-key="inv">1/x</button>
+                <button class="calc-btn calc-func" data-key="sqr">x²</button>
+                <button class="calc-btn calc-func" data-key="sqrt">√x</button>
+                <button class="calc-btn calc-op" data-key="/">÷</button>
+
+                <button class="calc-btn" data-key="7">7</button>
+                <button class="calc-btn" data-key="8">8</button>
+                <button class="calc-btn" data-key="9">9</button>
+                <button class="calc-btn calc-op" data-key="*">×</button>
+
+                <button class="calc-btn" data-key="4">4</button>
+                <button class="calc-btn" data-key="5">5</button>
+                <button class="calc-btn" data-key="6">6</button>
+                <button class="calc-btn calc-op" data-key="-">−</button>
+
+                <button class="calc-btn" data-key="1">1</button>
+                <button class="calc-btn" data-key="2">2</button>
+                <button class="calc-btn" data-key="3">3</button>
+                <button class="calc-btn calc-op" data-key="+">+</button>
+
+                <button class="calc-btn" data-key="neg">+/-</button>
+                <button class="calc-btn" data-key="0">0</button>
+                <button class="calc-btn" data-key=".">.</button>
+                <button class="calc-btn calc-equals" data-key="=">=</button>
+              </div>
+            </div>
+
+            <!-- EMI Calculator (simple monthly EMI) -->
+            <div class="calculator-view hidden" data-calc-view="emi">
+              <div class="field">
+                <label>Loan Amount</label>
+                <input type="number" id="emiAmount" placeholder="₹" />
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Annual Interest %</label>
+                  <input type="number" id="emiRate" step="0.01" />
+                </div>
+                <div class="field">
+                  <label>Tenure (months)</label>
+                  <input type="number" id="emiMonths" />
+                </div>
+              </div>
+              <button type="button" class="primary-btn full-width" id="emiCalcBtn">Calculate EMI</button>
+              <div class="calculator-result" id="emiResult"></div>
+            </div>
+
+            <!-- Gold Calculator (value by grams & rate) -->
+            <div class="calculator-view hidden" data-calc-view="gold">
+              <div class="field-row">
+                <div class="field">
+                  <label>Weight (grams)</label>
+                  <input type="number" id="goldGrams" step="0.01" />
+                </div>
+                <div class="field">
+                  <label>Rate per gram (₹)</label>
+                  <input type="number" id="goldRate" step="0.01" />
+                </div>
+              </div>
+              <button type="button" class="primary-btn full-width" id="goldCalcBtn">Calculate Value</button>
+              <div class="calculator-result" id="goldResult"></div>
+            </div>
+
+            <!-- GST Calculator -->
+            <div class="calculator-view hidden" data-calc-view="gst">
+              <div class="field-row">
+                <div class="field">
+                  <label>Base Amount</label>
+                  <input type="number" id="gstBase" />
+                </div>
+                <div class="field">
+                  <label>GST %</label>
+                  <input type="number" id="gstRate" step="0.1" />
+                </div>
+              </div>
+              <button type="button" class="primary-btn full-width" id="gstCalcBtn">Calculate GST</button>
+              <div class="calculator-result" id="gstResult"></div>
+            </div>
+
+            <!-- Discount Calculator (shopping) -->
+            <div class="calculator-view hidden" data-calc-view="discount">
+              <div class="field-row">
+                <div class="field">
+                  <label>Original Price</label>
+                  <input type="number" id="discOriginal" />
+                </div>
+                <div class="field">
+                  <label>Discount %</label>
+                  <input type="number" id="discPercent" step="0.1" />
+                </div>
+              </div>
+              <button type="button" class="primary-btn full-width" id="discCalcBtn">Calculate Discount</button>
+              <div class="calculator-result" id="discResult"></div>
+            </div>
+
+            <!-- Split Bill Calculator -->
+            <div class="calculator-view hidden" data-calc-view="splitBill">
+              <div class="field-row">
+                <div class="field">
+                  <label>Total Bill</label>
+                  <input type="number" id="splitTotal" />
+                </div>
+                <div class="field">
+                  <label>No. of People</label>
+                  <input type="number" id="splitPeople" />
+                </div>
+              </div>
+              <button type="button" class="primary-btn full-width" id="splitCalcBtn">Split Bill</button>
+              <div class="calculator-result" id="splitResult"></div>
+            </div>
+
+            <!-- Simple stubs for Unit, Income Tax, Currency (UI only for now) -->
+            <div class="calculator-view hidden" data-calc-view="unit">
+              <p class="placeholder-text">Unit converter UI will come here. You can define pairs like km ↔ miles, kg ↔ lbs.</p>
+            </div>
+
+            <div class="calculator-view hidden" data-calc-view="incomeTax">
+              <p class="placeholder-text">Income tax calculator UI will come here based on your slabs.</p>
+            </div>
+
+            <div class="calculator-view hidden" data-calc-view="currency">
+              <p class="placeholder-text">Currency converter UI will come here. Add your own rates when you are ready.</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
     <!-- Standalone Settings Page -->

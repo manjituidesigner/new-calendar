@@ -622,6 +622,337 @@ const expensesBudgetAmountInput = document.getElementById("expensesBudgetAmount"
 const expensesWalletAmountInput = document.getElementById("expensesWalletAmount")
 const expensesPinInput = document.getElementById("expensesPin")
 
+// Calculator tab & page elements
+const calculatorListEl = document.getElementById("calculatorList")
+const calculatorTitleEl = document.getElementById("calculatorTitle")
+const calculatorViews = document.querySelectorAll('[data-calc-view]')
+const calculatorPage = document.getElementById("calculatorPage")
+const appShell = document.querySelector(".app-shell")
+
+function setActiveCalculator(key) {
+  if (!calculatorListEl || !calculatorTitleEl || !calculatorViews.length) return
+
+  const chips = calculatorListEl.querySelectorAll('.calculator-chip')
+  chips.forEach((chip) => {
+    const val = chip.getAttribute('data-calc')
+    if (val === key) {
+      chip.classList.add('active')
+    } else {
+      chip.classList.remove('active')
+    }
+  })
+
+  calculatorViews.forEach((view) => {
+    const val = view.getAttribute('data-calc-view')
+    if (val === key) {
+      view.classList.remove('hidden')
+    } else {
+      view.classList.add('hidden')
+    }
+  })
+
+  const activeChip = calculatorListEl.querySelector('.calculator-chip.active')
+  if (activeChip) {
+    calculatorTitleEl.textContent = activeChip.textContent || 'Calculator'
+  }
+}
+
+if (calculatorListEl && calculatorViews.length) {
+  calculatorListEl.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+    if (target.classList.contains('disabled')) return
+    const key = target.getAttribute('data-calc')
+    if (!key) return
+    setActiveCalculator(key)
+
+    // Update top header title to selected calculator name
+    const activeChip = target
+    if (appTitleEl && activeChip && activeChip.textContent) {
+      appTitleEl.textContent = activeChip.textContent
+    }
+    closeDrawer()
+    if (calculatorPage) {
+      // Hide main calendar-related sections and month bar, keep top header
+      document.querySelector('.calendar-card')?.classList.add('hidden')
+      document.querySelector('.month-header')?.classList.add('hidden')
+      document.getElementById('sessionBar')?.classList.add('hidden')
+      document.getElementById('officeStatsSection')?.classList.add('hidden')
+      document.getElementById('expensesStatsSection')?.classList.add('hidden')
+      document.getElementById('expensesCategorySection')?.classList.add('hidden')
+      document.getElementById('expensesPayeeSection')?.classList.add('hidden')
+      document.getElementById('clearMonthBtn')?.classList.add('hidden')
+      calculatorPage.classList.add('open')
+    }
+  })
+}
+
+// Calculator behaviours
+function formatCurrencyINR(value) {
+  if (!Number.isFinite(value)) return '—'
+  return '₹' + Math.round(value).toLocaleString('en-IN')
+}
+
+// Basic calculator (keypad)
+const basicDisplayEl = document.getElementById('basicDisplay')
+if (basicDisplayEl) {
+  let current = '0'
+  let stored = null
+  let op = null
+  let memory = 0
+  let overwrite = true
+
+  function updateDisplay() {
+    basicDisplayEl.textContent = current
+  }
+
+  function applyOp() {
+    if (op == null || stored == null) return
+    const a = Number(stored)
+    const b = Number(current)
+    let res = 0
+    if (op === '+') res = a + b
+    else if (op === '-') res = a - b
+    else if (op === '*') res = a * b
+    else if (op === '/') res = b === 0 ? NaN : a / b
+    current = Number.isFinite(res) ? String(res) : 'Error'
+    stored = null
+    op = null
+    overwrite = true
+  }
+
+  const buttons = document.querySelectorAll('.calculator-view[data-calc-view="basic"] .calc-btn')
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-key')
+      if (!key) return
+
+      if (key >= '0' && key <= '9') {
+        if (overwrite || current === '0') {
+          current = key
+        } else {
+          current += key
+        }
+        overwrite = false
+        updateDisplay()
+        return
+      }
+
+      if (key === '.') {
+        if (overwrite) {
+          current = '0.'
+        } else if (!current.includes('.')) {
+          current += '.'
+        }
+        overwrite = false
+        updateDisplay()
+        return
+      }
+
+      if (key === 'c') {
+        current = '0'
+        stored = null
+        op = null
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === 'ce') {
+        current = '0'
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === 'back') {
+        if (!overwrite && current.length > 1) {
+          current = current.slice(0, -1)
+        } else {
+          current = '0'
+          overwrite = true
+        }
+        updateDisplay()
+        return
+      }
+
+      if (key === 'neg') {
+        if (current.startsWith('-')) current = current.slice(1)
+        else if (current !== '0') current = '-' + current
+        updateDisplay()
+        return
+      }
+
+      if (key === 'percent') {
+        const v = Number(current) || 0
+        current = String(v / 100)
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === 'inv') {
+        const v = Number(current)
+        current = v === 0 ? 'Error' : String(1 / v)
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === 'sqr') {
+        const v = Number(current)
+        current = String(v * v)
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === 'sqrt') {
+        const v = Number(current)
+        current = v < 0 ? 'Error' : String(Math.sqrt(v))
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === 'mc') {
+        memory = 0
+        return
+      }
+      if (key === 'mr') {
+        current = String(memory)
+        overwrite = true
+        updateDisplay()
+        return
+      }
+      if (key === 'mplus') {
+        memory += Number(current) || 0
+        overwrite = true
+        return
+      }
+      if (key === 'mminus') {
+        memory -= Number(current) || 0
+        overwrite = true
+        return
+      }
+
+      if (key === '+' || key === '-' || key === '*' || key === '/') {
+        if (op && stored != null && !overwrite) {
+          applyOp()
+        }
+        stored = current
+        op = key
+        overwrite = true
+        updateDisplay()
+        return
+      }
+
+      if (key === '=') {
+        applyOp()
+        updateDisplay()
+      }
+    })
+  })
+}
+
+// EMI calculator
+const emiAmountInput = document.getElementById('emiAmount')
+const emiRateInput = document.getElementById('emiRate')
+const emiMonthsInput = document.getElementById('emiMonths')
+const emiResultEl = document.getElementById('emiResult')
+const emiCalcBtn = document.getElementById('emiCalcBtn')
+if (emiCalcBtn && emiAmountInput && emiRateInput && emiMonthsInput && emiResultEl) {
+  emiCalcBtn.addEventListener('click', () => {
+    const P = Number(emiAmountInput.value) || 0
+    const annualRate = Number(emiRateInput.value) || 0
+    const n = Number(emiMonthsInput.value) || 0
+    if (!P || !annualRate || !n) {
+      emiResultEl.textContent = 'Enter amount, interest and months.'
+      return
+    }
+    const r = annualRate / 12 / 100
+    const factor = Math.pow(1 + r, n)
+    const emi = (P * r * factor) / (factor - 1)
+    const totalPay = emi * n
+    const interest = totalPay - P
+    emiResultEl.textContent = `EMI: ${formatCurrencyINR(emi)} · Total Interest: ${formatCurrencyINR(interest)} · Total Payable: ${formatCurrencyINR(totalPay)}`
+  })
+}
+
+// Gold calculator
+const goldGramsInput = document.getElementById('goldGrams')
+const goldRateInput = document.getElementById('goldRate')
+const goldResultEl = document.getElementById('goldResult')
+const goldCalcBtn = document.getElementById('goldCalcBtn')
+if (goldCalcBtn && goldGramsInput && goldRateInput && goldResultEl) {
+  goldCalcBtn.addEventListener('click', () => {
+    const g = Number(goldGramsInput.value) || 0
+    const rate = Number(goldRateInput.value) || 0
+    if (!g || !rate) {
+      goldResultEl.textContent = 'Enter both grams and rate.'
+      return
+    }
+    const value = g * rate
+    goldResultEl.textContent = `Estimated value: ${formatCurrencyINR(value)}`
+  })
+}
+
+// GST calculator
+const gstBaseInput = document.getElementById('gstBase')
+const gstRateInput = document.getElementById('gstRate')
+const gstResultEl = document.getElementById('gstResult')
+const gstCalcBtn = document.getElementById('gstCalcBtn')
+if (gstCalcBtn && gstBaseInput && gstRateInput && gstResultEl) {
+  gstCalcBtn.addEventListener('click', () => {
+    const base = Number(gstBaseInput.value) || 0
+    const rate = Number(gstRateInput.value) || 0
+    if (!base || !rate) {
+      gstResultEl.textContent = 'Enter amount and GST %.'
+      return
+    }
+    const gst = (base * rate) / 100
+    const total = base + gst
+    gstResultEl.textContent = `GST: ${formatCurrencyINR(gst)} · Total with GST: ${formatCurrencyINR(total)}`
+  })
+}
+
+// Discount calculator
+const discOriginalInput = document.getElementById('discOriginal')
+const discPercentInput = document.getElementById('discPercent')
+const discResultEl = document.getElementById('discResult')
+const discCalcBtn = document.getElementById('discCalcBtn')
+if (discCalcBtn && discOriginalInput && discPercentInput && discResultEl) {
+  discCalcBtn.addEventListener('click', () => {
+    const original = Number(discOriginalInput.value) || 0
+    const pct = Number(discPercentInput.value) || 0
+    if (!original || !pct) {
+      discResultEl.textContent = 'Enter price and discount %.'
+      return
+    }
+    const discount = (original * pct) / 100
+    const finalPrice = original - discount
+    discResultEl.textContent = `You save ${formatCurrencyINR(discount)} · Final price: ${formatCurrencyINR(finalPrice)}`
+  })
+}
+
+// Split bill calculator
+const splitTotalInput = document.getElementById('splitTotal')
+const splitPeopleInput = document.getElementById('splitPeople')
+const splitResultEl = document.getElementById('splitResult')
+const splitCalcBtn = document.getElementById('splitCalcBtn')
+if (splitCalcBtn && splitTotalInput && splitPeopleInput && splitResultEl) {
+  splitCalcBtn.addEventListener('click', () => {
+    const total = Number(splitTotalInput.value) || 0
+    const people = Number(splitPeopleInput.value) || 0
+    if (!total || !people) {
+      splitResultEl.textContent = 'Enter bill amount and number of people.'
+      return
+    }
+    const share = total / people
+    splitResultEl.textContent = `Each person pays: ${formatCurrencyINR(share)}`
+  })
+}
+
 if (createExpensesCalendarToggle && expensesCalendarForm) {
   createExpensesCalendarToggle.setAttribute("type", "button")
 
