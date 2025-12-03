@@ -136,6 +136,18 @@ const deleteConfirmBtn = document.getElementById("deleteConfirmBtn")
 const deleteCalendarName = document.getElementById("deleteCalendarName")
 let pendingDeleteCalendarType = "office" // "office" | "expenses"
 
+// Expenses entry delete modal elements
+const expenseEntryDeleteModal = document.getElementById("expenseEntryDeleteModal")
+const expenseEntryDeleteCloseBtn = document.getElementById("expenseEntryDeleteCloseBtn")
+const expenseEntryDeleteCancelBtn = document.getElementById("expenseEntryDeleteCancelBtn")
+const expenseEntryDeleteConfirmBtn = document.getElementById("expenseEntryDeleteConfirmBtn")
+const expenseEntryDeleteLabel = document.getElementById("expenseEntryDeleteLabel")
+const expenseEntryDeleteMessage = document.getElementById("expenseEntryDeleteMessage")
+let pendingDeleteExpenseType = null // "single" | "group"
+let pendingDeleteExpenseKey = null
+let pendingDeleteExpenseEntryId = null
+let pendingDeleteExpensePayee = ""
+
 const clearMonthBtn = document.getElementById("clearMonthBtn")
 const clearMonthModal = document.getElementById("clearMonthModal")
 const clearMonthCloseBtn = document.getElementById("clearMonthCloseBtn")
@@ -2090,8 +2102,7 @@ function renderExpensesSummary() {
   let paidTotal = 0
   let pendingTotal = 0
 
-  // For table: group by payee, then date-wise rows within each payee, using
-  // all entries stored for that date.
+  // For UI: group by payee, then date-wise rows within each payee.
   const payeeRowsMap = new Map()
 
   if (cal.days) {
@@ -2178,73 +2189,117 @@ function renderExpensesSummary() {
         return 0
       })
 
-      // Group header row for this payee with a single View button
-      const headerTr = document.createElement("tr")
-      headerTr.className = "payee-group-header"
-      const headerTd = document.createElement("td")
-      headerTd.colSpan = 6
+      // Card container for this payee
+      const card = document.createElement("div")
+      card.className = "payee-card"
 
-      // Inner flex container so View button can sit at far right
-      const headerContainer = document.createElement("div")
-      headerContainer.style.display = "flex"
-      headerContainer.style.alignItems = "center"
-      headerContainer.style.width = "100%"
+      const header = document.createElement("div")
+      header.className = "payee-card-header"
 
-      const headerLabel = document.createElement("span")
-      headerLabel.textContent = payeeName
+      const titleWrap = document.createElement("div")
+      titleWrap.className = "payee-card-title"
 
-      const headerViewBtn = document.createElement("button")
-      headerViewBtn.textContent = "View"
-      headerViewBtn.className = "small-btn"
-      headerViewBtn.style.marginLeft = "auto"
-      headerViewBtn.addEventListener("click", () => {
+      const nameEl = document.createElement("div")
+      nameEl.className = "payee-card-name"
+      nameEl.textContent = payeeName
+
+      const subtitleEl = document.createElement("div")
+      subtitleEl.className = "payee-card-subtitle"
+      const payeeTotal = list.reduce((sum, r) => sum + (Number(r.total) || 0), 0)
+      subtitleEl.textContent = `Total: ₹${payeeTotal}`
+
+      titleWrap.appendChild(nameEl)
+      titleWrap.appendChild(subtitleEl)
+
+      const actions = document.createElement("div")
+      actions.className = "payee-card-actions"
+
+      const viewBtn = document.createElement("button")
+      viewBtn.className = "payee-card-icon-btn view"
+      viewBtn.textContent = "👁"
+      viewBtn.addEventListener("click", () => {
         openPayeeReport(payeeName)
       })
 
-      headerContainer.appendChild(headerLabel)
-      headerContainer.appendChild(headerViewBtn)
-      headerTd.appendChild(headerContainer)
-      headerTr.appendChild(headerTd)
-      expensesPayeeTableBody.appendChild(headerTr)
+      const deleteBtnGroup = document.createElement("button")
+      deleteBtnGroup.className = "payee-card-icon-btn delete"
+      deleteBtnGroup.textContent = "🗑"
+      deleteBtnGroup.addEventListener("click", () => {
+        openExpenseEntryDeleteModal({ type: "group", payeeName })
+      })
 
-      // Date-wise item rows under this payee
+      actions.appendChild(viewBtn)
+      actions.appendChild(deleteBtnGroup)
+
+      header.appendChild(titleWrap)
+      header.appendChild(actions)
+
+      const listWrap = document.createElement("div")
+      listWrap.className = "payee-card-list"
+
       list.forEach((row) => {
-        const tr = document.createElement("tr")
-        const dateTd = document.createElement("td")
-        const nameTd = document.createElement("td")
-        const statusTd = document.createElement("td")
-        const amtTd = document.createElement("td")
-        const editTd = document.createElement("td")
-        const viewTd = document.createElement("td")
-        const editBtn = document.createElement("button")
+        const rowEl = document.createElement("div")
+        rowEl.className = "payee-card-row"
 
-        dateTd.textContent = row.dateLabel
-        nameTd.textContent = "" // payee name shown in group header
+        const main = document.createElement("div")
+        main.className = "payee-card-row-main"
 
-        let statusLabel = "Paid"
+        const dateEl = document.createElement("div")
+        dateEl.className = "payee-card-date"
+        dateEl.textContent = row.dateLabel
+
+        const statusPill = document.createElement("div")
+        statusPill.className = "payee-card-status-pill"
         if (row.status === "pending") {
-          statusLabel = "Pending"
+          statusPill.classList.add("pending")
+          statusPill.textContent = "Pending"
+        } else {
+          statusPill.classList.add("paid")
+          statusPill.textContent = "Paid"
         }
-        statusTd.textContent = statusLabel
 
-        amtTd.textContent = `₹${row.total}`
+        const amountEl = document.createElement("div")
+        amountEl.className = "payee-card-amount"
+        amountEl.textContent = `₹${row.total}`
 
-        // Edit button: open this exact date+entry in edit mode
-        editBtn.textContent = "Edit"
-        editBtn.className = "small-btn"
+        main.appendChild(dateEl)
+        main.appendChild(statusPill)
+        main.appendChild(amountEl)
+
+        const rowActions = document.createElement("div")
+        rowActions.className = "payee-card-row-actions"
+
+        const editBtn = document.createElement("button")
+        editBtn.className = "payee-card-icon-btn edit"
+        editBtn.textContent = "✏"
         editBtn.addEventListener("click", () => {
           openExpensesModalForKey(row.key, row.entryId)
         })
-        editTd.appendChild(editBtn)
 
-        tr.appendChild(dateTd)
-        tr.appendChild(nameTd)
-        tr.appendChild(statusTd)
-        tr.appendChild(amtTd)
-        tr.appendChild(editTd)
-        tr.appendChild(viewTd) // empty: group header holds the View button
-        expensesPayeeTableBody.appendChild(tr)
+        const deleteBtnSingle = document.createElement("button")
+        deleteBtnSingle.className = "payee-card-icon-btn delete"
+        deleteBtnSingle.textContent = "🗑"
+        deleteBtnSingle.addEventListener("click", () => {
+          openExpenseEntryDeleteModal({
+            type: "single",
+            key: row.key,
+            entryId: row.entryId,
+            payeeName,
+            dateLabel: row.dateLabel,
+          })
+        })
+
+        rowActions.appendChild(editBtn)
+        rowActions.appendChild(deleteBtnSingle)
+
+        rowEl.appendChild(main)
+        rowEl.appendChild(rowActions)
+        listWrap.appendChild(rowEl)
       })
+
+      card.appendChild(header)
+      card.appendChild(listWrap)
+      expensesPayeeTableBody.appendChild(card)
     })
   }
 }
@@ -4118,6 +4173,128 @@ deleteConfirmBtn.addEventListener("click", () => {
   }
   closeDeleteModal()
 })
+
+function openExpenseEntryDeleteModal(config) {
+  if (!expenseEntryDeleteModal || !overlay) return
+
+  const { type, key, entryId, payeeName, dateLabel } = config || {}
+  pendingDeleteExpenseType = type === "group" ? "group" : "single"
+  pendingDeleteExpenseKey = key || null
+  pendingDeleteExpenseEntryId = entryId || null
+  pendingDeleteExpensePayee = payeeName || ""
+
+  if (expenseEntryDeleteLabel) {
+    if (pendingDeleteExpenseType === "group") {
+      expenseEntryDeleteLabel.textContent = payeeName || ""
+    } else {
+      const labelParts = []
+      if (dateLabel) labelParts.push(dateLabel)
+      if (payeeName) labelParts.push(payeeName)
+      expenseEntryDeleteLabel.textContent = labelParts.join(" - ")
+    }
+  }
+
+  if (expenseEntryDeleteMessage) {
+    if (pendingDeleteExpenseType === "group") {
+      expenseEntryDeleteMessage.textContent =
+        "Are you sure you want to delete all expenses for this payee in this month?"
+    } else {
+      expenseEntryDeleteMessage.textContent =
+        "Are you sure you want to delete this expense entry?"
+    }
+  }
+
+  expenseEntryDeleteModal.classList.add("open")
+  overlay.classList.add("active")
+}
+
+function closeExpenseEntryDeleteModal() {
+  if (!expenseEntryDeleteModal || !overlay) return
+  expenseEntryDeleteModal.classList.remove("open")
+  overlay.classList.remove("active")
+  pendingDeleteExpenseType = null
+  pendingDeleteExpenseKey = null
+  pendingDeleteExpenseEntryId = null
+  pendingDeleteExpensePayee = ""
+}
+
+if (expenseEntryDeleteCloseBtn) {
+  expenseEntryDeleteCloseBtn.addEventListener("click", closeExpenseEntryDeleteModal)
+}
+if (expenseEntryDeleteCancelBtn) {
+  expenseEntryDeleteCancelBtn.addEventListener("click", closeExpenseEntryDeleteModal)
+}
+
+if (expenseEntryDeleteConfirmBtn) {
+  expenseEntryDeleteConfirmBtn.addEventListener("click", () => {
+    const cal = getActiveExpensesCalendar()
+    if (!cal) {
+      closeExpenseEntryDeleteModal()
+      return
+    }
+
+    if (pendingDeleteExpenseType === "single" && pendingDeleteExpenseKey && pendingDeleteExpenseEntryId) {
+      const day = normalizeExpensesDay(cal, pendingDeleteExpenseKey)
+      if (Array.isArray(day.entries) && day.entries.length) {
+        day.entries = day.entries.filter((e) => e.id !== pendingDeleteExpenseEntryId)
+
+        if (!day.entries.length) {
+          delete cal.days[pendingDeleteExpenseKey]
+        } else {
+          let dayTotal = 0
+          let anyPending = false
+          day.entries.forEach((e) => {
+            const t = Number(e.total) || 0
+            dayTotal += t
+            if (e.paymentStatus === "pending") anyPending = true
+          })
+          day.total = dayTotal
+          day.paymentStatus = anyPending ? "pending" : "paid"
+        }
+      }
+    } else if (pendingDeleteExpenseType === "group" && pendingDeleteExpensePayee) {
+      const year = currentDate.getFullYear()
+      const month = currentDate.getMonth()
+
+      if (cal.days) {
+        Object.entries(cal.days).forEach(([key, value]) => {
+          const [yStr, mStr] = key.split("-")
+          const y = Number(yStr)
+          const m = Number(mStr) - 1
+          if (Number.isNaN(y) || Number.isNaN(m)) return
+          if (y !== year || m !== month) return
+
+          const day = normalizeExpensesDay(cal, key)
+          if (!Array.isArray(day.entries) || !day.entries.length) return
+
+          day.entries = day.entries.filter((e) => {
+            const name = (e.payeeName || "Unknown").trim() || "Unknown"
+            return name !== pendingDeleteExpensePayee
+          })
+
+          if (!day.entries.length) {
+            delete cal.days[key]
+          } else {
+            let dayTotal = 0
+            let anyPending = false
+            day.entries.forEach((e) => {
+              const t = Number(e.total) || 0
+              dayTotal += t
+              if (e.paymentStatus === "pending") anyPending = true
+            })
+            day.total = dayTotal
+            day.paymentStatus = anyPending ? "pending" : "paid"
+          }
+        })
+      }
+    }
+
+    saveExpensesCalendars()
+    renderExpensesSummary()
+    renderCalendar()
+    closeExpenseEntryDeleteModal()
+  })
+}
 
 function openClearMonthModal() {
   const isExpensesMode = activeMode === "expenses"
