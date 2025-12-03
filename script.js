@@ -389,6 +389,63 @@ function renderExpensesCategorySummary(cal) {
     })
   }
 
+  // Build simple pie view (static circle + legend)
+  const pieWrapper = document.getElementById("expCategoryPieWrapper")
+  if (pieWrapper) {
+    pieWrapper.innerHTML = ""
+
+    const totalAmount = entries.reduce((sum, [, amount]) => sum + amount, 0)
+    if (!entries.length || !totalAmount) {
+      const span = document.createElement("span")
+      span.className = "placeholder-text"
+      span.textContent = "No expenses recorded for this month."
+      pieWrapper.appendChild(span)
+    } else {
+      const pie = document.createElement("div")
+      pie.className = "exp-category-pie"
+
+      const circle = document.createElement("div")
+      circle.className = "exp-category-pie-circle"
+
+      const legend = document.createElement("div")
+      legend.className = "exp-category-pie-legend"
+
+      const colors = ["#22c55e", "#3b82f6", "#f97316", "#ef4444", "#a855f7"]
+
+      entries.forEach(([name, amount], idx) => {
+        const row = document.createElement("div")
+        row.className = "exp-category-pie-legend-row"
+
+        const left = document.createElement("div")
+        left.style.display = "flex"
+        left.style.alignItems = "center"
+        left.style.gap = "4px"
+
+        const dot = document.createElement("span")
+        dot.className = "exp-category-pie-dot"
+        dot.style.backgroundColor = colors[idx % colors.length]
+
+        const nameEl = document.createElement("span")
+        nameEl.textContent = name
+
+        left.appendChild(dot)
+        left.appendChild(nameEl)
+
+        const right = document.createElement("span")
+        const pct = totalAmount ? Math.round((amount / totalAmount) * 100) : 0
+        right.textContent = `${pct}% (₹${Math.round(amount)})`
+
+        row.appendChild(left)
+        row.appendChild(right)
+        legend.appendChild(row)
+      })
+
+      pie.appendChild(circle)
+      pie.appendChild(legend)
+      pieWrapper.appendChild(pie)
+    }
+  }
+
   expensesCategorySection.classList.remove("hidden")
 }
 
@@ -585,6 +642,12 @@ const expensesCategorySection = document.getElementById("expensesCategorySection
 const expCategoryMonthLabel = document.getElementById("expCategoryMonthLabel")
 const expCategoryList = document.getElementById("expCategoryList")
 const expCategoryTableBody = document.getElementById("expCategoryTableBody")
+const expCategoryBarView = document.getElementById("expCategoryBarView")
+const expCategoryPieView = document.getElementById("expCategoryPieView")
+const expCategoryTableView = document.getElementById("expCategoryTableView")
+const expCategoryBarBtn = document.getElementById("expCategoryBarBtn")
+const expCategoryPieBtn = document.getElementById("expCategoryPieBtn")
+const expCategoryTableBtn = document.getElementById("expCategoryTableBtn")
 const expReportPaid = document.getElementById("expReportPaid")
 const expReportPending = document.getElementById("expReportPending")
 const expReportCarryLabel = document.getElementById("expReportCarryLabel")
@@ -3944,19 +4007,46 @@ function openExpensesReport() {
         spans.push(timeSpan)
         const payeeSpan = document.createElement("span")
         payeeSpan.textContent = row.payeeName
+        payeeSpan.className = "expenses-report-payee"
         spans.push(payeeSpan)
         const itemSpan = document.createElement("span")
         itemSpan.textContent = row.itemName || "-"
+        itemSpan.className = "expenses-report-item"
         spans.push(itemSpan)
         spans.forEach((s) => main.appendChild(s))
 
         const meta = document.createElement("div")
         meta.className = "expenses-report-meta"
         const metaParts = []
-        if (row.qty) metaParts.push(`Qty: ${row.qty}`)
-        if (row.category) metaParts.push(row.category)
-        if (row.subCategory) metaParts.push(row.subCategory)
-        meta.textContent = metaParts.join(" • ")
+
+        if (row.qty) {
+          const qtySpan = document.createElement("span")
+          qtySpan.textContent = `Qty: ${row.qty}`
+          metaParts.push(qtySpan)
+        }
+
+        if (row.category) {
+          const catSpan = document.createElement("span")
+          catSpan.textContent = row.category
+          catSpan.className = "expenses-report-category"
+          metaParts.push(catSpan)
+        }
+
+        if (row.subCategory) {
+          const subCatSpan = document.createElement("span")
+          subCatSpan.textContent = row.subCategory
+          subCatSpan.className = "expenses-report-subcategory"
+          metaParts.push(subCatSpan)
+        }
+
+        metaParts.forEach((part, index) => {
+          if (index > 0) {
+            const sep = document.createElement("span")
+            sep.textContent = " • "
+            meta.appendChild(sep)
+          }
+          meta.appendChild(part)
+        })
 
         left.appendChild(main)
         if (metaParts.length) left.appendChild(meta)
@@ -4039,6 +4129,36 @@ if (reportCloseBtn) {
 
 if (expensesReportCloseBtn) {
   expensesReportCloseBtn.addEventListener("click", closeExpensesReport)
+}
+
+function setExpCategoryView(view) {
+  if (!expCategoryBarView || !expCategoryPieView || !expCategoryTableView) return
+
+  expCategoryBarView.classList.add("hidden")
+  expCategoryPieView.classList.add("hidden")
+  expCategoryTableView.classList.add("hidden")
+
+  if (view === "bar") {
+    expCategoryBarView.classList.remove("hidden")
+  } else if (view === "pie") {
+    expCategoryPieView.classList.remove("hidden")
+  } else if (view === "table") {
+    expCategoryTableView.classList.remove("hidden")
+  }
+
+  if (expCategoryBarBtn) expCategoryBarBtn.classList.toggle("active", view === "bar")
+  if (expCategoryPieBtn) expCategoryPieBtn.classList.toggle("active", view === "pie")
+  if (expCategoryTableBtn) expCategoryTableBtn.classList.toggle("active", view === "table")
+}
+
+if (expCategoryBarBtn) {
+  expCategoryBarBtn.addEventListener("click", () => setExpCategoryView("bar"))
+}
+if (expCategoryPieBtn) {
+  expCategoryPieBtn.addEventListener("click", () => setExpCategoryView("pie"))
+}
+if (expCategoryTableBtn) {
+  expCategoryTableBtn.addEventListener("click", () => setExpCategoryView("table"))
 }
 
 // Download PDF: rely on browser print dialog (user can save as PDF)
