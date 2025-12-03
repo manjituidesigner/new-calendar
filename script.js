@@ -682,6 +682,13 @@ if (calculatorListEl && calculatorViews.length) {
       document.getElementById('expensesCategorySection')?.classList.add('hidden')
       document.getElementById('expensesPayeeSection')?.classList.add('hidden')
       document.getElementById('clearMonthBtn')?.classList.add('hidden')
+      // Extra safety: ensure the correct calculator view is visible
+      const basicView = document.querySelector('[data-calc-view="basic"]')
+      const emiView = document.querySelector('[data-calc-view="emi"]')
+      if (key === 'emi' && emiView) {
+        emiView.classList.remove('hidden')
+        if (basicView) basicView.classList.add('hidden')
+      }
       calculatorPage.classList.add('open')
     }
   })
@@ -855,19 +862,76 @@ if (basicDisplayEl) {
   })
 }
 
-// EMI calculator
+// EMI calculator (sliders + tabs)
 const emiAmountInput = document.getElementById('emiAmount')
+const emiAmountRange = document.getElementById('emiAmountRange')
 const emiRateInput = document.getElementById('emiRate')
-const emiMonthsInput = document.getElementById('emiMonths')
-const emiResultEl = document.getElementById('emiResult')
-const emiCalcBtn = document.getElementById('emiCalcBtn')
-if (emiCalcBtn && emiAmountInput && emiRateInput && emiMonthsInput && emiResultEl) {
-  emiCalcBtn.addEventListener('click', () => {
+const emiRateRange = document.getElementById('emiRateRange')
+const emiTenureInput = document.getElementById('emiTenure')
+const emiTenureRange = document.getElementById('emiTenureRange')
+const emiTenureToggle = document.getElementById('emiTenureToggle')
+const emiLoanTabs = document.getElementById('emiLoanTabs')
+const emiEmiValueEl = document.getElementById('emiEmiValue')
+const emiInterestValueEl = document.getElementById('emiInterestValue')
+const emiTotalValueEl = document.getElementById('emiTotalValue')
+const emiPrincipalPctEl = document.getElementById('emiPrincipalPct')
+const emiInterestPctEl = document.getElementById('emiInterestPct')
+const emiChartPieEl = document.querySelector('.emi-chart-pie')
+
+if (
+  emiAmountInput &&
+  emiAmountRange &&
+  emiRateInput &&
+  emiRateRange &&
+  emiTenureInput &&
+  emiTenureRange &&
+  emiTenureToggle &&
+  emiEmiValueEl &&
+  emiInterestValueEl &&
+  emiTotalValueEl &&
+  emiPrincipalPctEl &&
+  emiInterestPctEl &&
+  emiChartPieEl
+) {
+  let emiUnit = 'years' // 'years' or 'months'
+
+  const loanPresets = {
+    home: { amount: 2500000, rate: 8.5, years: 20 },
+    personal: { amount: 500000, rate: 12.5, years: 5 },
+    car: { amount: 800000, rate: 9.5, years: 7 },
+  }
+
+  function applyPreset(type) {
+    const p = loanPresets[type] || loanPresets.home
+    emiAmountRange.value = String(p.amount)
+    emiAmountInput.value = String(p.amount)
+    emiRateRange.value = String(p.rate)
+    emiRateInput.value = String(p.rate)
+    emiTenureRange.max = emiUnit === 'years' ? 30 : 360
+    const tenureVal = emiUnit === 'years' ? p.years : p.years * 12
+    emiTenureRange.value = String(tenureVal)
+    emiTenureInput.value = String(tenureVal)
+    recalcEmi()
+  }
+
+  function getTenureMonths() {
+    const raw = Number(emiTenureInput.value) || 0
+    if (emiUnit === 'years') return raw * 12
+    return raw
+  }
+
+  function recalcEmi() {
     const P = Number(emiAmountInput.value) || 0
     const annualRate = Number(emiRateInput.value) || 0
-    const n = Number(emiMonthsInput.value) || 0
+    const n = getTenureMonths()
     if (!P || !annualRate || !n) {
-      emiResultEl.textContent = 'Enter amount, interest and months.'
+      emiEmiValueEl.textContent = '₹0'
+      emiInterestValueEl.textContent = '₹0'
+      emiTotalValueEl.textContent = '₹0'
+      emiPrincipalPctEl.textContent = '0%'
+      emiInterestPctEl.textContent = '0%'
+      emiChartPieEl.style.background =
+        'conic-gradient(var(--accent-green) 0deg, var(--accent-green) 180deg, var(--accent-orange) 180deg, var(--accent-orange) 360deg)'
       return
     }
     const r = annualRate / 12 / 100
@@ -875,8 +939,106 @@ if (emiCalcBtn && emiAmountInput && emiRateInput && emiMonthsInput && emiResultE
     const emi = (P * r * factor) / (factor - 1)
     const totalPay = emi * n
     const interest = totalPay - P
-    emiResultEl.textContent = `EMI: ${formatCurrencyINR(emi)} · Total Interest: ${formatCurrencyINR(interest)} · Total Payable: ${formatCurrencyINR(totalPay)}`
+
+    emiEmiValueEl.textContent = formatCurrencyINR(emi)
+    emiInterestValueEl.textContent = formatCurrencyINR(interest)
+    emiTotalValueEl.textContent = formatCurrencyINR(totalPay)
+
+    const principalPct = (P / totalPay) * 100
+    const interestPct = 100 - principalPct
+    const pRounded = Math.round(principalPct)
+    const iRounded = 100 - pRounded
+    emiPrincipalPctEl.textContent = `${pRounded}%`
+    emiInterestPctEl.textContent = `${iRounded}%`
+
+    const principalDeg = (principalPct / 100) * 360
+    emiChartPieEl.style.background = `conic-gradient(var(--accent-green) 0deg, var(--accent-green) ${principalDeg}deg, var(--accent-orange) ${principalDeg}deg, var(--accent-orange) 360deg)`
+  }
+
+  // Sync inputs and ranges
+  emiAmountRange.addEventListener('input', () => {
+    emiAmountInput.value = emiAmountRange.value
+    recalcEmi()
   })
+  emiAmountInput.addEventListener('input', () => {
+    const v = Number(emiAmountInput.value) || 0
+    const clamped = Math.min(Math.max(v, Number(emiAmountRange.min)), Number(emiAmountRange.max))
+    emiAmountInput.value = String(clamped)
+    emiAmountRange.value = String(clamped)
+    recalcEmi()
+  })
+
+  emiRateRange.addEventListener('input', () => {
+    emiRateInput.value = emiRateRange.value
+    recalcEmi()
+  })
+  emiRateInput.addEventListener('input', () => {
+    const v = Number(emiRateInput.value) || 0
+    const clamped = Math.min(Math.max(v, Number(emiRateRange.min)), Number(emiRateRange.max))
+    emiRateInput.value = String(clamped)
+    emiRateRange.value = String(clamped)
+    recalcEmi()
+  })
+
+  emiTenureRange.addEventListener('input', () => {
+    emiTenureInput.value = emiTenureRange.value
+    recalcEmi()
+  })
+  emiTenureInput.addEventListener('input', () => {
+    const maxVal = emiUnit === 'years' ? Number(emiTenureRange.max) : Number(emiTenureRange.max)
+    const v = Number(emiTenureInput.value) || 0
+    const clamped = Math.min(Math.max(v, Number(emiTenureRange.min)), maxVal)
+    emiTenureInput.value = String(clamped)
+    emiTenureRange.value = String(clamped)
+    recalcEmi()
+  })
+
+  // Tenure toggle
+  emiTenureToggle.addEventListener('click', (e) => {
+    const btn = e.target
+    if (!(btn instanceof HTMLElement)) return
+    const unit = btn.getAttribute('data-unit')
+    if (!unit || (unit !== 'years' && unit !== 'months')) return
+    if (unit === emiUnit) return
+    emiUnit = unit
+    Array.from(emiTenureToggle.querySelectorAll('button')).forEach((b) => {
+      if (b.getAttribute('data-unit') === unit) b.classList.add('active')
+      else b.classList.remove('active')
+    })
+
+    // Convert existing value
+    let val = Number(emiTenureInput.value) || 0
+    if (unit === 'years') {
+      val = Math.max(1, Math.round(val / 12))
+      emiTenureRange.min = '1'
+      emiTenureRange.max = '30'
+    } else {
+      val = Math.max(12, Math.round(val * 12))
+      emiTenureRange.min = '12'
+      emiTenureRange.max = '360'
+    }
+    emiTenureInput.value = String(val)
+    emiTenureRange.value = String(val)
+    recalcEmi()
+  })
+
+  // Loan type tabs
+  if (emiLoanTabs) {
+    emiLoanTabs.addEventListener('click', (e) => {
+      const btn = e.target
+      if (!(btn instanceof HTMLElement)) return
+      if (!btn.classList.contains('emi-tab')) return
+      const type = btn.getAttribute('data-loan-type') || 'home'
+      Array.from(emiLoanTabs.querySelectorAll('.emi-tab')).forEach((tab) => {
+        if (tab === btn) tab.classList.add('active')
+        else tab.classList.remove('active')
+      })
+      applyPreset(type)
+    })
+  }
+
+  // Initial preset
+  applyPreset('home')
 }
 
 // Gold calculator

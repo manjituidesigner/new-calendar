@@ -434,24 +434,119 @@
               </div>
             </div>
 
-            <!-- EMI Calculator (simple monthly EMI) -->
+            <!-- EMI Calculator -->
             <div class="calculator-view hidden" data-calc-view="emi">
-              <div class="field">
-                <label>Loan Amount</label>
-                <input type="number" id="emiAmount" placeholder="₹" />
+              <div class="emi-tabs" id="emiLoanTabs">
+                <button class="emi-tab active" data-loan-type="home">Home Loan</button>
+                <button class="emi-tab" data-loan-type="personal">Personal Loan</button>
+                <button class="emi-tab" data-loan-type="car">Car Loan</button>
               </div>
-              <div class="field-row">
-                <div class="field">
-                  <label>Annual Interest %</label>
-                  <input type="number" id="emiRate" step="0.01" />
+
+              <div class="emi-layout">
+                <div class="emi-left">
+                  <!-- Amount -->
+                  <div class="emi-field">
+                    <div class="emi-field-label-row">
+                      <label>Loan Amount</label>
+                      <div class="emi-value-input">
+                        <span class="emi-prefix">₹</span>
+                        <input type="number" id="emiAmount" />
+                      </div>
+                    </div>
+                    <div class="emi-slider-row">
+                      <input type="range" id="emiAmountRange" min="100000" max="20000000" step="10000" />
+                    </div>
+                    <div class="emi-scale-row">
+                      <span>1L</span>
+                      <span>50L</span>
+                      <span>1Cr</span>
+                      <span>2Cr</span>
+                    </div>
+                  </div>
+
+                  <!-- Interest Rate -->
+                  <div class="emi-field">
+                    <div class="emi-field-label-row">
+                      <label>Interest Rate</label>
+                      <div class="emi-value-input">
+                        <input type="number" id="emiRate" step="0.1" />
+                        <span class="emi-suffix">%</span>
+                      </div>
+                    </div>
+                    <div class="emi-slider-row">
+                      <input type="range" id="emiRateRange" min="5" max="20" step="0.1" />
+                    </div>
+                    <div class="emi-scale-row">
+                      <span>5%</span>
+                      <span>10%</span>
+                      <span>15%</span>
+                      <span>20%</span>
+                    </div>
+                  </div>
+
+                  <!-- Tenure -->
+                  <div class="emi-field">
+                    <div class="emi-field-label-row">
+                      <label>Loan Tenure</label>
+                      <div class="emi-tenure-input-group">
+                        <input type="number" id="emiTenure" />
+                        <div class="emi-tenure-toggle" id="emiTenureToggle">
+                          <button type="button" data-unit="years" class="active">Yr</button>
+                          <button type="button" data-unit="months">Mo</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="emi-slider-row">
+                      <input type="range" id="emiTenureRange" min="1" max="30" step="1" />
+                    </div>
+                    <div class="emi-scale-row">
+                      <span>1</span>
+                      <span>10</span>
+                      <span>20</span>
+                      <span>30</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="field">
-                  <label>Tenure (months)</label>
-                  <input type="number" id="emiMonths" />
+
+                <div class="emi-right">
+                  <div class="emi-results-grid">
+                    <div class="emi-result-card">
+                      <span class="emi-result-label">Loan EMI</span>
+                      <span class="emi-result-value" id="emiEmiValue">₹0</span>
+                    </div>
+                    <div class="emi-result-card">
+                      <span class="emi-result-label">Total Interest Payable</span>
+                      <span class="emi-result-value" id="emiInterestValue">₹0</span>
+                    </div>
+                    <div class="emi-result-card">
+                      <span class="emi-result-label">Total Payment (Principal + Interest)</span>
+                      <span class="emi-result-value" id="emiTotalValue">₹0</span>
+                    </div>
+                  </div>
+
+                  <div class="emi-chart-card">
+                    <span class="emi-chart-title">Break-up of Total Payment</span>
+                    <div class="emi-chart-wrapper">
+                      <div class="emi-chart-pie">
+                        <div class="emi-chart-slice emi-chart-principal" id="emiChartPrincipal"></div>
+                        <div class="emi-chart-slice emi-chart-interest" id="emiChartInterest"></div>
+                      </div>
+                      <div class="emi-chart-legend">
+                        <div class="emi-legend-item">
+                          <span class="emi-legend-dot principal"></span>
+                          <span>Principal</span>
+                          <span class="emi-legend-value" id="emiPrincipalPct">0%</span>
+                        </div>
+                        <div class="emi-legend-item">
+                          <span class="emi-legend-dot interest"></span>
+                          <span>Interest</span>
+                          <span class="emi-legend-value" id="emiInterestPct">0%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button type="button" class="primary-btn full-width" id="emiCalcBtn">Calculate EMI</button>
-              <div class="calculator-result" id="emiResult"></div>
             </div>
 
             <!-- Gold Calculator (value by grams & rate) -->
