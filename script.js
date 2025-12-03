@@ -590,6 +590,7 @@ const expReportPending = document.getElementById("expReportPending")
 const expReportCarryLabel = document.getElementById("expReportCarryLabel")
 const expReportCarryValue = document.getElementById("expReportCarryValue")
 const expensesReportTableBody = document.getElementById("expensesReportTableBody")
+const expensesReportCards = document.getElementById("expensesReportCards")
 const expensesReportDownloadBtn = document.getElementById("expensesReportDownloadBtn")
 const expensesReportShareBtn = document.getElementById("expensesReportShareBtn")
 const endReminderSnoozeButtons = document.querySelectorAll('#endReminderModal [data-snooze]')
@@ -615,6 +616,7 @@ const payeeReportLastPending = document.getElementById("payeeReportLastPending")
 const payeeReportTotalPaid = document.getElementById("payeeReportTotalPaid")
 const payeeReportLastPaymentInfo = document.getElementById("payeeReportLastPaymentInfo")
 const payeeReportTableBody = document.getElementById("payeeReportTableBody")
+const payeeReportCards = document.getElementById("payeeReportCards")
 const payeeReportDownloadBtn = document.getElementById("payeeReportDownloadBtn")
 const payeeReportShareBtn = document.getElementById("payeeReportShareBtn")
 const payeePaymentTypeSelect = document.getElementById("payeePaymentType")
@@ -2387,6 +2389,8 @@ function buildPayeeMonthlyData(cal, payeeName) {
                 lineTotal,
                 status: entry.paymentStatus || "-",
                 mode: entry.paymentMode || "-",
+                category: entry.category || "",
+                subCategory: entry.subCategory || "",
               })
             })
           } else {
@@ -2399,6 +2403,8 @@ function buildPayeeMonthlyData(cal, payeeName) {
               lineTotal: entryTotal,
               status: entry.paymentStatus || "-",
               mode: entry.paymentMode || "-",
+              category: entry.category || "",
+              subCategory: entry.subCategory || "",
             })
           }
         } else {
@@ -2560,6 +2566,133 @@ function openPayeeReport(payeeName) {
       tr.appendChild(statusTd)
       tr.appendChild(modeTd)
       payeeReportTableBody.appendChild(tr)
+    })
+  }
+
+  if (payeeReportCards) {
+    payeeReportCards.innerHTML = ""
+    // Group rows by dateLabel
+    const byDate = new Map()
+    data.rows.forEach((row) => {
+      const key = row.dateLabel || "-"
+      if (!byDate.has(key)) byDate.set(key, [])
+      byDate.get(key).push(row)
+    })
+
+    Array.from(byDate.entries()).forEach(([dateLabel, rows]) => {
+      const card = document.createElement("div")
+      card.className = "payee-report-card"
+
+      const header = document.createElement("div")
+      header.className = "payee-report-card-header"
+
+      const dtWrap = document.createElement("div")
+      dtWrap.className = "payee-report-card-date-time"
+
+      const dateEl = document.createElement("div")
+      dateEl.className = "payee-report-card-date"
+      dateEl.textContent = dateLabel
+
+      dtWrap.appendChild(dateEl)
+
+      header.appendChild(dtWrap)
+
+      const body = document.createElement("div")
+      body.className = "payee-report-card-body"
+      body.style.flexDirection = "column"
+      body.style.alignItems = "stretch"
+      body.style.gap = "4px"
+
+      rows.forEach((row) => {
+        const line = document.createElement("div")
+        line.style.display = "flex"
+        line.style.alignItems = "center"
+        line.style.justifyContent = "space-between"
+        line.style.gap = "6px"
+
+        const left = document.createElement("div")
+        left.style.display = "flex"
+        left.style.flexDirection = "column"
+        left.style.gap = "2px"
+
+        const timeText = document.createElement("div")
+        timeText.className = "payee-report-card-time"
+        timeText.textContent = row.timeLabel
+
+        const itemText = document.createElement("div")
+        itemText.className = "payee-report-item"
+        itemText.textContent = row.itemName || "-"
+
+        const metaText = document.createElement("div")
+        metaText.className = "payee-report-meta"
+        const metaParts = []
+        if (typeof row.qty === "number" && !Number.isNaN(row.qty) && row.qty > 0) {
+          metaParts.push(`Qty: ${row.qty}`)
+        }
+        if (row.category) metaParts.push(row.category)
+        if (row.subCategory) metaParts.push(row.subCategory)
+        metaText.textContent = metaParts.join(" • ")
+
+        left.appendChild(timeText)
+        left.appendChild(itemText)
+        if (metaParts.length) left.appendChild(metaText)
+
+        const right = document.createElement("div")
+        right.style.display = "flex"
+        right.style.flexDirection = "column"
+        right.style.alignItems = "flex-end"
+        right.style.gap = "2px"
+
+        const statusModeWrap = document.createElement("div")
+        statusModeWrap.className = "payee-report-card-status-mode"
+
+        const statusPill = document.createElement("div")
+        statusPill.className = "payee-report-pill"
+        if (row.status === "pending") {
+          statusPill.classList.add("status-pending")
+          statusPill.textContent = "Pending"
+        } else {
+          statusPill.classList.add("status-paid")
+          statusPill.textContent = "Paid"
+        }
+
+        const modePill = document.createElement("div")
+        modePill.className = "payee-report-pill"
+        const modeLower = (row.mode || "").toLowerCase()
+        if (modeLower === "cash") {
+          modePill.classList.add("mode-cash")
+        } else {
+          modePill.classList.add("mode-online")
+        }
+        modePill.textContent = row.mode || "-"
+
+        statusModeWrap.appendChild(statusPill)
+        statusModeWrap.appendChild(modePill)
+
+        const amounts = document.createElement("div")
+        amounts.className = "payee-report-amounts"
+
+        const priceEl = document.createElement("div")
+        priceEl.textContent = row.price ? `Price: ₹${row.price}` : "Price: ₹0"
+
+        const totalEl = document.createElement("div")
+        totalEl.textContent = `Total: ₹${row.lineTotal}`
+
+        amounts.appendChild(priceEl)
+        amounts.appendChild(totalEl)
+
+        right.appendChild(statusModeWrap)
+        right.appendChild(amounts)
+
+        line.appendChild(left)
+        line.appendChild(right)
+
+        body.appendChild(line)
+      })
+
+      card.appendChild(header)
+      card.appendChild(body)
+      payeeReportCards.appendChild(card)
     })
   }
 
@@ -3756,6 +3889,127 @@ function openExpensesReport() {
       tr.appendChild(catTd)
       tr.appendChild(subCatTd)
       expensesReportTableBody.appendChild(tr)
+    })
+  }
+
+  if (expensesReportCards) {
+    expensesReportCards.innerHTML = ""
+
+    // Group rows by dateLabel
+    const byDate = new Map()
+    rows.forEach((row) => {
+      const key = row.dateLabel || "-"
+      if (!byDate.has(key)) byDate.set(key, [])
+      byDate.get(key).push(row)
+    })
+
+    Array.from(byDate.entries()).forEach(([dateLabel, list]) => {
+      const card = document.createElement("div")
+      card.className = "expenses-report-card"
+
+      const header = document.createElement("div")
+      header.className = "expenses-report-card-header"
+
+      const dateEl = document.createElement("div")
+      dateEl.className = "expenses-report-card-date"
+      dateEl.textContent = dateLabel
+
+      // Per-day total
+      const dayTotal = list.reduce(
+        (sum, r) => sum + (Number(r.lineTotal) || 0),
+        0
+      )
+      const totalEl = document.createElement("div")
+      totalEl.className = "payee-report-amounts"
+      totalEl.innerHTML = `<div>Total for day</div><div>₹${dayTotal}</div>`
+
+      header.appendChild(dateEl)
+      header.appendChild(totalEl)
+
+      const body = document.createElement("div")
+      body.className = "expenses-report-card-body"
+
+      list.forEach((row) => {
+        const line = document.createElement("div")
+        line.className = "expenses-report-line"
+
+        const left = document.createElement("div")
+        left.className = "expenses-report-line-left"
+
+        const main = document.createElement("div")
+        main.className = "expenses-report-line-main"
+        const spans = []
+        const timeSpan = document.createElement("span")
+        timeSpan.textContent = row.timeLabel
+        spans.push(timeSpan)
+        const payeeSpan = document.createElement("span")
+        payeeSpan.textContent = row.payeeName
+        spans.push(payeeSpan)
+        const itemSpan = document.createElement("span")
+        itemSpan.textContent = row.itemName || "-"
+        spans.push(itemSpan)
+        spans.forEach((s) => main.appendChild(s))
+
+        const meta = document.createElement("div")
+        meta.className = "expenses-report-meta"
+        const metaParts = []
+        if (row.qty) metaParts.push(`Qty: ${row.qty}`)
+        if (row.category) metaParts.push(row.category)
+        if (row.subCategory) metaParts.push(row.subCategory)
+        meta.textContent = metaParts.join(" • ")
+
+        left.appendChild(main)
+        if (metaParts.length) left.appendChild(meta)
+
+        const right = document.createElement("div")
+        right.className = "expenses-report-line-right"
+
+        const statusModeWrap = document.createElement("div")
+        statusModeWrap.className = "expenses-report-status-mode"
+
+        const statusPill = document.createElement("div")
+        statusPill.className = "expenses-report-pill"
+        if (row.status === "pending") {
+          statusPill.classList.add("status-pending")
+          statusPill.textContent = "Pending"
+        } else {
+          statusPill.classList.add("status-paid")
+          statusPill.textContent = "Paid"
+        }
+
+        const modePill = document.createElement("div")
+        modePill.className = "expenses-report-pill"
+        const modeLower = (row.mode || "").toLowerCase()
+        if (modeLower === "cash") {
+          modePill.classList.add("mode-cash")
+        } else {
+          modePill.classList.add("mode-online")
+        }
+        modePill.textContent = row.mode || "-"
+
+        statusModeWrap.appendChild(statusPill)
+        statusModeWrap.appendChild(modePill)
+
+        const amounts = document.createElement("div")
+        amounts.className = "payee-report-amounts"
+        const priceEl = document.createElement("div")
+        priceEl.textContent = row.price ? `Price: ₹${row.price}` : "Price: ₹0"
+        const totalRowEl = document.createElement("div")
+        totalRowEl.textContent = `Total: ₹${row.lineTotal}`
+        amounts.appendChild(priceEl)
+        amounts.appendChild(totalRowEl)
+
+        right.appendChild(statusModeWrap)
+        right.appendChild(amounts)
+
+        line.appendChild(left)
+        line.appendChild(right)
+        body.appendChild(line)
+      })
+
+      card.appendChild(header)
+      card.appendChild(body)
+      expensesReportCards.appendChild(card)
     })
   }
 
