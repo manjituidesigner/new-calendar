@@ -31,6 +31,7 @@ const statLate = document.getElementById("statLate")
 const statExtra = document.getElementById("statExtra")
 
 // Session bar elements
+const appTitleEl = document.querySelector(".app-title")
 const sessionBar = document.getElementById("sessionBar")
 const sessionStatusEl = document.getElementById("sessionStatus")
 const sessionProductivityEl = document.getElementById("sessionProductivity")
@@ -53,6 +54,28 @@ const settingsCloseBtn = document.getElementById("settingsCloseBtn")
 const drawerTabs = document.querySelectorAll(".drawer-tab")
 const drawerPanels = document.querySelectorAll(".drawer-panel")
 
+function applyModeVisibility() {
+  if (activeMode === "expenses") {
+    if (officeStatsSection) officeStatsSection.classList.add("hidden")
+    if (expensesStatsSection) expensesStatsSection.classList.remove("hidden")
+    if (expensesCategorySection) expensesCategorySection.classList.remove("hidden")
+    if (expensesPayeeSection) expensesPayeeSection.classList.remove("hidden")
+  } else {
+    if (officeStatsSection) officeStatsSection.classList.remove("hidden")
+    if (expensesStatsSection) expensesStatsSection.classList.add("hidden")
+    if (expensesCategorySection) expensesCategorySection.classList.add("hidden")
+    if (expensesPayeeSection) expensesPayeeSection.classList.add("hidden")
+  }
+}
+
+// Restore last active mode from localStorage (if any)
+try {
+  const storedMode = localStorage.getItem("mw_lastMode")
+  if (storedMode === "expenses" || storedMode === "office") {
+    activeMode = storedMode
+  }
+} catch (e) {}
+
 drawerTabs.forEach((btn) => {
   btn.addEventListener("click", () => {
     drawerTabs.forEach((b) => b.classList.remove("active"))
@@ -63,17 +86,11 @@ drawerTabs.forEach((btn) => {
     const panel = document.getElementById(`${target}Tab`)
     if (panel) panel.classList.add("active")
 
-    if (target === "expenses") {
-      activeMode = "expenses"
-      if (officeStatsSection) officeStatsSection.classList.add("hidden")
-      if (expensesStatsSection) expensesStatsSection.classList.remove("hidden")
-      if (expensesPayeeSection) expensesPayeeSection.classList.remove("hidden")
-    } else {
-      activeMode = "office"
-      if (officeStatsSection) officeStatsSection.classList.remove("hidden")
-      if (expensesStatsSection) expensesStatsSection.classList.add("hidden")
-      if (expensesPayeeSection) expensesPayeeSection.classList.add("hidden")
-    }
+    activeMode = target === "expenses" ? "expenses" : "office"
+    try {
+      localStorage.setItem("mw_lastMode", activeMode)
+    } catch (e) {}
+    applyModeVisibility()
 
     // Whenever user switches mode, ensure calculator view is closed
     if (calculatorPage) {
@@ -81,11 +98,9 @@ drawerTabs.forEach((btn) => {
       document.querySelector('.calendar-card')?.classList.remove('hidden')
       document.querySelector('.month-header')?.classList.remove('hidden')
       document.getElementById('sessionBar')?.classList.remove('hidden')
-      document.getElementById('officeStatsSection')?.classList.remove('hidden')
-      document.getElementById('expensesStatsSection')?.classList.remove('hidden')
       document.getElementById('expensesCategorySection')?.classList.remove('hidden')
-      document.getElementById('expensesPayeeSection')?.classList.remove('hidden')
       document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+      applyModeVisibility()
     }
 
     // If Settings page is open, close it when switching drawer tabs
@@ -94,11 +109,8 @@ drawerTabs.forEach((btn) => {
       document.querySelector('.calendar-card')?.classList.remove('hidden')
       document.querySelector('.month-header')?.classList.remove('hidden')
       document.getElementById('sessionBar')?.classList.remove('hidden')
-      document.getElementById('officeStatsSection')?.classList.remove('hidden')
-      document.getElementById('expensesStatsSection')?.classList.remove('hidden')
-      document.getElementById('expensesCategorySection')?.classList.remove('hidden')
-      document.getElementById('expensesPayeeSection')?.classList.remove('hidden')
       document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+      applyModeVisibility()
       updateAppTitle()
     }
 
@@ -106,6 +118,27 @@ drawerTabs.forEach((btn) => {
     renderCalendar()
   })
 })
+
+// On initial load, ensure the correct drawer tab and panel reflect activeMode
+if (drawerTabs.length && drawerPanels.length) {
+  drawerTabs.forEach((btn) => {
+    const target = btn.dataset.tab
+    const shouldBeActive =
+      (activeMode === "expenses" && target === "expenses") ||
+      (activeMode === "office" && target === "office")
+    btn.classList.toggle("active", shouldBeActive)
+  })
+
+  drawerPanels.forEach((panel) => {
+    const id = panel.id
+    const shouldBeActive =
+      (activeMode === "expenses" && id === "expensesTab") ||
+      (activeMode === "office" && id === "officeTab")
+    panel.classList.toggle("active", shouldBeActive)
+  })
+
+  updateAppTitle()
+}
 
 const calendarListEl = document.getElementById("calendarList")
 const createCalendarToggle = document.getElementById("createCalendarToggle")
@@ -204,10 +237,10 @@ function renderHolidaySettings() {
   })
 }
 
+// Open Holidays form when user taps the Holidays card in Settings
 if (settingsHolidaysCard && holidaySettings) {
   settingsHolidaysCard.addEventListener("click", () => {
-    holidaySettings.style.display = "block"
-    holidaySettingsMonthOffset = 0
+    holidaySettings.classList.remove("hidden")
     renderHolidaySettings()
   })
 }
@@ -255,8 +288,6 @@ if (holidayAddBtn) {
 
 const prevMonthBtn = document.getElementById("prevMonthBtn")
 const nextMonthBtn = document.getElementById("nextMonthBtn")
-
-const appTitleEl = document.querySelector(".app-title")
 
 let sessionIntervalId = null
 let activeSessionKey = null
@@ -714,7 +745,26 @@ function closeDrawer() {
   if (overlay) overlay.classList.remove("active")
   document.body.style.overflow = ""
 }
-if (menuBtn) menuBtn.addEventListener("click", openDrawer)
+if (menuBtn) {
+  menuBtn.addEventListener("click", () => {
+    // If Settings is open, treat menu button as a back button
+    if (settingsPage && settingsPage.classList.contains("open")) {
+      settingsPage.classList.remove("open")
+
+      document.querySelector('.calendar-card')?.classList.remove('hidden')
+      document.querySelector('.month-header')?.classList.remove('hidden')
+      document.getElementById('sessionBar')?.classList.remove('hidden')
+      document.getElementById('expensesCategorySection')?.classList.remove('hidden')
+      document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+      applyModeVisibility()
+      updateAppTitle()
+      return
+    }
+
+    // Otherwise behave like normal menu button (open drawer)
+    openDrawer()
+  })
+}
 if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer)
 if (overlay) {
   overlay.addEventListener("click", () => {
@@ -839,6 +889,9 @@ const expTotalSpentEl = document.getElementById("expTotalSpent")
 const expMonthlyBudgetEl = document.getElementById("expMonthlyBudget")
 const expRemainingEl = document.getElementById("expRemaining")
 const expOverBudgetEl = document.getElementById("expOverBudget")
+
+// Now that stats sections exist in the DOM, apply visibility for the restored activeMode
+applyModeVisibility()
 // Payee report modal elements
 const payeeReportModal = document.getElementById("payeeReportModal")
 const payeeReportCloseBtn = document.getElementById("payeeReportCloseBtn")
@@ -1491,7 +1544,167 @@ const expTimeDisplay = document.getElementById("expTimeDisplay")
 const expensesItemsList = document.getElementById("expensesItemsList")
 const expAddItemRowBtn = document.getElementById("expAddItemRowBtn")
 const expTotalForDateEl = document.getElementById("expTotalForDate")
+const expPrintBillBtn = document.getElementById("expPrintBillBtn")
+const expShareBillBtn = document.getElementById("expShareBillBtn")
 const expSaveEntryBtn = document.getElementById("expSaveEntryBtn")
+
+// Build a simple text summary of the current bill for printing/sharing
+function buildCurrentBillSummary() {
+  const items = getExpItemsFromDOM()
+  let total = 0
+  const lines = []
+
+  items.forEach((it) => {
+    const qty = Number(it.qty) || 0
+    const price = Number(it.price) || 0
+    const lineTotal = qty * price
+    total += lineTotal
+    const name = it.name || "Item"
+    lines.push(`${name} x${qty || 1} @ ₹${price || 0} = ₹${lineTotal}`)
+  })
+
+  const payee = expPayeeNameInput ? expPayeeNameInput.value.trim() : ""
+  const status = expPaymentStatusSelect ? expPaymentStatusSelect.value : "paid"
+  let mode = "online"
+  if (expPaymentModeGroup) {
+    const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
+    if (picked) mode = picked.value
+  }
+
+  const dateText = expDateDisplay ? expDateDisplay.value : ""
+  const timeText = expTimeDisplay ? expTimeDisplay.value : ""
+
+  const header = `Bill for ${payee || "Payee"}`
+  const meta = `Date: ${dateText} ${timeText}\nStatus: ${status.toUpperCase()}  Mode: ${mode}`
+  const body = lines.length ? lines.join("\n") : "(No items)"
+  const grand = `Total: ₹${Math.round(total)}`
+
+  return `${header}\n${meta}\n\n${body}\n\n${grand}`
+}
+
+if (expPrintBillBtn) {
+  expPrintBillBtn.addEventListener("click", () => {
+    // Ensure totals are up to date
+    expRecomputeTotal()
+
+    const items = getExpItemsFromDOM()
+    const payee = expPayeeNameInput ? expPayeeNameInput.value.trim() : ""
+    const status = expPaymentStatusSelect ? expPaymentStatusSelect.value : "paid"
+    let mode = "online"
+    if (expPaymentModeGroup) {
+      const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
+      if (picked) mode = picked.value
+    }
+
+    const dateText = expDateDisplay ? expDateDisplay.value : ""
+    const timeText = expTimeDisplay ? expTimeDisplay.value : ""
+
+    let total = 0
+    const rowsHtml = items
+      .map((it, idx) => {
+        const qty = Number(it.qty) || 0
+        const price = Number(it.price) || 0
+        const lineTotal = qty * price
+        total += lineTotal
+        const name = it.name || "Item"
+        return `
+          <tr>
+            <td style="padding:4px 8px; text-align:center;">${idx + 1}</td>
+            <td style="padding:4px 8px;">${name}</td>
+            <td style="padding:4px 8px; text-align:right;">${qty || ""}</td>
+            <td style="padding:4px 8px; text-align:right;">₹${price || 0}</td>
+            <td style="padding:4px 8px; text-align:right;">₹${lineTotal}</td>
+          </tr>`
+      })
+      .join("")
+
+    const invoiceHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Expense Invoice</title>
+          <style>
+            body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 16px; }
+            .invoice { max-width: 700px; margin: 0 auto; border: 1px solid #ddd; padding: 16px 20px; }
+            .invoice-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+            .invoice-title { font-size: 20px; font-weight: 600; }
+            .meta { font-size: 13px; color: #444; line-height: 1.4; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+            th, td { border: 1px solid #ddd; }
+            th { background:#f5f5f5; padding:6px 8px; text-align:center; }
+            .total-row td { font-weight: 600; }
+            .footer { margin-top: 16px; font-size: 12px; text-align: center; color: #777; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice">
+            <div class="invoice-header">
+              <div>
+                <div class="invoice-title">Expense Bill</div>
+                <div class="meta">Payee: <strong>${payee || "-"}</strong></div>
+              </div>
+              <div class="meta" style="text-align:right;">
+                <div>Date: <strong>${dateText || "-"}</strong></div>
+                <div>Time: <strong>${timeText || "-"}</strong></div>
+                <div>Status: <strong>${status.toUpperCase()}</strong></div>
+                <div>Mode: <strong>${mode}</strong></div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Item</th>
+                  <th style="width:70px;">Qty</th>
+                  <th style="width:90px;">Price</th>
+                  <th style="width:110px;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml || `<tr><td colspan="5" style="padding:8px; text-align:center;">No items</td></tr>`}
+                <tr class="total-row">
+                  <td colspan="4" style="padding:6px 8px; text-align:right;">Total</td>
+                  <td style="padding:6px 8px; text-align:right;">₹${Math.round(total)}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="footer">Thank you for your purchase</div>
+          </div>
+          <script>
+            window.onload = function () {
+              window.print();
+            };
+          <\/script>
+        </body>
+      </html>
+    `
+
+    const w = window.open("", "_blank")
+    if (w) {
+      w.document.open()
+      w.document.write(invoiceHtml)
+      w.document.close()
+    } else {
+      // Fallback to text summary if popup blocked
+      const text = buildCurrentBillSummary()
+      const blob = new Blob([text], { type: "text/plain" })
+      const url = URL.createObjectURL(blob)
+      const fallback = window.open(url, "_blank")
+      if (!fallback) {
+        alert("Please allow popups to print the bill.")
+      }
+    }
+  })
+}
+
+if (expShareBillBtn) {
+  expShareBillBtn.addEventListener("click", () => {
+    const text = buildCurrentBillSummary()
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, "_blank")
+  })
+}
 
 // Expenses preset categories and subcategories
 const expensesCategories = [
@@ -2180,7 +2393,12 @@ function addExpItemRow(prefill) {
   const name = document.createElement("input")
   name.type = "text"
   name.placeholder = "Item"
-  name.value = prefill && prefill.name ? prefill.name : ""
+  if (prefill && prefill.name) {
+    name.value = prefill.name
+    name.dataset.autofilled = "1"
+  } else {
+    name.value = ""
+  }
   name.addEventListener("input", expRecomputeTotal)
   const qty = document.createElement("input")
   qty.type = "number"
@@ -2240,7 +2458,45 @@ function expRecomputeTotal() {
 }
 
 if (expAddItemRowBtn) {
-  expAddItemRowBtn.addEventListener("click", () => addExpItemRow())
+  expAddItemRowBtn.addEventListener("click", () => {
+    // When adding a new row, prefill the item name from selected sub category (if any)
+    let prefill = null
+    if (expSubCategorySelect && expSubCategorySelect.value) {
+      prefill = { name: expSubCategorySelect.value }
+    }
+    addExpItemRow(prefill)
+  })
+}
+
+// Whenever sub category changes, auto-fill the first empty item name with it
+if (expSubCategorySelect && expensesItemsList) {
+  expSubCategorySelect.addEventListener("change", () => {
+    const label = expSubCategorySelect.value || ""
+    if (!label) return
+    const rows = expensesItemsList.querySelectorAll(".expenses-item-row")
+    if (!rows.length) return
+
+    // Prefer updating the last row that was auto-filled earlier, otherwise the last row
+    let targetInput = null
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const input = rows[i].querySelector("input")
+      if (!input) continue
+      if (input.dataset.autofilled === "1" || !input.value.trim()) {
+        targetInput = input
+        break
+      }
+    }
+
+    if (!targetInput) {
+      const last = rows[rows.length - 1]
+      targetInput = last.querySelector("input") || null
+    }
+
+    if (targetInput) {
+      targetInput.value = label
+      targetInput.dataset.autofilled = "1"
+    }
+  })
 }
 
 if (expSaveEntryBtn) {
