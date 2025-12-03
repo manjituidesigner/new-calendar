@@ -2216,14 +2216,15 @@ function renderExpensesSummary() {
 
       const viewBtn = document.createElement("button")
       viewBtn.className = "payee-card-icon-btn view"
-      viewBtn.textContent = "👁"
+      // Report icon (line-style)
+      viewBtn.innerHTML = '<i class="ri-bar-chart-2-line"></i>'
       viewBtn.addEventListener("click", () => {
         openPayeeReport(payeeName)
       })
 
       const deleteBtnGroup = document.createElement("button")
       deleteBtnGroup.className = "payee-card-icon-btn delete"
-      deleteBtnGroup.textContent = "🗑"
+      deleteBtnGroup.innerHTML = '<i class="ri-delete-bin-6-line"></i>'
       deleteBtnGroup.addEventListener("click", () => {
         openExpenseEntryDeleteModal({ type: "group", payeeName })
       })
@@ -2271,14 +2272,14 @@ function renderExpensesSummary() {
 
         const editBtn = document.createElement("button")
         editBtn.className = "payee-card-icon-btn edit"
-        editBtn.textContent = "✏"
+        editBtn.innerHTML = '<i class="ri-edit-2-line"></i>'
         editBtn.addEventListener("click", () => {
           openExpensesModalForKey(row.key, row.entryId)
         })
 
         const deleteBtnSingle = document.createElement("button")
         deleteBtnSingle.className = "payee-card-icon-btn delete"
-        deleteBtnSingle.textContent = "🗑"
+        deleteBtnSingle.innerHTML = '<i class="ri-delete-bin-6-line"></i>'
         deleteBtnSingle.addEventListener("click", () => {
           openExpenseEntryDeleteModal({
             type: "single",
