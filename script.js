@@ -75,6 +75,33 @@ drawerTabs.forEach((btn) => {
       if (expensesPayeeSection) expensesPayeeSection.classList.add("hidden")
     }
 
+    // Whenever user switches mode, ensure calculator view is closed
+    if (calculatorPage) {
+      calculatorPage.classList.remove("open")
+      document.querySelector('.calendar-card')?.classList.remove('hidden')
+      document.querySelector('.month-header')?.classList.remove('hidden')
+      document.getElementById('sessionBar')?.classList.remove('hidden')
+      document.getElementById('officeStatsSection')?.classList.remove('hidden')
+      document.getElementById('expensesStatsSection')?.classList.remove('hidden')
+      document.getElementById('expensesCategorySection')?.classList.remove('hidden')
+      document.getElementById('expensesPayeeSection')?.classList.remove('hidden')
+      document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+    }
+
+    // If Settings page is open, close it when switching drawer tabs
+    if (settingsPage && settingsPage.classList.contains("open")) {
+      settingsPage.classList.remove("open")
+      document.querySelector('.calendar-card')?.classList.remove('hidden')
+      document.querySelector('.month-header')?.classList.remove('hidden')
+      document.getElementById('sessionBar')?.classList.remove('hidden')
+      document.getElementById('officeStatsSection')?.classList.remove('hidden')
+      document.getElementById('expensesStatsSection')?.classList.remove('hidden')
+      document.getElementById('expensesCategorySection')?.classList.remove('hidden')
+      document.getElementById('expensesPayeeSection')?.classList.remove('hidden')
+      document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+      updateAppTitle()
+    }
+
     updateAppTitle()
     renderCalendar()
   })
@@ -108,6 +135,123 @@ const holidayAddBtn = document.getElementById("holidayAddBtn")
 const holidayList = document.getElementById("holidayList")
 const holidayPrevMonthBtn = document.getElementById("holidayPrevMonthBtn")
 const holidayNextMonthBtn = document.getElementById("holidayNextMonthBtn")
+
+let holidaySettingsMonthOffset = 0
+
+function getHolidaySettingsYearMonth() {
+  const base = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+  base.setMonth(base.getMonth() + holidaySettingsMonthOffset)
+  return { year: base.getFullYear(), month: base.getMonth() }
+}
+
+function renderHolidaySettings() {
+  if (!holidaySettings || !holidayMonthLabel || !holidayList) return
+
+  const cal = getActiveCalendar()
+  if (!cal) {
+    holidayMonthLabel.textContent = "No calendar selected"
+    holidayList.innerHTML = ""
+    return
+  }
+
+  ensureCalendarHolidays(cal)
+  const { year, month } = getHolidaySettingsYearMonth()
+
+  holidayMonthLabel.textContent = new Date(year, month, 1).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  })
+
+  const mKey = monthKeyFromYearMonth(year, month)
+  const holMonth = cal.holidays[mKey] || {}
+
+  holidayList.innerHTML = ""
+
+  const days = Object.keys(holMonth)
+    .map((d) => Number(d))
+    .filter((d) => Number.isFinite(d))
+    .sort((a, b) => a - b)
+
+  days.forEach((day) => {
+    const cfg = holMonth[day]
+    const li = document.createElement("li")
+    li.className = "holiday-list-item"
+
+    const label = document.createElement("span")
+    label.textContent = `${String(day).padStart(2, "0")} - ${cfg.name || "Holiday"}`
+
+    const delBtn = document.createElement("button")
+    delBtn.type = "button"
+    delBtn.className = "text-btn"
+    delBtn.textContent = "Delete"
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      const m = cal.holidays[mKey]
+      if (m && m[day]) {
+        delete m[day]
+        if (!Object.keys(m).length) {
+          delete cal.holidays[mKey]
+        }
+        saveCalendars()
+        renderHolidaySettings()
+        renderCalendar()
+      }
+    })
+
+    li.appendChild(label)
+    li.appendChild(delBtn)
+    holidayList.appendChild(li)
+  })
+}
+
+if (settingsHolidaysCard && holidaySettings) {
+  settingsHolidaysCard.addEventListener("click", () => {
+    holidaySettings.style.display = "block"
+    holidaySettingsMonthOffset = 0
+    renderHolidaySettings()
+  })
+}
+
+if (holidayPrevMonthBtn) {
+  holidayPrevMonthBtn.addEventListener("click", () => {
+    holidaySettingsMonthOffset -= 1
+    renderHolidaySettings()
+  })
+}
+
+if (holidayNextMonthBtn) {
+  holidayNextMonthBtn.addEventListener("click", () => {
+    holidaySettingsMonthOffset += 1
+    renderHolidaySettings()
+  })
+}
+
+if (holidayAddBtn) {
+  holidayAddBtn.addEventListener("click", () => {
+    const cal = getActiveCalendar()
+    if (!cal || !holidayDayInput || !holidayNameInput) return
+
+    const day = Number(holidayDayInput.value)
+    const name = holidayNameInput.value.trim()
+    if (!day || day < 1 || day > 31 || !name) {
+      alert("Please enter a valid day and holiday name.")
+      return
+    }
+
+    ensureCalendarHolidays(cal)
+    const { year, month } = getHolidaySettingsYearMonth()
+    const mKey = monthKeyFromYearMonth(year, month)
+    if (!cal.holidays[mKey]) cal.holidays[mKey] = {}
+    cal.holidays[mKey][day] = { name }
+
+    saveCalendars()
+    renderHolidaySettings()
+    renderCalendar()
+
+    holidayDayInput.value = ""
+    holidayNameInput.value = ""
+  })
+}
 
 const prevMonthBtn = document.getElementById("prevMonthBtn")
 const nextMonthBtn = document.getElementById("nextMonthBtn")
@@ -581,13 +725,41 @@ if (overlay) {
 if (drawerSettingsBtn && settingsPage) {
   drawerSettingsBtn.addEventListener("click", () => {
     settingsPage.classList.add("open")
-    overlay.classList.add("active")
+
+    // Hide main calendar/expenses sections so settings behaves like a standalone page
+    document.querySelector('.calendar-card')?.classList.add('hidden')
+    document.querySelector('.month-header')?.classList.add('hidden')
+    document.getElementById('sessionBar')?.classList.add('hidden')
+    document.getElementById('officeStatsSection')?.classList.add('hidden')
+    document.getElementById('expensesStatsSection')?.classList.add('hidden')
+    document.getElementById('expensesCategorySection')?.classList.add('hidden')
+    document.getElementById('expensesPayeeSection')?.classList.add('hidden')
+    document.getElementById('clearMonthBtn')?.classList.add('hidden')
+
+    // Ensure calculator page is closed when opening settings
+    if (typeof calculatorPage !== 'undefined' && calculatorPage) {
+      calculatorPage.classList.remove('open')
+    }
+
+    if (appTitleEl) appTitleEl.textContent = 'Settings'
+    closeDrawer()
   })
 }
 if (settingsCloseBtn && settingsPage) {
   settingsCloseBtn.addEventListener("click", () => {
     settingsPage.classList.remove("open")
-    overlay.classList.remove("active")
+
+    // Restore calendar/expenses sections
+    document.querySelector('.calendar-card')?.classList.remove('hidden')
+    document.querySelector('.month-header')?.classList.remove('hidden')
+    document.getElementById('sessionBar')?.classList.remove('hidden')
+    document.getElementById('officeStatsSection')?.classList.remove('hidden')
+    document.getElementById('expensesStatsSection')?.classList.remove('hidden')
+    document.getElementById('expensesCategorySection')?.classList.remove('hidden')
+    document.getElementById('expensesPayeeSection')?.classList.remove('hidden')
+    document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+
+    updateAppTitle()
   })
 }
 function endSessionForDate(cal, key) {
@@ -3186,8 +3358,8 @@ function renderStats() {
     }
   }
 
-  statLate.textContent = `${lateMinutes}m`
-  statExtra.textContent = `${extraMinutes}m`
+  if (statLate) statLate.textContent = `${lateMinutes}m`
+  if (statExtra) statExtra.textContent = `${extraMinutes}m`
 
   // Salary calculation
   let salary = 0
@@ -3198,7 +3370,9 @@ function renderStats() {
     const perDay = cal.salaryMonthly / daysInMonth
     salary = workingEquiv * perDay
   }
-  statSalary.textContent = "₹" + Math.round(salary)
+  if (statSalary) {
+    statSalary.textContent = "₹" + Math.round(salary)
+  }
 }
 
 function getActiveExpensesCalendar() {
@@ -3319,6 +3493,8 @@ function renderCalendarList() {
       } else {
         selectCalendar(cal.id)
       }
+      // After selecting a calendar, close the side drawer
+      closeDrawer()
     })
 
     if (cal.id === activeCalendarId) {
@@ -4949,179 +5125,3 @@ function updateSessionBar() {
   const endMs = cal.days[activeSessionKey].outTime || Date.now()
 
   function refresh() {
-    const now = Date.now()
-    const effectiveEnd = cal.days[activeSessionKey].outTime || now
-    const totalMs = Math.max(0, effectiveEnd - startMs)
-
-    // Compute break duration in seconds for live feeling
-    let breakSeconds = 0
-    if (cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length) {
-      for (const b of cal.days[activeSessionKey].breaks) {
-        if (!b.start) continue
-        const end = b.end != null ? b.end : now
-        if (end > b.start) {
-          breakSeconds += Math.floor((end - b.start) / 1000)
-        }
-      }
-    }
-
-    const totalSeconds = Math.floor(totalMs / 1000)
-    const workSeconds = Math.max(0, totalSeconds - breakSeconds)
-
-    if (sessionStartTimeEl) {
-      sessionStartTimeEl.textContent = `Start: ${formatTime(startMs)}`
-    }
-    if (sessionWorkedEl) {
-      const h = Math.floor(workSeconds / 3600)
-      const m = Math.floor((workSeconds % 3600) / 60)
-      const s = workSeconds % 60
-      sessionWorkedEl.textContent = `Worked: ${h}h ${m}m ${s}s`
-    }
-    if (sessionBreakEl) {
-      const bh = Math.floor(breakSeconds / 3600)
-      const bm = Math.floor((breakSeconds % 3600) / 60)
-      const bs = breakSeconds % 60
-      sessionBreakEl.textContent = `Break: ${bh}h ${bm}m ${bs}s`
-    }
-
-    const productivity = totalSeconds > 0 ? Math.round((workSeconds / totalSeconds) * 100) : 0
-
-    if (sessionProductivityEl) {
-      sessionProductivityEl.textContent = `${productivity}% productive`
-    }
-
-    if (sessionStatusEl) {
-      sessionStatusEl.textContent = cal.days[activeSessionKey].outTime ? "Finished" : "Working"
-    }
-
-    // Auto end-of-day reminder once scheduled out time is reached
-    if (
-      cal &&
-      cal.scheduleOutMinutes != null &&
-      cal.runningDateKey === activeSessionKey &&
-      !cal.days[activeSessionKey].outTime
-    ) {
-      const [yStr, mStr, dStr] = activeSessionKey.split("-")
-      const y = Number(yStr)
-      const m = Number(mStr)
-      const d = Number(dStr)
-      if (!Number.isNaN(y) && !Number.isNaN(m) && !Number.isNaN(d)) {
-        const scheduled = new Date(y, m - 1, d)
-        const totalMinutes = cal.scheduleOutMinutes
-        const sh = Math.floor(totalMinutes / 60)
-        const sm = totalMinutes % 60
-        scheduled.setHours(sh, sm, 0, 0)
-
-        const snoozeUntil = cal.endReminderSnoozeUntil || null
-        const snoozed = snoozeUntil && now < snoozeUntil
-
-        if (now >= scheduled.getTime() && !snoozed) {
-          if (!endReminderModal || !endReminderModal.classList.contains("open")) {
-            openEndReminderModal(cal, activeSessionKey)
-          }
-        }
-      }
-    }
-
-    // Also refresh stats so monthly Working Hours and Today Worked
-    // reflect the live session progress.
-    renderStats()
-  }
-
-  refresh()
-
-  if (!cal.days[activeSessionKey].outTime) {
-    sessionIntervalId = setInterval(refresh, 1000)
-  }
-
-  // Update buttons visibility
-  if (sessionBreakBtn && sessionBackBtn) {
-    const onBreak = cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length && cal.days[activeSessionKey].breaks[cal.days[activeSessionKey].breaks.length - 1].end == null
-    if (onBreak) {
-      sessionBreakBtn.style.display = "none"
-      sessionBackBtn.style.display = "inline-block"
-    } else {
-      sessionBreakBtn.style.display = "inline-block"
-      sessionBackBtn.style.display = "none"
-    }
-  }
-}
-
-// Session bar buttons
-if (sessionBreakBtn) {
-  sessionBreakBtn.addEventListener("click", () => {
-    const cal = getActiveCalendar()
-    if (!cal || !activeSessionKey) return
-    const key = activeSessionKey
-    if (!cal.days[key]) cal.days[key] = {}
-    const info = cal.days[key]
-
-    // If already on break, ignore
-    if (info.breaks && info.breaks.length && info.breaks[info.breaks.length - 1].end == null) {
-      return
-    }
-
-    openBreakModal(cal)
-  })
-}
-
-if (sessionBackBtn) {
-  sessionBackBtn.addEventListener("click", () => {
-    const cal = getActiveCalendar()
-    if (!cal || !activeSessionKey) return
-    const key = activeSessionKey
-    if (!cal.days[key]) cal.days[key] = {}
-    const info = cal.days[key]
-    if (!info.breaks || !info.breaks.length) return
-    const last = info.breaks[info.breaks.length - 1]
-    if (last.end == null) {
-      last.end = Date.now()
-    }
-    saveCalendars()
-    updateSessionBar()
-  })
-}
-
-if (sessionEndBtn) {
-  sessionEndBtn.addEventListener("click", () => {
-    const cal = getActiveCalendar()
-    if (!cal || !activeSessionKey) return
-    const key = activeSessionKey
-    endSessionForDate(cal, key)
-  })
-}
-
-// Expenses storage helpers
-function loadExpensesCalendars() {
-  try {
-    const data = localStorage.getItem(EXPENSES_STORAGE_KEY)
-    if (!data) {
-      expensesCalendars = []
-      activeExpensesCalendarId = null
-    } else {
-      const parsed = JSON.parse(data)
-      expensesCalendars = parsed.expensesCalendars || []
-      activeExpensesCalendarId =
-        parsed.activeExpensesCalendarId || (expensesCalendars[0]?.id ?? null)
-    }
-  } catch (e) {
-    expensesCalendars = []
-    activeExpensesCalendarId = null
-  }
-  updateAppTitle()
-  renderExpensesSummary()
-}
-
-function saveExpensesCalendars() {
-  localStorage.setItem(
-    EXPENSES_STORAGE_KEY,
-    JSON.stringify({ expensesCalendars, activeExpensesCalendarId })
-  )
-}
-
-// Init
-loadCalendars()
-loadExpensesCalendars()
-renderCalendarList()
-renderExpensesCalendarList()
-renderCalendar()
