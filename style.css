@@ -1677,6 +1677,10 @@ body {
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
 }
 
+.payee-card-icon-btn i {
+  font-size: 15px;
+}
+
 .payee-card-icon-btn.view {
   background: rgba(59, 130, 246, 0.12);
 }
