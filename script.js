@@ -482,9 +482,15 @@ const payeeReportMonthTotal = document.getElementById("payeeReportMonthTotal")
 const payeeReportPending = document.getElementById("payeeReportPending")
 const payeeReportLastPending = document.getElementById("payeeReportLastPending")
 const payeeReportTotalPaid = document.getElementById("payeeReportTotalPaid")
+const payeeReportLastPaymentInfo = document.getElementById("payeeReportLastPaymentInfo")
 const payeeReportTableBody = document.getElementById("payeeReportTableBody")
 const payeeReportDownloadBtn = document.getElementById("payeeReportDownloadBtn")
 const payeeReportShareBtn = document.getElementById("payeeReportShareBtn")
+const payeePaymentTypeSelect = document.getElementById("payeePaymentType")
+const payeePaymentAmountInput = document.getElementById("payeePaymentAmount")
+const payeePaymentFileInput = document.getElementById("payeePaymentFile")
+const payeePaymentSubmitBtn = document.getElementById("payeePaymentSubmitBtn")
+const payeePaymentTableBody = document.getElementById("payeePaymentTableBody")
 
 const expensesCalendarListEl = document.getElementById("expensesCalendarList")
 const createExpensesCalendarToggle = document.getElementById(
@@ -1200,6 +1206,17 @@ function buildPayeeMonthlyData(cal, payeeName) {
   }
 }
 
+function getPayeePaymentsForCalendar(cal, payeeName) {
+  if (!cal || !payeeName) return { totalPaid: 0, payments: [] }
+  const store = cal.payeePayments || {}
+  const list = Array.isArray(store[payeeName]) ? store[payeeName] : []
+  let totalPaid = 0
+  list.forEach((p) => {
+    totalPaid += Number(p.amount) || 0
+  })
+  return { totalPaid, payments: list.slice() }
+}
+
 function openPayeeReport(payeeName) {
   const cal = getActiveExpensesCalendar()
   if (!cal || !payeeReportModal) return
@@ -1207,15 +1224,13 @@ function openPayeeReport(payeeName) {
   const data = buildPayeeMonthlyData(cal, payeeName)
   if (!data) return
 
+  const { totalPaid, payments } = getPayeePaymentsForCalendar(cal, payeeName)
+  const remainingPendingAll = Math.max(0, (Number(data.totalPending) || 0) - totalPaid)
+
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
   const monthStart = new Date(year, month, 1)
   const thisMonthLabel = monthStart.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  })
-  const prevMonthDate = new Date(year, month - 1, 1)
-  const prevMonthLabel = prevMonthDate.toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   })
@@ -1236,11 +1251,13 @@ function openPayeeReport(payeeName) {
     payeeReportMonthTotal.textContent = `₹${data.monthTotal}`
   }
   if (payeeReportPending) {
-    // Show this month's pending with month name
-    payeeReportPending.textContent = `${thisMonthLabel}: ₹${data.monthPending}`
+    if (!remainingPendingAll) {
+      payeeReportPending.textContent = "All payment cleared"
+    } else {
+      payeeReportPending.textContent = `${thisMonthLabel}: ₹${remainingPendingAll}`
+    }
   }
   if (payeeReportLastPending) {
-    // Show all previous months that have pending amounts in a small table
     const map = data.pendingByMonth || {}
     const entries = Object.entries(map).filter(([, amount]) => Number(amount) > 0)
 
@@ -1248,7 +1265,6 @@ function openPayeeReport(payeeName) {
       payeeReportLastPending.textContent = "No previous pending"
     } else {
       let totalPrev = 0
-      // Sort by year-month ascending for a consistent order
       entries.sort((a, b) => {
         return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0
       })
@@ -1272,8 +1288,24 @@ function openPayeeReport(payeeName) {
     }
   }
   if (payeeReportTotalPaid) {
-    // Repurpose this pill to show total pending across all months for this payee
-    payeeReportTotalPaid.textContent = `₹${data.totalPending}`
+    payeeReportTotalPaid.textContent = `₹${totalPaid}`
+  }
+
+  if (payeeReportLastPaymentInfo) {
+    if (!payments.length) {
+      payeeReportLastPaymentInfo.textContent = "No payments recorded yet"
+    } else {
+      const last = payments[payments.length - 1]
+      const ts = last.timestamp ? new Date(last.timestamp) : new Date()
+      const dateLabel = ts.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+      const labelType = last.type === "full" ? "Full payment" : "Part payment"
+      const amt = Number(last.amount) || 0
+      payeeReportLastPaymentInfo.textContent = `${labelType} on ${dateLabel}: ₹${amt}`
+    }
   }
 
   if (payeeReportTableBody) {
@@ -1310,8 +1342,101 @@ function openPayeeReport(payeeName) {
     })
   }
 
+  if (payeePaymentTableBody) {
+    payeePaymentTableBody.innerHTML = ""
+    const sorted = payments.slice().sort((a, b) => {
+      return (a.timestamp || 0) - (b.timestamp || 0)
+    })
+    sorted.forEach((p) => {
+      const tr = document.createElement("tr")
+      const dateTd = document.createElement("td")
+      const typeTd = document.createElement("td")
+      const amountTd = document.createElement("td")
+      const slipTd = document.createElement("td")
+
+      const ts = p.timestamp ? new Date(p.timestamp) : new Date()
+      dateTd.textContent = ts.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+      typeTd.textContent = p.type === "full" ? "Full" : "Part"
+      amountTd.textContent = `₹${Number(p.amount) || 0}`
+      if (p.slipDataUrl) {
+        const link = document.createElement("a")
+        link.href = p.slipDataUrl
+        link.download = p.slipName || "payment-slip"
+        const img = document.createElement("img")
+        img.src = p.slipDataUrl
+        img.alt = p.slipName || "Slip"
+        img.className = "payment-slip-thumb"
+        link.appendChild(img)
+        slipTd.appendChild(link)
+      } else {
+        slipTd.textContent = p.slipName || "-"
+      }
+
+      tr.appendChild(dateTd)
+      tr.appendChild(typeTd)
+      tr.appendChild(amountTd)
+      tr.appendChild(slipTd)
+      payeePaymentTableBody.appendChild(tr)
+    })
+  }
+
   payeeReportModal.classList.add("open")
   overlay.classList.add("active")
+}
+
+if (payeePaymentSubmitBtn) {
+  payeePaymentSubmitBtn.addEventListener("click", () => {
+    const cal = getActiveExpensesCalendar()
+    if (!cal || !payeeReportPayeeName || !payeePaymentAmountInput) return
+
+    const payeeName = (payeeReportPayeeName.textContent || "").trim()
+    if (!payeeName) return
+
+    const amount = Number(payeePaymentAmountInput.value) || 0
+    if (!amount) return
+
+    const type = payeePaymentTypeSelect ? payeePaymentTypeSelect.value || "part" : "part"
+
+    const finalizeSave = (slipName, slipDataUrl) => {
+      const entry = {
+        id: `pay_${Date.now()}`,
+        timestamp: Date.now(),
+        type,
+        amount,
+        slipName,
+        slipDataUrl: slipDataUrl || null,
+      }
+
+      if (!cal.payeePayments) cal.payeePayments = {}
+      if (!Array.isArray(cal.payeePayments[payeeName])) cal.payeePayments[payeeName] = []
+      cal.payeePayments[payeeName].push(entry)
+
+      saveExpensesCalendars()
+
+      payeePaymentAmountInput.value = ""
+      if (payeePaymentFileInput) {
+        payeePaymentFileInput.value = ""
+      }
+
+      openPayeeReport(payeeName)
+    }
+
+    if (payeePaymentFileInput && payeePaymentFileInput.files && payeePaymentFileInput.files[0]) {
+      const file = payeePaymentFileInput.files[0]
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const dataUrl = typeof e.target?.result === "string" ? e.target.result : null
+        finalizeSave(file.name, dataUrl)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      finalizeSave("", null)
+    }
+  })
 }
 
 function closePayeeReport() {
