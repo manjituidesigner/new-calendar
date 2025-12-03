@@ -711,7 +711,8 @@ body {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  margin-block: 4px;
 }
 
 .field-row {
@@ -720,8 +721,9 @@ body {
 }
 
 .field label {
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 .field input,
@@ -1632,9 +1634,10 @@ body {
   display: grid;
   grid-template-columns: 2fr 0.8fr 1.2fr auto;
   gap: 6px;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .expenses-items-list {
@@ -1653,6 +1656,10 @@ body {
 
 .expenses-item-row input {
   width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: #f9fafb;
 }
 
 .expenses-item-remove-btn {
@@ -1663,11 +1670,20 @@ body {
   cursor: pointer;
 }
 
+#expAddItemRowBtn {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: #e5f2ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
 .expenses-total-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 12px;
   background: #f3f4f6;
   font-size: 13px;
@@ -2071,7 +2087,7 @@ body {
   padding: 6px 8px;
 }
 
-/* Responsive  */
+/* Responsive */
 
 @media (max-width: 400px) {
   .app-shell {
