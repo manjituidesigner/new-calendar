@@ -1,9 +1,13 @@
 // Basic in-memory + localStorage data model
 const STORAGE_KEY = "mobileWorkCalendars_v1"
 <<<<<<< HEAD
+<<<<<<< HEAD
 const EXPENSES_STORAGE_KEY = "mobileExpensesCalendars_v1"
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+const EXPENSES_STORAGE_KEY = "mobileExpensesCalendars_v1"
+>>>>>>> 7093bec (2)
 
 let calendars = []
 let activeCalendarId = null
@@ -12,6 +16,9 @@ let selectedDate = null
 let editingCalendarId = null
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 // Expenses data
 let expensesCalendars = []
 let activeExpensesCalendarId = null
@@ -19,8 +26,11 @@ let activeMode = "office" // "office" | "expenses" | "calculator"
 let lastCalculatorKey = null
 let shouldRestoreCalculatorOnInit = false
 
+<<<<<<< HEAD
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
 // Elements
 const monthLabel = document.getElementById("monthLabel")
 const yearLabel = document.getElementById("yearLabel")
@@ -40,9 +50,13 @@ const statExtra = document.getElementById("statExtra")
 
 // Session bar elements
 <<<<<<< HEAD
+<<<<<<< HEAD
 const appTitleEl = document.querySelector(".app-title")
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+const appTitleEl = document.querySelector(".app-title")
+>>>>>>> 7093bec (2)
 const sessionBar = document.getElementById("sessionBar")
 const sessionStatusEl = document.getElementById("sessionStatus")
 const sessionProductivityEl = document.getElementById("sessionProductivity")
@@ -66,6 +80,9 @@ const drawerTabs = document.querySelectorAll(".drawer-tab")
 const drawerPanels = document.querySelectorAll(".drawer-panel")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 function applyModeVisibility() {
   // If Settings page is open, keep all stats / expenses sections hidden so
   // they do not appear behind the Settings + Holidays UI.
@@ -177,8 +194,11 @@ if (drawerTabs.length && drawerPanels.length) {
   }
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
 const calendarListEl = document.getElementById("calendarList")
 const createCalendarToggle = document.getElementById("createCalendarToggle")
 const calendarForm = document.getElementById("calendarForm")
@@ -209,6 +229,9 @@ const holidayPrevMonthBtn = document.getElementById("holidayPrevMonthBtn")
 const holidayNextMonthBtn = document.getElementById("holidayNextMonthBtn")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 let holidaySettingsMonthOffset = 0
 
 function getHolidaySettingsYearMonth() {
@@ -326,6 +349,7 @@ if (holidayAddBtn) {
   })
 }
 
+<<<<<<< HEAD
 const prevMonthBtn = document.getElementById("prevMonthBtn")
 const nextMonthBtn = document.getElementById("nextMonthBtn")
 
@@ -889,6 +913,565 @@ const nextMonthBtn = document.getElementById("nextMonthBtn")
 
 const appTitleEl = document.querySelector(".app-title")
 >>>>>>> e6d3907 (Initial project commit)
+=======
+const prevMonthBtn = document.getElementById("prevMonthBtn")
+const nextMonthBtn = document.getElementById("nextMonthBtn")
+
+let sessionIntervalId = null
+let activeSessionKey = null
+let pendingPinCalendarId = null
+let pendingPinAction = null
+let pendingDeleteCalendarId = null
+let editingExpensesCalendarId = null
+let editingExpenseEntryId = null
+
+const pinModal = document.getElementById("pinModal")
+const pinModalCloseBtn = document.getElementById("pinModalCloseBtn")
+const pinCancelBtn = document.getElementById("pinCancelBtn")
+const pinUnlockBtn = document.getElementById("pinUnlockBtn")
+const pinCalendarName = document.getElementById("pinCalendarName")
+const pinInput = document.getElementById("pinInput")
+
+const deleteModal = document.getElementById("deleteModal")
+const deleteModalCloseBtn = document.getElementById("deleteModalCloseBtn")
+const deleteCancelBtn = document.getElementById("deleteCancelBtn")
+const deleteConfirmBtn = document.getElementById("deleteConfirmBtn")
+const deleteCalendarName = document.getElementById("deleteCalendarName")
+let pendingDeleteCalendarType = "office" // "office" | "expenses"
+
+// Expenses entry delete modal elements
+const expenseEntryDeleteModal = document.getElementById("expenseEntryDeleteModal")
+const expenseEntryDeleteCloseBtn = document.getElementById("expenseEntryDeleteCloseBtn")
+const expenseEntryDeleteCancelBtn = document.getElementById("expenseEntryDeleteCancelBtn")
+const expenseEntryDeleteConfirmBtn = document.getElementById("expenseEntryDeleteConfirmBtn")
+const expenseEntryDeleteLabel = document.getElementById("expenseEntryDeleteLabel")
+const expenseEntryDeleteMessage = document.getElementById("expenseEntryDeleteMessage")
+let pendingDeleteExpenseType = null // "single" | "group"
+let pendingDeleteExpenseKey = null
+let pendingDeleteExpenseEntryId = null
+let pendingDeleteExpensePayee = ""
+
+const clearMonthBtn = document.getElementById("clearMonthBtn")
+const clearMonthModal = document.getElementById("clearMonthModal")
+const clearMonthCloseBtn = document.getElementById("clearMonthCloseBtn")
+const clearMonthCancelBtn = document.getElementById("clearMonthCancelBtn")
+const clearMonthConfirmBtn = document.getElementById("clearMonthConfirmBtn")
+const clearMonthLabel = document.getElementById("clearMonthLabel")
+
+const endReminderModal = document.getElementById("endReminderModal")
+const endReminderCloseBtn = document.getElementById("endReminderCloseBtn")
+const endReminderStopBtn = document.getElementById("endReminderStopBtn")
+const endReminderSubtitle = document.getElementById("endReminderSubtitle")
+
+const runningModal = document.getElementById("runningModal")
+const runningModalCloseBtn = document.getElementById("runningModalCloseBtn")
+const runningOkBtn = document.getElementById("runningOkBtn")
+const runningModalCalendarName = document.getElementById("runningModalCalendarName")
+
+const breakModal = document.getElementById("breakModal")
+const breakModalCloseBtn = document.getElementById("breakModalCloseBtn")
+const breakCancelBtn = document.getElementById("breakCancelBtn")
+const breakDoneBtn = document.getElementById("breakDoneBtn")
+const breakModalCalendarName = document.getElementById("breakModalCalendarName")
+const breakReasonInput = document.getElementById("breakReasonInput")
+
+if (createCalendarToggle && calendarForm && calendarSubmitBtn) {
+  createCalendarToggle.setAttribute("type", "button")
+
+  createCalendarToggle.addEventListener("click", () => {
+    const willShow = !calendarForm.classList.contains("visible")
+    calendarForm.classList.toggle("visible")
+
+    if (willShow) {
+      if (calendarNameInput) calendarNameInput.value = ""
+      if (calendarDescriptionInput) calendarDescriptionInput.value = ""
+      if (salaryMonthlyInput) salaryMonthlyInput.value = ""
+      if (salaryHourlyInput) salaryHourlyInput.value = ""
+      if (workingDaysPerWeekInput) workingDaysPerWeekInput.value = "6"
+      if (calendarPinInput) calendarPinInput.value = ""
+      if (officeInTimeInput) officeInTimeInput.value = ""
+      if (officeOutTimeInput) officeOutTimeInput.value = ""
+      editingCalendarId = null
+      setTimeout(() => {
+        calendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 0)
+    }
+  })
+
+  calendarForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+
+    if (!calendarNameInput) return
+
+    const name = calendarNameInput.value.trim()
+    if (!name) {
+      alert("Please enter a calendar name.")
+      return
+    }
+
+    const description = calendarDescriptionInput
+      ? calendarDescriptionInput.value.trim()
+      : ""
+    const salaryMonthly = salaryMonthlyInput
+      ? Number(salaryMonthlyInput.value) || 0
+      : 0
+    const salaryHourly = salaryHourlyInput
+      ? Number(salaryHourlyInput.value) || 0
+      : 0
+    const workingDaysPerWeek = workingDaysPerWeekInput
+      ? Number(workingDaysPerWeekInput.value) || 6
+      : 6
+    const pin = calendarPinInput ? calendarPinInput.value.trim() || null : null
+
+    let scheduleInMinutes = null
+    let scheduleOutMinutes = null
+    if (officeInTimeInput && officeInTimeInput.value) {
+      const dt = buildDateWithTime(new Date(), officeInTimeInput.value)
+      if (dt) scheduleInMinutes = dt.getHours() * 60 + dt.getMinutes()
+    }
+    if (officeOutTimeInput && officeOutTimeInput.value) {
+      const dt = buildDateWithTime(new Date(), officeOutTimeInput.value)
+      if (dt) scheduleOutMinutes = dt.getHours() * 60 + dt.getMinutes()
+    }
+
+    if (editingCalendarId) {
+      const existing = calendars.find((c) => c.id === editingCalendarId)
+      if (existing) {
+        existing.name = name
+        existing.description = description
+        existing.salaryMonthly = salaryMonthly
+        existing.salaryHourly = salaryHourly
+        existing.workingDaysPerWeek = workingDaysPerWeek
+        existing.pin = pin
+        existing.scheduleInMinutes = scheduleInMinutes
+        existing.scheduleOutMinutes = scheduleOutMinutes
+      }
+    } else {
+      const id = "cal_" + Date.now()
+      calendars.push({
+        id,
+        name,
+        description,
+        salaryMonthly,
+        salaryHourly,
+        workingDaysPerWeek,
+        pin,
+        scheduleInMinutes,
+        scheduleOutMinutes,
+        days: {},
+        holidays: {},
+      })
+      activeCalendarId = id
+    }
+
+    saveCalendars()
+    renderCalendarList()
+    renderCalendar()
+    renderStats()
+    updateSessionBar()
+
+    editingCalendarId = null
+    calendarForm.classList.remove("visible")
+  })
+}
+
+function renderExpensesCategorySummary(cal) {
+  if (!expensesCategorySection || !expCategoryList) return
+
+  // If Settings page is open, keep expenses category summary hidden so it
+  // does not appear above the Holidays settings UI.
+  if (settingsPage && settingsPage.classList.contains("open")) {
+    expensesCategorySection.classList.add("hidden")
+    expCategoryList.innerHTML = ""
+    if (expCategoryTableBody) expCategoryTableBody.innerHTML = ""
+    return
+  }
+  if (!cal) {
+    expensesCategorySection.classList.add("hidden")
+    expCategoryList.innerHTML = ""
+    if (expCategoryTableBody) expCategoryTableBody.innerHTML = ""
+    return
+  }
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+
+  if (expCategoryMonthLabel) {
+    const label = new Date(year, month, 1).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+    expCategoryMonthLabel.textContent = label
+  }
+
+  const totals = new Map()
+  const comboTotals = new Map() // key: `${cat}||${sub}` -> { amount, count }
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(year, month, d)
+    const key = dateKey(dt)
+    const day = cal.days && cal.days[key]
+    if (!day || !Array.isArray(day.entries) || !day.entries.length) continue
+
+    day.entries.forEach((entry) => {
+      const cat = entry.category || "Uncategorized"
+      const subRaw = entry.subCategory || ""
+      const sub = subRaw || "-"
+      const total = Number(entry.total) || 0
+      if (!total) return
+
+      const current = totals.get(cat) || 0
+      totals.set(cat, current + total)
+
+      const comboKey = `${cat}||${sub}`
+      const prev = comboTotals.get(comboKey) || { amount: 0, count: 0 }
+      prev.amount += total
+      prev.count += 1
+      comboTotals.set(comboKey, prev)
+    })
+  }
+
+  expCategoryList.innerHTML = ""
+  if (expCategoryTableBody) expCategoryTableBody.innerHTML = ""
+
+  if (!totals.size) {
+    const span = document.createElement("span")
+    span.className = "placeholder-text"
+    span.textContent = "No expenses recorded for this month."
+    expCategoryList.appendChild(span)
+    if (expCategoryTableBody) {
+      expCategoryTableBody.innerHTML = ""
+    }
+    expensesCategorySection.classList.remove("hidden")
+    return
+  }
+
+  const entries = Array.from(totals.entries()).sort((a, b) => b[1] - a[1])
+  const max = entries[0][1] || 1
+
+  entries.forEach(([name, amount]) => {
+    const row = document.createElement("div")
+    row.className = "exp-category-row"
+
+    const top = document.createElement("div")
+    top.className = "exp-category-row-top"
+    const nameEl = document.createElement("span")
+    nameEl.className = "exp-category-name"
+    nameEl.textContent = name
+    const amtEl = document.createElement("span")
+    amtEl.className = "exp-category-amount"
+    amtEl.textContent = `₹${Math.round(amount)}`
+    top.appendChild(nameEl)
+    top.appendChild(amtEl)
+
+    const bar = document.createElement("div")
+    bar.className = "exp-category-bar"
+    const fill = document.createElement("div")
+    fill.className = "exp-category-bar-fill"
+    const pct = Math.max(4, Math.round((amount / max) * 100))
+    fill.style.width = pct + "%"
+    bar.appendChild(fill)
+
+    row.appendChild(top)
+    row.appendChild(bar)
+    expCategoryList.appendChild(row)
+  })
+
+  if (expCategoryTableBody) {
+    const comboEntries = Array.from(comboTotals.entries()).sort((a, b) => b[1].amount - a[1].amount)
+    comboEntries.forEach(([key, value]) => {
+      const [cat, sub] = key.split("||")
+      const tr = document.createElement("tr")
+      const tdCat = document.createElement("td")
+      const tdSub = document.createElement("td")
+      const tdAmt = document.createElement("td")
+      const tdCount = document.createElement("td")
+
+      tdCat.textContent = cat
+      tdSub.textContent = sub
+      tdAmt.textContent = `₹${Math.round(value.amount)}`
+      tdCount.textContent = String(value.count)
+
+      tr.appendChild(tdCat)
+      tr.appendChild(tdSub)
+      tr.appendChild(tdAmt)
+      tr.appendChild(tdCount)
+      expCategoryTableBody.appendChild(tr)
+    })
+  }
+
+  // Build simple pie view (static circle + legend)
+  const pieWrapper = document.getElementById("expCategoryPieWrapper")
+  if (pieWrapper) {
+    pieWrapper.innerHTML = ""
+
+    const totalAmount = entries.reduce((sum, [, amount]) => sum + amount, 0)
+    if (!entries.length || !totalAmount) {
+      const span = document.createElement("span")
+      span.className = "placeholder-text"
+      span.textContent = "No expenses recorded for this month."
+      pieWrapper.appendChild(span)
+    } else {
+      const pie = document.createElement("div")
+      pie.className = "exp-category-pie"
+
+      const circle = document.createElement("div")
+      circle.className = "exp-category-pie-circle"
+
+      const legend = document.createElement("div")
+      legend.className = "exp-category-pie-legend"
+
+      const colors = ["#22c55e", "#3b82f6", "#f97316", "#ef4444", "#a855f7"]
+
+      entries.forEach(([name, amount], idx) => {
+        const row = document.createElement("div")
+        row.className = "exp-category-pie-legend-row"
+
+        const left = document.createElement("div")
+        left.style.display = "flex"
+        left.style.alignItems = "center"
+        left.style.gap = "4px"
+
+        const dot = document.createElement("span")
+        dot.className = "exp-category-pie-dot"
+        dot.style.backgroundColor = colors[idx % colors.length]
+
+        const nameEl = document.createElement("span")
+        nameEl.textContent = name
+
+        left.appendChild(dot)
+        left.appendChild(nameEl)
+
+        const right = document.createElement("span")
+        const pct = totalAmount ? Math.round((amount / totalAmount) * 100) : 0
+        right.textContent = `${pct}% (₹${Math.round(amount)})`
+
+        row.appendChild(left)
+        row.appendChild(right)
+        legend.appendChild(row)
+      })
+
+      pie.appendChild(circle)
+      pie.appendChild(legend)
+      pieWrapper.appendChild(pie)
+    }
+  }
+
+  expensesCategorySection.classList.remove("hidden")
+}
+
+function pad(n) {
+  return String(n).padStart(2, "0")
+}
+function dateKey(dt) {
+  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`
+}
+function monthKeyFromYearMonth(year, month) {
+  return `${year}-${pad(month + 1)}`
+}
+function formatTime(ts) {
+  if (!ts) return "--:--"
+  const d = new Date(ts)
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+function formatMinutesToHM(mins) {
+  const h = Math.floor((mins || 0) / 60)
+  const m = Math.max(0, (mins || 0) % 60)
+  return `${h}h ${m}m`
+}
+function formatCurrencyINR(amount) {
+	const n = Number(amount) || 0
+	return new Intl.NumberFormat('en-IN', {
+		style: 'currency',
+		currency: 'INR',
+		maximumFractionDigits: 2,
+	}).format(n)
+}
+function buildDateWithTime(date, hhmm) {
+  if (!date || !hhmm) return null
+  const parts = String(hhmm).split(":")
+  if (parts.length < 2) return null
+  const h = Number(parts[0])
+  const m = Number(parts[1])
+  if (Number.isNaN(h) || Number.isNaN(m)) return null
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0, 0)
+}
+function ensureCalendarHolidays(cal) {
+  if (!cal.holidays) cal.holidays = {}
+}
+function getActiveCalendar() {
+  if (!activeCalendarId) return null
+  return calendars.find((c) => c.id === activeCalendarId) || null
+}
+function loadCalendars() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY)
+    if (!data) {
+      calendars = []
+      activeCalendarId = null
+    } else {
+      const parsed = JSON.parse(data)
+      calendars = parsed.calendars || []
+      activeCalendarId = parsed.activeCalendarId || (calendars[0]?.id ?? null)
+    }
+  } catch (e) {
+    calendars = []
+    activeCalendarId = null
+  }
+  calendars.forEach((c) => {
+    if (!c.days) c.days = {}
+    if (!c.holidays) c.holidays = {}
+  })
+  updateAppTitle()
+}
+function saveCalendars() {
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({ calendars, activeCalendarId })
+  )
+}
+function selectCalendar(id) {
+  activeCalendarId = id
+  saveCalendars()
+  renderCalendarList()
+  renderCalendar()
+  renderStats()
+  updateSessionBar()
+  updateAppTitle()
+  closeDrawer()
+}
+function editCalendar(id) {
+  const cal = calendars.find((c) => c.id === id)
+  if (!cal || !calendarForm) return
+  if (calendarNameInput) calendarNameInput.value = cal.name || ""
+  if (calendarDescriptionInput) calendarDescriptionInput.value = cal.description || ""
+  if (salaryMonthlyInput) salaryMonthlyInput.value = cal.salaryMonthly || ""
+  if (salaryHourlyInput) salaryHourlyInput.value = cal.salaryHourly || ""
+  if (workingDaysPerWeekInput) workingDaysPerWeekInput.value = String(cal.workingDaysPerWeek || 6)
+  if (calendarPinInput) calendarPinInput.value = cal.pin || ""
+  if (cal.scheduleInMinutes != null && officeInTimeInput)
+    officeInTimeInput.value = `${pad(Math.floor(cal.scheduleInMinutes / 60))}:${pad(cal.scheduleInMinutes % 60)}`
+  if (cal.scheduleOutMinutes != null && officeOutTimeInput)
+    officeOutTimeInput.value = `${pad(Math.floor(cal.scheduleOutMinutes / 60))}:${pad(cal.scheduleOutMinutes % 60)}`
+  editingCalendarId = id
+  calendarForm.classList.add("visible")
+  setTimeout(() => {
+    calendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, 0)
+}
+function deleteCalendar(id) {
+  calendars = calendars.filter((c) => c.id !== id)
+  if (activeCalendarId === id) {
+    activeCalendarId = calendars[0]?.id ?? null
+  }
+  saveCalendars()
+  renderCalendarList()
+  renderCalendar()
+  renderStats()
+  updateSessionBar()
+}
+function updateAppTitle() {
+  if (!appTitleEl) return
+
+  if (activeMode === "expenses") {
+    const ec = getActiveExpensesCalendar()
+    appTitleEl.textContent = ec ? ec.title : "Expenses Calendar"
+  } else {
+    const oc = getActiveCalendar()
+    appTitleEl.textContent = oc ? oc.name : "Office Calendar"
+  }
+}
+function openDrawer() {
+  if (drawer) drawer.classList.add("open")
+  if (overlay) overlay.classList.add("active")
+  document.body.style.overflow = "hidden"
+}
+function closeDrawer() {
+  if (drawer) drawer.classList.remove("open")
+  if (overlay) overlay.classList.remove("active")
+  document.body.style.overflow = ""
+}
+if (menuBtn) {
+  menuBtn.addEventListener("click", () => {
+    // If Settings is open, treat menu button as a back button
+    if (settingsPage && settingsPage.classList.contains("open")) {
+      settingsPage.classList.remove("open")
+
+      document.querySelector('.calendar-card')?.classList.remove('hidden')
+      document.querySelector('.month-header')?.classList.remove('hidden')
+      document.getElementById('sessionBar')?.classList.remove('hidden')
+      document.getElementById('expensesCategorySection')?.classList.remove('hidden')
+      document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+      applyModeVisibility()
+      updateAppTitle()
+      return
+    }
+
+    // Otherwise behave like normal menu button (open drawer)
+    openDrawer()
+  })
+}
+if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer)
+if (overlay) {
+  overlay.addEventListener("click", () => {
+    if (drawer && drawer.classList.contains("open")) closeDrawer()
+    if (expensesModal && expensesModal.classList.contains("open")) closeExpensesModal()
+  })
+}
+if (drawerSettingsBtn && settingsPage) {
+  drawerSettingsBtn.addEventListener("click", () => {
+    settingsPage.classList.add("open")
+
+    // Hide main calendar/expenses sections so settings behaves like a standalone page
+    document.querySelector('.calendar-card')?.classList.add('hidden')
+    document.querySelector('.month-header')?.classList.add('hidden')
+    document.getElementById('sessionBar')?.classList.add('hidden')
+    document.getElementById('officeStatsSection')?.classList.add('hidden')
+    document.getElementById('expensesStatsSection')?.classList.add('hidden')
+    document.getElementById('expensesCategorySection')?.classList.add('hidden')
+    document.getElementById('expensesPayeeSection')?.classList.add('hidden')
+    document.getElementById('clearMonthBtn')?.classList.add('hidden')
+
+    // Ensure calculator page is closed when opening settings
+    if (typeof calculatorPage !== 'undefined' && calculatorPage) {
+      calculatorPage.classList.remove('open')
+    }
+
+    if (appTitleEl) appTitleEl.textContent = 'Settings'
+    closeDrawer()
+  })
+}
+if (settingsCloseBtn && settingsPage) {
+  settingsCloseBtn.addEventListener("click", () => {
+    settingsPage.classList.remove("open")
+
+    // Restore calendar/expenses sections
+    document.querySelector('.calendar-card')?.classList.remove('hidden')
+    document.querySelector('.month-header')?.classList.remove('hidden')
+    document.getElementById('sessionBar')?.classList.remove('hidden')
+    document.getElementById('officeStatsSection')?.classList.remove('hidden')
+    document.getElementById('expensesStatsSection')?.classList.remove('hidden')
+    document.getElementById('expensesCategorySection')?.classList.remove('hidden')
+    document.getElementById('expensesPayeeSection')?.classList.remove('hidden')
+    document.getElementById('clearMonthBtn')?.classList.remove('hidden')
+
+    updateAppTitle()
+  })
+}
+function endSessionForDate(cal, key) {
+  if (!cal || !key) return
+  const info = cal.days[key]
+  if (info && info.inTime && !info.outTime) {
+    info.outTime = Date.now()
+    if (cal.runningDateKey === key) cal.runningDateKey = null
+    saveCalendars()
+    renderCalendar()
+    renderStats()
+    updateSessionBar()
+  }
+}
+>>>>>>> 7093bec (2)
 
 // Modal elements
 const dateModal = document.getElementById("dateModal")
@@ -900,10 +1483,14 @@ const outTimeCell = document.getElementById("outTimeCell") // now an <input type
 const saveTimeBtn = document.getElementById("saveTimeBtn")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Report modal elements (office)
 =======
 // Report modal elements
 >>>>>>> e6d3907 (Initial project commit)
+=======
+// Report modal elements (office)
+>>>>>>> 7093bec (2)
 const reportModal = document.getElementById("reportModal")
 const reportCloseBtn = document.getElementById("reportCloseBtn")
 const reportMonthTitle = document.getElementById("reportMonthTitle")
@@ -922,6 +1509,7 @@ const repTotalSalary = document.getElementById("repTotalSalary")
 const repSalaryDeduction = document.getElementById("repSalaryDeduction")
 const repFinalSalary = document.getElementById("repFinalSalary")
 const repProductivity = document.getElementById("repProductivity")
+<<<<<<< HEAD
 <<<<<<< HEAD
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
@@ -3780,769 +4368,2869 @@ if (payeeReportShareBtn) {
   })
 =======
 const reportTableBody = document.getElementById("reportTableBody")
+=======
+>>>>>>> 7093bec (2)
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
 
-// Clear month elements
-const clearMonthBtn = document.getElementById("clearMonthBtn")
-const clearMonthModal = document.getElementById("clearMonthModal")
-const clearMonthLabel = document.getElementById("clearMonthLabel")
-const clearMonthCloseBtn = document.getElementById("clearMonthCloseBtn")
-const clearMonthCancelBtn = document.getElementById("clearMonthCancelBtn")
-const clearMonthConfirmBtn = document.getElementById("clearMonthConfirmBtn")
+// Gold invoice modal elements
+const goldInvoiceModal = document.getElementById("goldInvoiceModal")
+const goldInvoiceCloseBtn = document.getElementById("goldInvoiceCloseBtn")
+const goldInvoiceTitle = document.getElementById("goldInvoiceTitle")
+const goldInvoiceSubtitle = document.getElementById("goldInvoiceSubtitle")
+const goldInvoiceMetal = document.getElementById("goldInvoiceMetal")
+const goldInvoicePriceBasis = document.getElementById("goldInvoicePriceBasis")
+const goldInvoiceWeight = document.getElementById("goldInvoiceWeight")
+const goldInvoicePurity = document.getElementById("goldInvoicePurity")
+const goldInvoiceMaking = document.getElementById("goldInvoiceMaking")
+const goldInvoiceGst = document.getElementById("goldInvoiceGst")
+const goldInvoiceDiscount = document.getElementById("goldInvoiceDiscount")
+const goldInvoiceFinal = document.getElementById("goldInvoiceFinal")
+const goldInvoiceDetail = document.getElementById("goldInvoiceDetail")
+const goldInvoicePrintBtn = document.getElementById("goldInvoicePrintBtn")
+const goldInvoiceShareBtn = document.getElementById("goldInvoiceShareBtn")
 
-// PIN modal elements
-const pinModal = document.getElementById("pinModal")
-const pinModalCloseBtn = document.getElementById("pinModalCloseBtn")
-const pinCalendarName = document.getElementById("pinCalendarName")
-const pinInput = document.getElementById("pinInput")
-const pinUnlockBtn = document.getElementById("pinUnlockBtn")
-const pinCancelBtn = document.getElementById("pinCancelBtn")
+// Expenses combined monthly report modal elements
+const expWalletBalanceEl = document.getElementById("expWalletBalance")
+const expensesPayeeTableBody = document.getElementById("expensesPayeeTableBody")
+const expensesViewReportBtn = document.getElementById("expensesViewReportBtn")
+const expensesCategorySection = document.getElementById("expensesCategorySection")
+const expCategoryMonthLabel = document.getElementById("expCategoryMonthLabel")
+const expCategoryList = document.getElementById("expCategoryList")
+const expCategoryTableBody = document.getElementById("expCategoryTableBody")
+const expCategoryBarView = document.getElementById("expCategoryBarView")
+const expCategoryPieView = document.getElementById("expCategoryPieView")
+const expCategoryTableView = document.getElementById("expCategoryTableView")
+const expCategoryBarBtn = document.getElementById("expCategoryBarBtn")
+const expCategoryPieBtn = document.getElementById("expCategoryPieBtn")
+const expCategoryTableBtn = document.getElementById("expCategoryTableBtn")
+const expReportPaid = document.getElementById("expReportPaid")
+const expReportPending = document.getElementById("expReportPending")
+const expReportCarryLabel = document.getElementById("expReportCarryLabel")
+const expReportCarryValue = document.getElementById("expReportCarryValue")
+const expensesReportTableBody = document.getElementById("expensesReportTableBody")
+const expensesReportCards = document.getElementById("expensesReportCards")
+const expensesReportDownloadBtn = document.getElementById("expensesReportDownloadBtn")
+const expensesReportShareBtn = document.getElementById("expensesReportShareBtn")
+const endReminderSnoozeButtons = document.querySelectorAll('#endReminderModal [data-snooze]')
 
-// Delete calendar modal elements
-const deleteModal = document.getElementById("deleteModal")
-const deleteModalCloseBtn = document.getElementById("deleteModalCloseBtn")
-const deleteCalendarName = document.getElementById("deleteCalendarName")
-const deleteCancelBtn = document.getElementById("deleteCancelBtn")
-const deleteConfirmBtn = document.getElementById("deleteConfirmBtn")
+// Expenses stats & drawer elements
+const officeStatsSection = document.getElementById("officeStatsSection")
+const expensesStatsSection = document.getElementById("expensesStatsSection")
+const expensesPayeeSection = document.getElementById("expensesPayeeSection")
+const expTodayEl = document.getElementById("expToday")
+const expTotalSpentEl = document.getElementById("expTotalSpent")
+const expMonthlyBudgetEl = document.getElementById("expMonthlyBudget")
+const expRemainingEl = document.getElementById("expRemaining")
+const expOverBudgetEl = document.getElementById("expOverBudget")
 
-// Running timer warning modal elements
-const runningModal = document.getElementById("runningModal")
-const runningModalCloseBtn = document.getElementById("runningModalCloseBtn")
-const runningModalCalendarName = document.getElementById("runningModalCalendarName")
-const runningOkBtn = document.getElementById("runningOkBtn")
+// Now that stats sections exist in the DOM, apply visibility for the restored activeMode
+applyModeVisibility()
+// Payee report modal elements
+const payeeReportModal = document.getElementById("payeeReportModal")
+const payeeReportCloseBtn = document.getElementById("payeeReportCloseBtn")
+const payeeReportTitle = document.getElementById("payeeReportTitle")
+const payeeReportSubtitle = document.getElementById("payeeReportSubtitle")
+const payeeReportPayeeName = document.getElementById("payeeReportPayeeName")
+const payeeReportMonthTotal = document.getElementById("payeeReportMonthTotal")
+const payeeReportPending = document.getElementById("payeeReportPending")
+const payeeReportLastPending = document.getElementById("payeeReportLastPending")
+const payeeReportTotalPaid = document.getElementById("payeeReportTotalPaid")
+const payeeReportLastPaymentInfo = document.getElementById("payeeReportLastPaymentInfo")
+const payeeReportTableBody = document.getElementById("payeeReportTableBody")
+const payeeReportCards = document.getElementById("payeeReportCards")
+const payeeReportDownloadBtn = document.getElementById("payeeReportDownloadBtn")
+const payeeReportShareBtn = document.getElementById("payeeReportShareBtn")
+const payeePaymentTypeSelect = document.getElementById("payeePaymentType")
+const payeePaymentAmountInput = document.getElementById("payeePaymentAmount")
+const payeePaymentFileInput = document.getElementById("payeePaymentFile")
+const payeePaymentSubmitBtn = document.getElementById("payeePaymentSubmitBtn")
+const payeePaymentTableBody = document.getElementById("payeePaymentTableBody")
 
-// End-of-day reminder modal elements
-const endReminderModal = document.getElementById("endReminderModal")
-const endReminderCloseBtn = document.getElementById("endReminderCloseBtn")
-const endReminderSubtitle = document.getElementById("endReminderSubtitle")
-const endReminderStopBtn = document.getElementById("endReminderStopBtn")
-const endReminderSnoozeButtons = document.querySelectorAll("#endReminderModal [data-snooze]")
+const expensesCalendarListEl = document.getElementById("expensesCalendarList")
+const createExpensesCalendarToggle = document.getElementById(
+  "createExpensesCalendarToggle"
+)
+const expensesCalendarForm = document.getElementById("expensesCalendarForm")
+const expensesTitleInput = document.getElementById("expensesTitle")
+const expensesDescriptionInput = document.getElementById("expensesDescription")
+const expensesBudgetAmountInput = document.getElementById("expensesBudgetAmount")
+const expensesWalletAmountInput = document.getElementById("expensesWalletAmount")
+const expensesPinInput = document.getElementById("expensesPin")
 
-// Break modal elements
-const breakModal = document.getElementById("breakModal")
-const breakModalCloseBtn = document.getElementById("breakModalCloseBtn")
-const breakModalCalendarName = document.getElementById("breakModalCalendarName")
-const breakReasonInput = document.getElementById("breakReasonInput")
-const breakCancelBtn = document.getElementById("breakCancelBtn")
-const breakDoneBtn = document.getElementById("breakDoneBtn")
+// Calculator tab & page elements
+const calculatorListEl = document.getElementById("calculatorList")
+const calculatorTitleEl = document.getElementById("calculatorTitle")
+const calculatorViews = document.querySelectorAll('[data-calc-view]')
+const calculatorPage = document.getElementById("calculatorPage")
+const appShell = document.querySelector(".app-shell")
 
-let pendingPinCalendarId = null
-let pendingPinAction = null // "select" | "edit" | "delete"
-let pendingDeleteCalendarId = null
-let sessionIntervalId = null
-let activeSessionKey = null // date key that session bar is tracking
-let holidayViewDate = null
+// Remember which calculator is active (for header title)
+let activeCalculatorTitle = null
 
-// Utility
-const pad = (n) => (n < 10 ? "0" + n : "" + n)
+function setActiveCalculator(key) {
+  // calculatorTitleEl is optional (we sometimes only use the main header title),
+  // but we always need the list element and the views.
+  if (!calculatorListEl || !calculatorViews.length) return
 
-function dateKey(date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )}`
-}
-
-function monthKeyFromYearMonth(year, monthIndex) {
-  // monthIndex is 0-based
-  return `${year}-${pad(monthIndex + 1)}`
-}
-
-function ensureCalendarHolidays(cal) {
-  if (!cal.holidays) cal.holidays = {}
-}
-
-function buildDateWithTime(baseDate, timeStr) {
-  if (!timeStr) return null
-  const [hStr, mStr] = timeStr.split(":")
-  const h = Number(hStr)
-  const m = Number(mStr)
-  if (Number.isNaN(h) || Number.isNaN(m)) return null
-  const d = new Date(baseDate.getTime())
-  d.setHours(h, m, 0, 0)
-  return d
-}
-
-function formatMinutesToHM(totalMinutes) {
-  const h = Math.floor(totalMinutes / 60)
-  const m = totalMinutes % 60
-  return `${h}h ${m}m`
-}
-
-// Format a timestamp (ms) or Date into HH:MM for UI labels
-function formatTime(value) {
-  const d = value instanceof Date ? value : new Date(value)
-  const hh = pad(d.getHours())
-  const mm = pad(d.getMinutes())
-  return `${hh}:${mm}`
-}
-
-// Storage helpers
-function loadCalendars() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY)
-    if (!data) {
-      calendars = [
-        {
-          id: "default",
-          name: "Default Office",
-          description: "Primary work calendar",
-          salaryMonthly: 0,
-          salaryHourly: 0,
-          workingDaysPerWeek: 6,
-          scheduleInMinutes: 9 * 60,
-          scheduleOutMinutes: 18 * 60,
-          runningDateKey: null,
-          pin: null,
-          days: {},
-          holidays: {},
-        },
-      ]
-
-      activeCalendarId = "default"
-      saveCalendars()
+  const chips = calculatorListEl.querySelectorAll('.calculator-chip')
+  chips.forEach((chip) => {
+    const val = chip.getAttribute('data-calc')
+    if (val === key) {
+      chip.classList.add('active')
     } else {
-      const parsed = JSON.parse(data)
-      calendars = parsed.calendars || []
-      activeCalendarId = parsed.activeCalendarId || (calendars[0]?.id ?? null)
+      chip.classList.remove('active')
     }
-  } catch (e) {
-    calendars = []
-    activeCalendarId = null
-  }
-  updateAppTitle()
-}
+  })
 
-function saveCalendars() {
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify({ calendars, activeCalendarId })
-  )
-}
+  calculatorViews.forEach((view) => {
+    const val = view.getAttribute('data-calc-view')
+    if (val === key) {
+      view.classList.remove('hidden')
+    } else {
+      view.classList.add('hidden')
+    }
+  })
 
-function getActiveCalendar() {
-  return calendars.find((c) => c.id === activeCalendarId) || null
-}
+  // Update and remember title from active chip
+  const activeChip = calculatorListEl.querySelector('.calculator-chip.active')
+  if (activeChip) {
+    const label = activeChip.getAttribute('data-label') || activeChip.textContent || ''
+    const titleText = label.trim() || 'Calculator'
 
-function updateAppTitle() {
-  if (!appTitleEl) return
-  const cal = getActiveCalendar()
-  appTitleEl.textContent = cal ? cal.name : "Office Calendar"
-}
+    activeCalculatorTitle = titleText
 
-// Backup / restore
-function exportBackup() {
-  const payload = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    calendars,
-    activeCalendarId,
+    if (calculatorTitleEl) {
+      calculatorTitleEl.textContent = titleText
+    }
+
+    if (typeof appTitleEl !== 'undefined' && appTitleEl) {
+      appTitleEl.textContent = titleText
+    }
   }
 
-  const json = JSON.stringify(payload, null, 2)
-  const blob = new Blob([json], { type: "application/json" })
-  const url = URL.createObjectURL(blob)
+  // Persist calculator as last active view
+  lastCalculatorKey = key
+  activeMode = 'calculator'
+  try {
+    localStorage.setItem('mw_lastMode', 'calculator')
+    localStorage.setItem('mw_lastCalculatorKey', key)
+  } catch (e) {}
 
-  const a = document.createElement("a")
-  a.href = url
-  const ts = new Date().toISOString().replace(/[:.]/g, "-")
-  a.download = `work-calendar-backup-${ts}.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
-
-function importBackup(file) {
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (e) => {
+  // When opening the gold calculator, load any stored live prices and
+  // auto-fill the Gold Price input from them.
+  if (key === 'gold') {
     try {
-      const text = e.target.result
-      const data = JSON.parse(text)
-
-      if (!data || !Array.isArray(data.calendars)) {
-        alert("Invalid backup file.")
-        return
+      if (typeof loadLiveMetalPricesFromStorage === 'function') {
+        loadLiveMetalPricesFromStorage()
       }
-
-      calendars = data.calendars
-      activeCalendarId = data.activeCalendarId || (calendars[0]?.id ?? null)
-      saveCalendars()
-      renderCalendarList()
-      renderCalendar()
-      renderStats()
-      updateAppTitle()
-      alert("Backup restored successfully.")
-    } catch (err) {
-      alert("Could not read backup file.")
-    }
+    } catch (e) {}
   }
-  reader.readAsText(file)
+
+  if (calculatorPage) {
+    calculatorPage.classList.add('open')
+
+    const calendarCard = document.querySelector('.calendar-card')
+    const monthHeader = document.querySelector('.month-header')
+    const sessionBar = document.getElementById('sessionBar')
+    const clearMonthBtnEl = document.getElementById('clearMonthBtn')
+    const expensesCategorySectionEl = document.getElementById('expensesCategorySection')
+    const officeStatsSectionEl = document.getElementById('officeStatsSection')
+    const expensesStatsSectionEl = document.getElementById('expensesStatsSection')
+    const expensesPayeeSectionEl = document.getElementById('expensesPayeeSection')
+
+    calendarCard?.classList.add('hidden')
+    monthHeader?.classList.add('hidden')
+    sessionBar?.classList.add('hidden')
+    clearMonthBtnEl?.classList.add('hidden')
+    expensesCategorySectionEl?.classList.add('hidden')
+
+    officeStatsSectionEl?.classList.add('hidden')
+    expensesStatsSectionEl?.classList.add('hidden')
+    expensesPayeeSectionEl?.classList.add('hidden')
+
+    // Ensure calculator is visible
+    try {
+      calculatorPage.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } catch (e) {}
+  }
+
+  // Close side drawer after selecting a calculator, if the function exists
+  try {
+    if (typeof closeDrawer === 'function') {
+      closeDrawer()
+    }
+  } catch (e) {}
 }
 
-// Drawer + overlay
-function openDrawer() {
-  drawer.classList.add("open")
-  overlay.classList.add("active")
-}
+document.addEventListener('click', (e) => {
+  const rawTarget = e.target
+  if (!(rawTarget instanceof HTMLElement)) return
 
-function closeDrawer() {
-  drawer.classList.remove("open")
-  overlay.classList.remove("active")
-}
+  const chip = rawTarget.closest('.calculator-chip')
+  if (!chip) return
 
-menuBtn.addEventListener("click", openDrawer)
-drawerCloseBtn.addEventListener("click", closeDrawer)
+  const key = chip.getAttribute('data-calc')
+  if (!key) return
 
-function openSettingsPage() {
-  if (!settingsPage) return
-  settingsPage.classList.add("open")
-  overlay.classList.add("active")
-  // Initialize holiday view month from current calendar month
-  holidayViewDate = new Date(currentDate.getTime())
-  openHolidaySettingsForCurrentMonth()
-}
-
-function closeSettingsPage() {
-  if (!settingsPage) return
-  settingsPage.classList.remove("open")
-  overlay.classList.remove("active")
-}
-
-if (drawerSettingsBtn) {
-  drawerSettingsBtn.addEventListener("click", () => {
-    closeDrawer()
-    openSettingsPage()
-  })
-}
-
-if (settingsCloseBtn) {
-  settingsCloseBtn.addEventListener("click", () => {
-    closeSettingsPage()
-  })
-}
-
-overlay.addEventListener("click", () => {
-  if (drawer.classList.contains("open")) closeDrawer()
-  if (dateModal.classList.contains("open")) closeModal()
-  if (pinModal.classList.contains("open")) closePinModal()
-  if (deleteModal.classList.contains("open")) closeDeleteModal()
-  if (runningModal.classList.contains("open")) closeRunningModal()
-  if (breakModal.classList.contains("open")) closeBreakModal()
-  if (reportModal && reportModal.classList.contains("open")) closeReportModal()
-  if (clearMonthModal && clearMonthModal.classList.contains("open")) closeClearMonthModal()
-  if (settingsPage && settingsPage.classList.contains("open")) closeSettingsPage()
-  if (endReminderModal && endReminderModal.classList.contains("open")) closeEndReminderModal()
+  setActiveCalculator(key)
 })
 
-// Drawer tabs
-drawerTabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    drawerTabs.forEach((t) => t.classList.remove("active"))
-    drawerPanels.forEach((p) => p.classList.remove("active"))
-    tab.classList.add("active")
-    const targetId = tab.dataset.tab + "Tab"
-    const panel = document.getElementById(targetId)
-    if (panel) panel.classList.add("active")
-  })
-})
+// After calculator elements and functions exist, optionally restore last calculator view
+// and load any stored live metal prices for the gold calculator.
+try {
+  if (typeof loadLiveMetalPricesFromStorage === 'function') {
+    loadLiveMetalPricesFromStorage()
+  }
+} catch (e) {}
 
-// Holidays settings logic
-function renderHolidayList(cal, monthKey) {
-  if (!holidayList) return
-  ensureCalendarHolidays(cal)
-  const holMonth = cal.holidays[monthKey] || {}
-  const days = Object.keys(holMonth)
-    .map((d) => Number(d))
-    .filter((d) => !Number.isNaN(d))
-    .sort((a, b) => a - b)
+if (shouldRestoreCalculatorOnInit && lastCalculatorKey) {
+	try {
+		setActiveCalculator(lastCalculatorKey)
+		shouldRestoreCalculatorOnInit = false
+	} catch (e) {
+		// If anything goes wrong, fall back to normal calendar view
+		activeMode = 'office'
+		try {
+			localStorage.setItem('mw_lastMode', 'office')
+			localStorage.removeItem('mw_lastCalculatorKey')
+		} catch (e2) {}
+		updateAppTitle()
+		if (typeof renderCalendar === 'function') {
+			renderCalendar()
+		}
+	}
+}
 
-  holidayList.innerHTML = ""
+// EMI calculator logic
+const emiLoanTabs = document.getElementById('emiLoanTabs')
+const emiAmountInput = document.getElementById('emiAmount')
+const emiAmountRange = document.getElementById('emiAmountRange')
+const emiRateInput = document.getElementById('emiRate')
+const emiRateRange = document.getElementById('emiRateRange')
+const emiTenureInput = document.getElementById('emiTenure')
+const emiTenureRange = document.getElementById('emiTenureRange')
+const emiTenureToggle = document.getElementById('emiTenureToggle')
+const emiEmiValueEl = document.getElementById('emiEmiValue')
+const emiInterestValueEl = document.getElementById('emiInterestValue')
+const emiTotalValueEl = document.getElementById('emiTotalValue')
+const emiChartPrincipalEl = document.getElementById('emiChartPrincipal')
+const emiChartInterestEl = document.getElementById('emiChartInterest')
+const emiPrincipalPctEl = document.getElementById('emiPrincipalPct')
+const emiInterestPctEl = document.getElementById('emiInterestPct')
 
-  if (!days.length) {
-    const li = document.createElement("li")
-    li.className = "holiday-list-empty"
-    li.textContent = "No holidays added for this month yet."
-    holidayList.appendChild(li)
+let emiTenureUnit = 'years' // 'years' | 'months'
+
+const EMI_LOAN_PRESETS = {
+  home: { amount: 3000000, rate: 8.5, tenureYears: 20 },
+  personal: { amount: 500000, rate: 13.0, tenureYears: 5 },
+  car: { amount: 800000, rate: 9.0, tenureYears: 7 },
+}
+
+function syncEmiAmountFromRange() {
+  if (!emiAmountInput || !emiAmountRange) return
+  emiAmountInput.value = String(emiAmountRange.value)
+}
+
+function syncEmiAmountFromInput() {
+  if (!emiAmountInput || !emiAmountRange) return
+  const val = Number(emiAmountInput.value) || 0
+  const min = Number(emiAmountRange.min) || 0
+  const max = Number(emiAmountRange.max) || 0
+  const clamped = Math.min(max, Math.max(min, val))
+  emiAmountRange.value = String(clamped)
+  emiAmountInput.value = String(clamped)
+}
+
+function syncEmiRateFromRange() {
+  if (!emiRateInput || !emiRateRange) return
+  emiRateInput.value = String(emiRateRange.value)
+}
+
+function syncEmiRateFromInput() {
+  if (!emiRateInput || !emiRateRange) return
+  const val = Number(emiRateInput.value) || 0
+  const min = Number(emiRateRange.min) || 0
+  const max = Number(emiRateRange.max) || 0
+  const clamped = Math.min(max, Math.max(min, val))
+  emiRateRange.value = String(clamped)
+  emiRateInput.value = String(clamped)
+}
+
+function syncEmiTenureFromRange() {
+  if (!emiTenureInput || !emiTenureRange) return
+  emiTenureInput.value = String(emiTenureRange.value)
+}
+
+function syncEmiTenureFromInput() {
+  if (!emiTenureInput || !emiTenureRange) return
+  const val = Number(emiTenureInput.value) || 0
+  const min = Number(emiTenureRange.min) || 0
+  const max = Number(emiTenureRange.max) || 0
+  const clamped = Math.min(max, Math.max(min, val))
+  emiTenureRange.value = String(clamped)
+  emiTenureInput.value = String(clamped)
+}
+
+function getEmiMonths() {
+  const t = Number(emiTenureInput && emiTenureInput.value ? emiTenureInput.value : 0) || 0
+  if (!t) return 0
+  return emiTenureUnit === 'years' ? t * 12 : t
+}
+
+function recalcEmi() {
+  if (!emiAmountInput || !emiRateInput || !emiTenureInput) return
+
+  const principal = Number(emiAmountInput.value) || 0
+  const annualRate = Number(emiRateInput.value) || 0
+  const months = getEmiMonths()
+
+  if (!principal || !annualRate || !months) {
+    if (emiEmiValueEl) emiEmiValueEl.textContent = '₹0'
+    if (emiInterestValueEl) emiInterestValueEl.textContent = '₹0'
+    if (emiTotalValueEl) emiTotalValueEl.textContent = '₹0'
+    if (emiPrincipalPctEl) emiPrincipalPctEl.textContent = '0%'
+    if (emiInterestPctEl) emiInterestPctEl.textContent = '0%'
+    if (emiChartPrincipalEl) emiChartPrincipalEl.style.setProperty('flex', '1')
+    if (emiChartInterestEl) emiChartInterestEl.style.setProperty('flex', '0')
     return
   }
 
-  days.forEach((day) => {
-    const info = holMonth[day]
-    const li = document.createElement("li")
-    li.className = "holiday-list-item"
-    const label = document.createElement("span")
-    label.textContent = `${day} - ${info.name || "Holiday"}`
-    const removeBtn = document.createElement("button")
-    removeBtn.className = "small-btn"
-    removeBtn.textContent = "Remove"
-    removeBtn.addEventListener("click", () => {
-      delete holMonth[day]
-      if (!Object.keys(holMonth).length) {
-        delete cal.holidays[monthKey]
-      }
-      saveCalendars()
-      renderHolidayList(cal, monthKey)
-      renderCalendar()
-      renderStats()
-    })
-    li.appendChild(label)
-    li.appendChild(removeBtn)
-    holidayList.appendChild(li)
-  })
-}
+  const monthlyRate = annualRate / 12 / 100
+  let emi = 0
 
-function openHolidaySettingsForCurrentMonth() {
-  const cal = getActiveCalendar()
-  if (!cal || !holidaySettings) return
-  if (!holidayViewDate) {
-    holidayViewDate = new Date(currentDate.getTime())
+  if (monthlyRate === 0) {
+    emi = principal / months
+  } else {
+    const pow = Math.pow(1 + monthlyRate, months)
+    emi = (principal * monthlyRate * pow) / (pow - 1)
   }
-  const year = holidayViewDate.getFullYear()
-  const month = holidayViewDate.getMonth()
-  const monthLabel = new Date(year, month, 1).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  })
-  if (holidayMonthLabel) holidayMonthLabel.textContent = monthLabel
 
-  if (holidayDayInput) holidayDayInput.value = ""
-  if (holidayNameInput) holidayNameInput.value = ""
+  const totalPayment = emi * months
+  const interest = totalPayment - principal
 
-  const mKey = monthKeyFromYearMonth(year, month)
-  ensureCalendarHolidays(cal)
-  renderHolidayList(cal, mKey)
+  if (emiEmiValueEl) emiEmiValueEl.textContent = formatCurrencyINR(emi)
+  if (emiInterestValueEl) emiInterestValueEl.textContent = formatCurrencyINR(interest)
+  if (emiTotalValueEl) emiTotalValueEl.textContent = formatCurrencyINR(totalPayment)
 
-  holidaySettings.style.display = "block"
+  const total = principal + interest
+  const principalPct = total > 0 ? Math.round((principal / total) * 100) : 0
+  const interestPct = 100 - principalPct
+
+  if (emiPrincipalPctEl) emiPrincipalPctEl.textContent = `${principalPct}%`
+  if (emiInterestPctEl) emiInterestPctEl.textContent = `${interestPct}%`
+
+  if (emiChartPrincipalEl) {
+    emiChartPrincipalEl.style.flex = String(Math.max(1, principalPct))
+  }
+  if (emiChartInterestEl) {
+    emiChartInterestEl.style.flex = String(Math.max(1, interestPct))
+  }
 }
 
-if (settingsHolidaysCard) {
-  settingsHolidaysCard.addEventListener("click", () => {
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    openHolidaySettingsForCurrentMonth()
+function applyEmiPreset(type) {
+  const preset = EMI_LOAN_PRESETS[type]
+  if (!preset) return
+  if (emiAmountInput && emiAmountRange) {
+    emiAmountInput.value = String(preset.amount)
+    emiAmountRange.value = String(preset.amount)
+  }
+  if (emiRateInput && emiRateRange) {
+    emiRateInput.value = String(preset.rate)
+    emiRateRange.value = String(preset.rate)
+  }
+  if (emiTenureInput && emiTenureRange) {
+    emiTenureUnit = 'years'
+    emiTenureInput.value = String(preset.tenureYears)
+    emiTenureRange.value = String(preset.tenureYears)
+  }
+
+  if (emiTenureToggle) {
+    const buttons = emiTenureToggle.querySelectorAll('button[data-unit]')
+    buttons.forEach((btn) => {
+      const unit = btn.getAttribute('data-unit')
+      btn.classList.toggle('active', unit === 'years')
+    })
+  }
+
+  recalcEmi()
+}
+
+// Wire EMI loan type tabs
+if (emiLoanTabs) {
+  emiLoanTabs.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+    const tab = target.closest('.emi-tab')
+    if (!tab) return
+
+    const type = tab.getAttribute('data-loan-type') || 'home'
+
+    const allTabs = emiLoanTabs.querySelectorAll('.emi-tab')
+    allTabs.forEach((btn) => {
+      btn.classList.toggle('active', btn === tab)
+    })
+
+    applyEmiPreset(type)
   })
 }
 
-if (holidayAddBtn) {
-  holidayAddBtn.addEventListener("click", () => {
-    const cal = getActiveCalendar()
-    if (!cal) return
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    const year = holidayViewDate.getFullYear()
-    const month = holidayViewDate.getMonth()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
+// Wire EMI sliders and inputs
+if (emiAmountRange && emiAmountInput) {
+  emiAmountRange.addEventListener('input', () => {
+    syncEmiAmountFromRange()
+    recalcEmi()
+  })
+  emiAmountInput.addEventListener('input', () => {
+    syncEmiAmountFromInput()
+    recalcEmi()
+  })
+}
 
-    const dayVal = holidayDayInput ? Number(holidayDayInput.value) : NaN
-    if (!dayVal || dayVal < 1 || dayVal > daysInMonth) {
-      alert(`Please enter a valid day between 1 and ${daysInMonth}.`)
+if (emiRateRange && emiRateInput) {
+  emiRateRange.addEventListener('input', () => {
+    syncEmiRateFromRange()
+    recalcEmi()
+  })
+  emiRateInput.addEventListener('input', () => {
+    syncEmiRateFromInput()
+    recalcEmi()
+  })
+}
+
+if (emiTenureRange && emiTenureInput) {
+  emiTenureRange.addEventListener('input', () => {
+    syncEmiTenureFromRange()
+    recalcEmi()
+  })
+  emiTenureInput.addEventListener('input', () => {
+    syncEmiTenureFromInput()
+    recalcEmi()
+  })
+}
+
+// Tenure unit toggle (Years / Months)
+if (emiTenureToggle && emiTenureInput && emiTenureRange) {
+  emiTenureToggle.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+    const btn = target.closest('button[data-unit]')
+    if (!btn) return
+
+    const unit = btn.getAttribute('data-unit') === 'months' ? 'months' : 'years'
+    if (unit === emiTenureUnit) return
+
+    const currentVal = Number(emiTenureInput.value) || 0
+    let newVal = currentVal
+
+    if (unit === 'months') {
+      // years -> months
+      newVal = currentVal * 12
+      emiTenureRange.min = '12'
+      emiTenureRange.max = String(30 * 12)
+      emiTenureRange.step = '12'
+    } else {
+      // months -> years
+      newVal = currentVal / 12
+      emiTenureRange.min = '1'
+      emiTenureRange.max = '30'
+      emiTenureRange.step = '1'
+    }
+
+    emiTenureUnit = unit
+
+    const min = Number(emiTenureRange.min) || 0
+    const max = Number(emiTenureRange.max) || 0
+    const clamped = Math.min(max, Math.max(min, newVal))
+    emiTenureInput.value = String(clamped)
+    emiTenureRange.value = String(clamped)
+
+    const buttons = emiTenureToggle.querySelectorAll('button[data-unit]')
+    buttons.forEach((b) => {
+      const u = b.getAttribute('data-unit')
+      b.classList.toggle('active', u === unit)
+    })
+
+    recalcEmi()
+  })
+}
+
+// Initialize EMI with Home Loan preset if EMI view is used
+if (emiAmountInput && emiAmountRange && emiRateInput && emiRateRange && emiTenureInput && emiTenureRange) {
+  applyEmiPreset('home')
+}
+
+// Gold calculator (detailed)
+const goldPriceTypeToggle = document.getElementById('goldPriceTypeToggle')
+const goldMetalToggle = document.getElementById('goldMetalToggle')
+const goldPriceLabelEl = document.getElementById('goldPriceLabel')
+const goldPurityLabelEl = document.getElementById('goldPurityLabel')
+const goldKaratSelect = document.getElementById('goldKaratSelect')
+// Related labels inside the gold calculator card
+const goldPriceTypeTitleEl = goldPriceTypeToggle
+	? goldPriceTypeToggle.closest('.gold-section-card')?.querySelector('.gold-section-title')
+	: null
+const goldKaratLabelEl = document.querySelector('label[for="goldKaratSelect"]')
+const goldPriceInput = document.getElementById('goldPriceInput')
+const goldWeightInput = document.getElementById('goldWeightInput')
+const goldPurityInput = document.getElementById('goldPurityInput')
+const goldMakingInput = document.getElementById('goldMakingInput')
+const goldMakingType = document.getElementById('goldMakingType')
+const goldGstInput = document.getElementById('goldGstInput')
+const goldDiscountInput = document.getElementById('goldDiscountInput')
+const goldResultCard = document.getElementById('goldResult')
+const goldResultTotalEl = document.getElementById('goldResultTotal')
+const goldResultGoldValueEl = document.getElementById('goldResultGoldValue')
+const goldResultMakingEl = document.getElementById('goldResultMaking')
+const goldResultGstEl = document.getElementById('goldResultGst')
+const goldResultDiscountEl = document.getElementById('goldResultDiscount')
+const goldResultFinalEl = document.getElementById('goldResultFinal')
+const goldResultInfoEl = document.getElementById('goldResultInfo')
+const goldCalcBtn = document.getElementById('goldCalcBtn')
+
+let goldPriceType = 'per10g'
+let goldActiveMetal = 'gold' // 'gold' | 'silver'
+let liveGoldPerGramInInr = null
+let liveSilverPerGramInInr = null
+let goldPriceManuallyEdited = false
+let lastSavedGoldInvoice = null
+
+// Load any stored live metal prices (saved by index.html metalPrices script)
+function loadLiveMetalPricesFromStorage() {
+  try {
+    const raw = localStorage.getItem('metalPrices')
+    if (!raw) return
+    const data = JSON.parse(raw)
+    if (!data) return
+
+    if (typeof data.goldPerGramINR === 'number') {
+      liveGoldPerGramInInr = data.goldPerGramINR
+    }
+    if (typeof data.silverPerGramINR === 'number') {
+      liveSilverPerGramInInr = data.silverPerGramINR
+    }
+
+    // If we have a price and the calculator fields exist, pre-fill once
+    if (goldPriceInput && (liveGoldPerGramInInr || liveSilverPerGramInInr)) {
+      syncGoldPriceInputFromCard(true)
+    }
+  } catch (e) {
+    // Ignore parsing/storage errors, calculator will just not auto-fill
+  }
+}
+
+// Read value from the gold/silver live price card and put it into Gold Price input
+function syncGoldPriceInputFromCard(force = false) {
+  if (!goldPriceInput) return
+
+  if (!force && goldPriceManuallyEdited && goldPriceInput.value) {
+    return
+  }
+
+  const cardId = goldActiveMetal === 'silver' ? 'silver' : 'gold'
+  const cardEl = document.getElementById(cardId)
+  if (!cardEl) return
+
+  const rawText = cardEl.innerText || cardEl.textContent || ''
+  const numericText = rawText.replace(/[^0-9.]/g, '')
+  const perGram = parseFloat(numericText)
+  if (!perGram || Number.isNaN(perGram)) return
+
+  const price = goldPriceType === 'per10g' ? perGram * 10 : perGram
+  goldPriceInput.value = String(Math.round(price))
+  recalcGoldDetail()
+}
+
+// Whenever the live metal prices are updated (cards refreshed),
+// sync the Gold Price input from the latest card values.
+try {
+  window.addEventListener('metalPricesUpdated', () => {
+    syncGoldPriceInputFromCard(true)
+  })
+} catch (e) {}
+
+function recalcGoldDetail() {
+  if (
+    !goldResultInfoEl ||
+    !goldPriceInput ||
+    !goldWeightInput ||
+    !goldResultTotalEl ||
+    !goldResultGoldValueEl ||
+    !goldResultMakingEl ||
+    !goldResultGstEl ||
+    !goldResultFinalEl
+  ) {
+    return
+  }
+
+  const price = Number(goldPriceInput.value) || 0
+  const weight = Number(goldWeightInput.value) || 0
+  const purityPct = goldPurityInput && goldPurityInput.value !== ''
+    ? Number(goldPurityInput.value) || 0
+    : 100
+  const makingRaw = goldMakingInput && goldMakingInput.value !== ''
+    ? Number(goldMakingInput.value) || 0
+    : 0
+  const makingIsAmount = goldMakingType && goldMakingType.value === 'amount'
+  const gstPct = goldGstInput && goldGstInput.value !== ''
+    ? Number(goldGstInput.value) || 0
+    : 0
+  const discountPct = goldDiscountInput && goldDiscountInput.value !== ''
+    ? Number(goldDiscountInput.value) || 0
+    : 0
+
+  if (!price || !weight) {
+    goldResultTotalEl.textContent = '—'
+    goldResultGoldValueEl.textContent = '₹0'
+    goldResultMakingEl.textContent = '₹0'
+    goldResultGstEl.textContent = '₹0'
+    if (goldResultDiscountEl) goldResultDiscountEl.textContent = '₹0'
+    goldResultFinalEl.textContent = '₹0'
+    goldResultInfoEl.textContent = 'Enter price and weight to calculate.'
+    return
+  }
+
+  const pricePerGram = goldPriceType === 'per10g' ? price / 10 : price
+
+  const purityFactor = Math.max(0, Math.min(1, purityPct / 100))
+  const baseGoldValue = weight * pricePerGram * purityFactor
+  const makingAmount = makingIsAmount ? makingRaw : (baseGoldValue * makingRaw) / 100
+  const subTotal = baseGoldValue + makingAmount
+  const gstAmount = (subTotal * gstPct) / 100
+  const beforeDiscount = subTotal + gstAmount
+  const discountAmount = (beforeDiscount * discountPct) / 100
+  const finalAmount = beforeDiscount - discountAmount
+
+  goldResultGoldValueEl.textContent = formatCurrencyINR(baseGoldValue)
+  goldResultMakingEl.textContent = formatCurrencyINR(makingAmount)
+  goldResultGstEl.textContent = formatCurrencyINR(gstAmount)
+  if (goldResultDiscountEl) goldResultDiscountEl.textContent = formatCurrencyINR(discountAmount)
+  goldResultFinalEl.textContent = formatCurrencyINR(finalAmount)
+  goldResultTotalEl.textContent = formatCurrencyINR(finalAmount)
+
+  const purityText = purityPct && purityPct !== 100 ? `${purityPct.toFixed(1)}% purity` : ''
+  const basisText = goldPriceType === 'per10g' ? '10g rate basis' : 'per gram rate basis'
+  const metalLabel = goldActiveMetal === 'silver' ? 'Silver' : 'Gold'
+  const discountText = discountPct ? `, discount ${discountPct.toFixed(1)}% applied` : ''
+  goldResultInfoEl.textContent = `${metalLabel} calculation using ${formatCurrencyINR(
+    price
+  )} ${basisText}, weight ${weight.toFixed(2)}g${
+    purityText ? `, ${purityText}` : ''
+  }${discountText}.`
+}
+
+function autoFillMetalPriceFromLive(force = false) {
+  if (!goldPriceInput) return
+
+  if (!force && goldPriceManuallyEdited && goldPriceInput.value) {
+    return
+  }
+
+  if (goldActiveMetal === 'gold') {
+    if (!liveGoldPerGramInInr) return
+
+    let basePerGram = liveGoldPerGramInInr
+
+    if (goldKaratSelect) {
+      const karatNum = Number(goldKaratSelect.value) || 24
+      const factor = karatNum / 24
+      basePerGram = basePerGram * factor
+    }
+
+    const price = goldPriceType === 'per10g' ? basePerGram * 10 : basePerGram
+    goldPriceInput.value = String(Math.round(price))
+  } else {
+    if (!liveSilverPerGramInInr) return
+
+    const perGram = liveSilverPerGramInInr
+    const price = goldPriceType === 'per10g' ? perGram * 10 : perGram
+    goldPriceInput.value = String(Math.round(price))
+  }
+
+  recalcGoldDetail()
+}
+
+if (goldPriceInput) {
+  goldPriceInput.addEventListener('input', () => {
+    goldPriceManuallyEdited = true
+  })
+}
+
+function getKaratPurity(karat) {
+  switch (karat) {
+    case '22':
+      return (22 / 24) * 100
+    case '18':
+      return (18 / 24) * 100
+    case '14':
+      return (14 / 24) * 100
+    case '9':
+      return (9 / 24) * 100
+    default:
+      return 100
+  }
+}
+
+if (goldCalcBtn) {
+  goldCalcBtn.addEventListener('click', () => {
+    recalcGoldDetail()
+
+    if (!goldPriceInput || !goldWeightInput) return
+
+    const price = Number(goldPriceInput.value) || 0
+    const weight = Number(goldWeightInput.value) || 0
+    if (!price || !weight) return
+
+    const metalLabel = goldActiveMetal === 'silver' ? 'Silver' : 'Gold'
+    const basisText = goldPriceType === 'per10g' ? '10g rate basis' : 'Per gram rate basis'
+
+    lastSavedGoldInvoice = {
+      savedAt: Date.now(),
+      metal: metalLabel,
+      priceBasis: basisText,
+      priceInput: goldPriceInput.value || '',
+      weightInput: goldWeightInput.value || '',
+      purityInput: goldPurityInput ? goldPurityInput.value || '' : '',
+      makingText: goldResultMakingEl ? goldResultMakingEl.textContent || '' : '',
+      gstText: goldResultGstEl ? goldResultGstEl.textContent || '' : '',
+      discountText: goldResultDiscountEl ? goldResultDiscountEl.textContent || '' : '',
+      finalText:
+        (goldResultFinalEl && goldResultFinalEl.textContent) ||
+        (goldResultTotalEl && goldResultTotalEl.textContent) ||
+        '',
+      detailText: goldResultInfoEl ? goldResultInfoEl.textContent || '' : '',
+    }
+  })
+}
+
+if (goldPriceInput) {
+  goldPriceInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldWeightInput) {
+  goldWeightInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldPurityInput) {
+  goldPurityInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldMakingInput) {
+  goldMakingInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldGstInput) {
+  goldGstInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldDiscountInput) {
+  goldDiscountInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldMakingType) {
+  goldMakingType.addEventListener('change', () => {
+    recalcGoldDetail()
+  })
+}
+
+// Metal (Gold / Silver) toggle
+if (goldMetalToggle) {
+  goldMetalToggle.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+
+    const btn = target.closest('.gold-metal-btn')
+    if (!btn) return
+
+    const metal = btn.getAttribute('data-metal')
+    if (!metal || (metal !== 'gold' && metal !== 'silver')) return
+
+    goldActiveMetal = metal
+
+    const allBtns = goldMetalToggle.querySelectorAll('.gold-metal-btn')
+    allBtns.forEach((b) => {
+      if (!(b instanceof HTMLElement)) return
+      const val = b.getAttribute('data-metal')
+      b.classList.toggle('active', val === metal)
+    })
+
+    const isSilver = metal === 'silver'
+
+    // For silver we hide karat-based purity label and use direct purity input
+    if (goldKaratSelect && goldPurityLabelEl) {
+      if (isSilver) {
+        goldKaratSelect.disabled = true
+        goldPurityLabelEl.textContent = 'Silver Purity (%)'
+      } else {
+        goldKaratSelect.disabled = false
+        goldPurityLabelEl.textContent = 'Gold Purity (%)'
+      }
+    }
+
+    // Update section titles / labels that contain "Gold" -> "Silver" and back
+    if (goldPriceTypeTitleEl) {
+      goldPriceTypeTitleEl.textContent = isSilver
+        ? 'Silver Price Input Type'
+        : 'Gold Price Input Type'
+    }
+
+    if (goldKaratLabelEl) {
+      goldKaratLabelEl.textContent = isSilver ? 'Silver Karat' : 'Gold Karat'
+    }
+
+    if (goldPriceLabelEl) {
+      const metalLabel = isSilver ? 'Silver' : 'Gold'
+      const suffix = goldPriceType === 'per10g' ? ' Price (per 10g)' : ' Price (per gram)'
+      goldPriceLabelEl.textContent = metalLabel + suffix
+    }
+
+    // When switching metal, sync the input from the visible live-price card
+    syncGoldPriceInputFromCard(true)
+    recalcGoldDetail()
+  })
+}
+
+// Gold price input type toggle (10 Gram Rate / Per Gram Rate)
+if (goldPriceTypeToggle) {
+  goldPriceTypeToggle.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+
+    const btn = target.closest('.gold-toggle-btn')
+    if (!btn) return
+
+    const type = btn.getAttribute('data-gold-price-type')
+    if (!type || (type !== 'per10g' && type !== 'perGram')) return
+
+    goldPriceType = type
+
+    const allBtns = goldPriceTypeToggle.querySelectorAll('.gold-toggle-btn')
+    allBtns.forEach((b) => {
+      if (!(b instanceof HTMLElement)) return
+      const val = b.getAttribute('data-gold-price-type')
+      b.classList.toggle('active', val === type)
+    })
+
+    if (goldPriceLabelEl) {
+      goldPriceLabelEl.textContent = type === 'per10g' ? 'Gold Price (per 10g)' : 'Gold Price (per gram)'
+    }
+
+    autoFillMetalPriceFromLive(true)
+    recalcGoldDetail()
+  })
+}
+
+// Live gold & silver prices via Yahoo Finance
+const goldLivePriceEl = document.getElementById('goldPrice')
+const silverLivePriceEl = document.getElementById('silverPrice')
+
+async function loadMetalPrices() {
+  // Disabled Yahoo Finance fetch due to CORS restrictions in browser.
+  // Keeping this function as a no-op so existing calls do nothing.
+  if (goldLivePriceEl) {
+    goldLivePriceEl.textContent = 'Use chart / enter price manually'
+  }
+  if (silverLivePriceEl) {
+    silverLivePriceEl.textContent = 'Enter price manually'
+  }
+}
+
+loadMetalPrices()
+
+// GST calculator
+const gstBaseInput = document.getElementById('gstBase')
+const gstRateInput = document.getElementById('gstRate')
+const gstResultEl = document.getElementById('gstResult')
+const gstCalcBtn = document.getElementById('gstCalcBtn')
+if (gstCalcBtn && gstBaseInput && gstRateInput && gstResultEl) {
+  gstCalcBtn.addEventListener('click', () => {
+    const base = Number(gstBaseInput.value) || 0
+    const rate = Number(gstRateInput.value) || 0
+    if (!base || !rate) {
+      gstResultEl.textContent = 'Enter amount and GST %.'
+      return
+    }
+    const gst = (base * rate) / 100
+    const total = base + gst
+    gstResultEl.textContent = `GST: ${formatCurrencyINR(gst)} · Total with GST: ${formatCurrencyINR(total)}`
+  })
+}
+
+// Discount calculator
+const discOriginalInput = document.getElementById('discOriginal')
+const discPercentInput = document.getElementById('discPercent')
+const discResultEl = document.getElementById('discResult')
+const discCalcBtn = document.getElementById('discCalcBtn')
+if (discCalcBtn && discOriginalInput && discPercentInput && discResultEl) {
+  discCalcBtn.addEventListener('click', () => {
+    const original = Number(discOriginalInput.value) || 0
+    const pct = Number(discPercentInput.value) || 0
+    if (!original || !pct) {
+      discResultEl.textContent = 'Enter price and discount %.'
+      return
+    }
+    const discount = (original * pct) / 100
+    const finalPrice = original - discount
+    discResultEl.textContent = `You save ${formatCurrencyINR(discount)} · Final price: ${formatCurrencyINR(finalPrice)}`
+  })
+}
+
+// Split bill calculator
+const splitTotalInput = document.getElementById('splitTotal')
+const splitPeopleInput = document.getElementById('splitPeople')
+const splitResultEl = document.getElementById('splitResult')
+const splitCalcBtn = document.getElementById('splitCalcBtn')
+if (splitCalcBtn && splitTotalInput && splitPeopleInput && splitResultEl) {
+  splitCalcBtn.addEventListener('click', () => {
+    const total = Number(splitTotalInput.value) || 0
+    const people = Number(splitPeopleInput.value) || 0
+    if (!total || !people) {
+      splitResultEl.textContent = 'Enter bill amount and number of people.'
+      return
+    }
+    const share = total / people
+    splitResultEl.textContent = `Each person pays: ${formatCurrencyINR(share)}`
+  })
+}
+
+if (createExpensesCalendarToggle && expensesCalendarForm) {
+  createExpensesCalendarToggle.setAttribute("type", "button")
+
+  createExpensesCalendarToggle.addEventListener("click", () => {
+    const willShow = !expensesCalendarForm.classList.contains("visible")
+    expensesCalendarForm.classList.toggle("visible")
+
+    if (willShow) {
+      if (expensesTitleInput) expensesTitleInput.value = ""
+      if (expensesDescriptionInput) expensesDescriptionInput.value = ""
+      if (expensesBudgetAmountInput) expensesBudgetAmountInput.value = ""
+      if (expensesWalletAmountInput) expensesWalletAmountInput.value = ""
+      if (expensesPinInput) expensesPinInput.value = ""
+      editingExpensesCalendarId = null
+      setTimeout(() => {
+        if (expensesCalendarForm) {
+          expensesCalendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+      }, 0)
+    }
+  })
+
+  expensesCalendarForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+
+    if (!expensesTitleInput) return
+
+    const title = expensesTitleInput.value.trim()
+    if (!title) {
+      alert("Please enter a title.")
       return
     }
 
-    const name = holidayNameInput
-      ? holidayNameInput.value.trim() || "Holiday"
-      : "Holiday"
+    const description = expensesDescriptionInput
+      ? expensesDescriptionInput.value.trim()
+      : ""
+    const budgetAmount = expensesBudgetAmountInput
+      ? Number(expensesBudgetAmountInput.value) || 0
+      : 0
+    const walletAmount = expensesWalletAmountInput
+      ? Number(expensesWalletAmountInput.value) || 0
+      : 0
+    const pin = expensesPinInput ? expensesPinInput.value.trim() || null : null
 
-    ensureCalendarHolidays(cal)
-    const mKey = monthKeyFromYearMonth(year, month)
-    if (!cal.holidays[mKey]) cal.holidays[mKey] = {}
-    cal.holidays[mKey][dayVal] = { name }
+    if (editingExpensesCalendarId) {
+      const existing = expensesCalendars.find((c) => c.id === editingExpensesCalendarId)
+      if (existing) {
+        existing.title = title
+        existing.description = description
+        existing.budgetAmount = budgetAmount
+        existing.walletAmount = walletAmount
+        existing.pin = pin
+      }
+    } else {
+      const id = "exp_" + Date.now()
+      expensesCalendars.push({
+        id,
+        title,
+        description,
+        budgetAmount,
+        walletAmount,
+        pin,
+        days: {},
+      })
+      activeExpensesCalendarId = id
+    }
+    saveExpensesCalendars()
 
-    saveCalendars()
-    renderHolidayList(cal, mKey)
+    expensesTitleInput.value = ""
+    if (expensesDescriptionInput) expensesDescriptionInput.value = ""
+    if (expensesBudgetAmountInput) expensesBudgetAmountInput.value = ""
+    if (expensesWalletAmountInput) expensesWalletAmountInput.value = ""
+    if (expensesPinInput) expensesPinInput.value = ""
+
+    expensesCalendarForm.classList.remove("visible")
+    editingExpensesCalendarId = null
+    renderExpensesCalendarList()
+    updateAppTitle()
+  })
+}
+
+function editExpensesCalendar(id) {
+  const cal = expensesCalendars.find((c) => c.id === id)
+  if (!cal || !expensesCalendarForm) return
+
+  if (expensesTitleInput) expensesTitleInput.value = cal.title || ""
+  if (expensesDescriptionInput) expensesDescriptionInput.value = cal.description || ""
+  if (expensesBudgetAmountInput) expensesBudgetAmountInput.value = cal.budgetAmount || ""
+  if (expensesWalletAmountInput) expensesWalletAmountInput.value = cal.walletAmount || ""
+  if (expensesPinInput) expensesPinInput.value = cal.pin || ""
+
+  editingExpensesCalendarId = id
+  expensesCalendarForm.classList.add("visible")
+  setTimeout(() => {
+    expensesCalendarForm.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, 0)
+}
+
+function deleteExpensesCalendar(id) {
+  expensesCalendars = expensesCalendars.filter((c) => c.id !== id)
+  if (activeExpensesCalendarId === id) {
+    activeExpensesCalendarId = expensesCalendars[0]?.id ?? null
+  }
+  saveExpensesCalendars()
+  renderExpensesCalendarList()
+  renderCalendar()
+  renderExpensesSummary()
+}
+
+// Expenses date modal elements
+const expensesModal = document.getElementById("expensesModal")
+const expensesModalCloseBtn = document.getElementById("expensesModalCloseBtn")
+const expensesModalDateLabel = document.getElementById("expensesModalDateLabel")
+const expensesModalCalendarName = document.getElementById(
+  "expensesModalCalendarName"
+)
+const expPayeeNameInput = document.getElementById("expPayeeName")
+const expRecurringInput = document.getElementById("expRecurring")
+const expCategorySelect = document.getElementById("expCategory")
+const expSubCategorySelect = document.getElementById("expSubCategory")
+const expPaymentStatusSelect = document.getElementById("expPaymentStatus")
+const expPaymentModeGroup = document.getElementById("expPaymentModeGroup")
+const expDateDisplay = document.getElementById("expDateDisplay")
+const expTimeDisplay = document.getElementById("expTimeDisplay")
+const expensesItemsList = document.getElementById("expensesItemsList")
+const expAddItemRowBtn = document.getElementById("expAddItemRowBtn")
+const expTotalForDateEl = document.getElementById("expTotalForDate")
+const expPrintBillBtn = document.getElementById("expPrintBillBtn")
+const expShareBillBtn = document.getElementById("expShareBillBtn")
+const expSaveEntryBtn = document.getElementById("expSaveEntryBtn")
+
+// Build a simple text summary of the current bill for printing/sharing
+function buildCurrentBillSummary() {
+  const items = getExpItemsFromDOM()
+  let total = 0
+  const lines = []
+
+  items.forEach((it) => {
+    const qty = Number(it.qty) || 0
+    const price = Number(it.price) || 0
+    const lineTotal = qty * price
+    total += lineTotal
+    const name = it.name || "Item"
+    lines.push(`${name} x${qty || 1} @ ₹${price || 0} = ₹${lineTotal}`)
+  })
+
+  const payee = expPayeeNameInput ? expPayeeNameInput.value.trim() : ""
+  const status = expPaymentStatusSelect ? expPaymentStatusSelect.value : "paid"
+  let mode = "online"
+  if (expPaymentModeGroup) {
+    const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
+    if (picked) mode = picked.value
+  }
+
+  const dateText = expDateDisplay ? expDateDisplay.value : ""
+  const timeText = expTimeDisplay ? expTimeDisplay.value : ""
+
+  const header = `Bill for ${payee || "Payee"}`
+  const meta = `Date: ${dateText} ${timeText}\nStatus: ${status.toUpperCase()}  Mode: ${mode}`
+  const body = lines.length ? lines.join("\n") : "(No items)"
+  const grand = `Total: ₹${Math.round(total)}`
+
+  return `${header}\n${meta}\n\n${body}\n\n${grand}`
+}
+
+if (expPrintBillBtn) {
+  expPrintBillBtn.addEventListener("click", () => {
+    // Ensure totals are up to date
+    expRecomputeTotal()
+
+    const items = getExpItemsFromDOM()
+    const payee = expPayeeNameInput ? expPayeeNameInput.value.trim() : ""
+    const status = expPaymentStatusSelect ? expPaymentStatusSelect.value : "paid"
+    let mode = "online"
+    if (expPaymentModeGroup) {
+      const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
+      if (picked) mode = picked.value
+    }
+
+    const dateText = expDateDisplay ? expDateDisplay.value : ""
+    const timeText = expTimeDisplay ? expTimeDisplay.value : ""
+
+    let total = 0
+    const rowsHtml = items
+      .map((it, idx) => {
+        const qty = Number(it.qty) || 0
+        const price = Number(it.price) || 0
+        const lineTotal = qty * price
+        total += lineTotal
+        const name = it.name || "Item"
+        return `
+          <tr>
+            <td style="padding:4px 8px; text-align:center;">${idx + 1}</td>
+            <td style="padding:4px 8px;">${name}</td>
+            <td style="padding:4px 8px; text-align:right;">${qty || ""}</td>
+            <td style="padding:4px 8px; text-align:right;">₹${price || 0}</td>
+            <td style="padding:4px 8px; text-align:right;">₹${lineTotal}</td>
+          </tr>`
+      })
+      .join("")
+
+    const invoiceHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Expense Invoice</title>
+          <style>
+            body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 16px; }
+            .invoice { max-width: 700px; margin: 0 auto; border: 1px solid #ddd; padding: 16px 20px; }
+            .invoice-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+            .invoice-title { font-size: 20px; font-weight: 600; }
+            .meta { font-size: 13px; color: #444; line-height: 1.4; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+            th, td { border: 1px solid #ddd; }
+            th { background:#f5f5f5; padding:6px 8px; text-align:center; }
+            .total-row td { font-weight: 600; }
+            .footer { margin-top: 16px; font-size: 12px; text-align: center; color: #777; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice">
+            <div class="invoice-header">
+              <div>
+                <div class="invoice-title">Expense Bill</div>
+                <div class="meta">Payee: <strong>${payee || "-"}</strong></div>
+              </div>
+              <div class="meta" style="text-align:right;">
+                <div>Date: <strong>${dateText || "-"}</strong></div>
+                <div>Time: <strong>${timeText || "-"}</strong></div>
+                <div>Status: <strong>${status.toUpperCase()}</strong></div>
+                <div>Mode: <strong>${mode}</strong></div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Item</th>
+                  <th style="width:70px;">Qty</th>
+                  <th style="width:90px;">Price</th>
+                  <th style="width:110px;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml || `<tr><td colspan="5" style="padding:8px; text-align:center;">No items</td></tr>`}
+                <tr class="total-row">
+                  <td colspan="4" style="padding:6px 8px; text-align:right;">Total</td>
+                  <td style="padding:6px 8px; text-align:right;">₹${Math.round(total)}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="footer">Thank you for your purchase</div>
+          </div>
+          <script>
+            window.onload = function () {
+              window.print();
+            };
+          <\/script>
+        </body>
+      </html>
+    `
+
+    const w = window.open("", "_blank")
+    if (w) {
+      w.document.open()
+      w.document.write(invoiceHtml)
+      w.document.close()
+    } else {
+      // Fallback to text summary if popup blocked
+      const text = buildCurrentBillSummary()
+      const blob = new Blob([text], { type: "text/plain" })
+      const url = URL.createObjectURL(blob)
+      const fallback = window.open(url, "_blank")
+      if (!fallback) {
+        alert("Please allow popups to print the bill.")
+      }
+    }
+  })
+}
+
+if (expShareBillBtn) {
+  expShareBillBtn.addEventListener("click", () => {
+    const text = buildCurrentBillSummary()
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, "_blank")
+  })
+}
+
+// Expenses preset categories and subcategories
+const expensesCategories = [
+  /* 1. GROCERY */
+  {
+    category: "Grocery",
+    subcategories: [
+      /* GRAINS & FLOURS */
+      "Wheat",
+      "Atta",
+      "Besan",
+      "Maida",
+      "Suji / Rava",
+      "Poha",
+      "Dalia",
+      "Oats",
+      "Corn Flour",
+      "Rice Flour",
+      "Ragi Flour",
+
+      /* RICE VARIETIES */
+      "Basmati Rice",
+      "Kolam Rice",
+      "Sona Masoori Rice",
+      "Brown Rice",
+      "Parboiled Rice",
+      "Idli Rice",
+      "Raw Rice",
+
+      /* DAL & PULSES */
+      "Toor Dal",
+      "Moong Dal",
+      "Chana Dal",
+      "Masoor Dal",
+      "Urad Dal",
+      "Rajma (Red)",
+      "Rajma (Chitra)",
+      "Kabuli Chana",
+      "Kala Chana",
+      "Green Moong",
+      "Lobia",
+      "Horse Gram",
+
+      /* OILS */
+      "Sunflower Oil",
+      "Mustard Oil",
+      "Groundnut Oil",
+      "Rice Bran Oil",
+      "Olive Oil",
+      "Coconut Oil",
+      "Sesame Oil",
+      "Soybean Oil",
+      "Palm Oil",
+
+      /* GHEE / BUTTER */
+      "Ghee",
+      "Butter",
+      "White Butter",
+
+      /* SPICES (INDIAN MASALA) */
+      "Turmeric Powder",
+      "Red Chilli Powder",
+      "Coriander Powder",
+      "Cumin Powder",
+      "Garam Masala",
+      "Black Pepper",
+      "Green Cardamom",
+      "Black Cardamom",
+      "Cloves",
+      "Cinnamon",
+      "Jeera",
+      "Ajwain",
+      "Methi Seeds",
+      "Kasuri Methi",
+      "Bay Leaf",
+      "Mustard Seeds",
+      "Fennel Seeds",
+      "Dry Coconut",
+      "Poppy Seeds",
+      "Star Anise",
+      "Nutmeg",
+      "Mace",
+
+      /* SPICE MIXES */
+      "Chole Masala",
+      "Pav Bhaji Masala",
+      "Biryani Masala",
+      "Chicken Masala",
+      "Meat Masala",
+      "Sabzi Masala",
+      "Sambar Powder",
+      "Rasam Powder",
+
+      /* SALT & SWEET */
+      "Salt",
+      "Rock Salt",
+      "Jaggery",
+      "Sugar",
+      "Brown Sugar",
+      "Honey",
+
+      /* TEA & COFFEE */
+      "Tea Powder",
+      "Green Tea",
+      "Coffee Powder",
+      "Instant Coffee",
+
+      /* BREAD ITEMS */
+      "Bread",
+      "Buns",
+      "Rusk",
+      "Khari",
+
+      /* SNACKS */
+      "Namkeen",
+      "Chips",
+      "Bhujia",
+      "Peanuts Roasted",
+      "Popcorn",
+      "Cookies",
+      "Biscuits All Types",
+      "Chocolates",
+      "Ice Cream",
+
+      /* DAIRY */
+      "Milk",
+      "Curd",
+      "Paneer",
+      "Cheese",
+      "Buttermilk",
+      "Cream",
+
+      /* VEGETABLES (COMMON) */
+      "Potato",
+      "Onion",
+      "Tomato",
+      "Carrot",
+      "Cucumber",
+      "Beans",
+      "Peas",
+      "Cabbage",
+      "Cauliflower",
+      "Spinach",
+      "Coriander",
+      "Mint",
+      "Garlic",
+      "Ginger",
+      "Green Chillies",
+
+      /* FRUITS */
+      "Apple",
+      "Banana",
+      "Orange",
+      "Papaya",
+      "Mango",
+      "Grapes",
+      "Pomegranate",
+      "Watermelon",
+      "Strawberry",
+      "Avocado",
+
+      /* DRY FRUITS */
+      "Almonds",
+      "Cashews",
+      "Raisins",
+      "Pistachios",
+      "Walnuts",
+      "Dates",
+      "Anjeer",
+
+      /* PACKAGED FOODS */
+      "Noodles",
+      "Pasta",
+      "Macaroni",
+      "Soups",
+      "Vermicelli",
+      "Pickles",
+      "Ketchup",
+      "Mayonnaise",
+      "Sauces",
+      "Instant Mixes",
+      "Cereals",
+
+      /* CLEANING ITEMS */
+      "Detergent Powder",
+      "Detergent Liquid",
+      "Dishwash Liquid",
+      "Dishwash Bar",
+      "Toilet Cleaner",
+      "Phenyl",
+      "Floor Cleaner",
+      "Room Freshener",
+      "Garbage Bags",
+
+      /* PERSONAL HYGIENE */
+      "Bath Soap",
+      "Shampoo",
+      "Toothpaste",
+      "Toothbrush",
+      "Face Wash",
+      "Hand Wash",
+      "Shaving Cream",
+      "Deodorant",
+      "Sanitary Pads",
+
+      /* KITCHEN BASICS */
+      "Aluminum Foil",
+      "Tissue Paper",
+      "Zip Lock Bags",
+      "Matchbox",
+      "Lighter",
+      "Plastic Bags",
+      "Cling Film",
+
+      /* OTHER */
+      "Eggs",
+      "Instant Tea",
+      "Instant Coffee",
+      "Ready to Eat Items",
+      "Frozen Food",
+      "Butter Paper",
+      "Vinegar",
+      "Lemon Juice",
+      "Soda",
+      "Soft Drinks",
+      "Energy Drinks",
+      "Mineral Water",
+
+      /* EXTRA ITEMS */
+      "Moong Whole",
+      "Urad Whole",
+      "Kidney Beans Small",
+      "Pumpkin Seeds",
+      "Chia Seeds",
+      "Sunflower Seeds",
+      "Flax Seeds",
+      "Dry Ginger",
+      "Tamarind",
+      "Rice Cakes",
+      "Couscous",
+      "Quinoa",
+      "Wheat Rava",
+      "Idli Rava",
+      "Jowar Atta",
+      "Bajra Atta",
+      "Multigrain Atta",
+      "Bread Crumbs",
+      "Yeast",
+      "Baking Soda",
+      "Baking Powder",
+      "Cocoa Powder",
+      "Custard Powder",
+      "Cornflakes",
+      "Muesli",
+      "Peanut Butter",
+      "Jam",
+      "Syrups",
+      "Chutney Bottles",
+      "Gravy Masala Packs",
+      "Frozen Vegetables",
+      "Paneer Cubes",
+      "Sweet Corn",
+      "Herbal Tea",
+      "Protein Powder",
+      "Health Drinks",
+      "Khakhra",
+      "Laddu",
+      "Barfi",
+      "Samosa Ready Mix",
+      "Kheer Mix",
+      "Idli & Dosa Batter",
+    ],
+  },
+
+  /* 2. TRAVEL */
+  {
+    category: "Travel",
+    subcategories: [
+      "Bus",
+      "Train",
+      "Cab / Taxi",
+      "Auto",
+      "Bike",
+      "Car",
+      "Flight",
+      "Metro",
+      "Fuel (Petrol)",
+      "Fuel (Diesel)",
+      "Toll",
+      "Parking",
+      "Hotel",
+      "Resort",
+      "Local Transport",
+    ],
+  },
+
+  /* 3. MEDICAL */
+  {
+    category: "Medical",
+    subcategories: [
+      "Medicines",
+      "Doctor Consultation",
+      "Lab Tests",
+      "Hospital Bills",
+      "Surgery",
+      "Dental",
+      "Eye Care",
+      "Health Insurance",
+      "Baby Medicine",
+    ],
+  },
+
+  /* 4. SHOPPING */
+  {
+    category: "Shopping",
+    subcategories: [
+      "Clothes",
+      "Footwear",
+      "Electronics",
+      "Home Items",
+      "Kitchen Items",
+      "Beauty Products",
+      "Furniture",
+      "Accessories",
+      "Mobile & Gadgets",
+    ],
+  },
+
+  /* 5. ENTERTAINMENT */
+  {
+    category: "Entertainment",
+    subcategories: [
+      "Movies",
+      "OTT Subscriptions",
+      "Shows & Events",
+      "Games",
+      "Sports",
+      "Music",
+      "Books",
+    ],
+  },
+
+  /* 6. PARTY / OCCASIONS */
+  {
+    category: "Party",
+    subcategories: [
+      "Birthday",
+      "Anniversary",
+      "Drinks",
+      "Food",
+      "Decorations",
+      "Gifts",
+    ],
+  },
+
+  /* 7. HOLIDAYS */
+  {
+    category: "Holidays",
+    subcategories: [
+      "Flight Tickets",
+      "Hotels",
+      "Resorts",
+      "Travel Packages",
+      "Food",
+      "Local Transport",
+      "Activities",
+    ],
+  },
+
+  /* 8. BILLS */
+  {
+    category: "Bills",
+    subcategories: [
+      "Electricity",
+      "Water",
+      "Gas",
+      "Mobile Recharge",
+      "Internet",
+      "DTH",
+      "Rent",
+      "Maintenance",
+    ],
+  },
+
+  /* 9. SERVICE */
+  {
+    category: "Service",
+    subcategories: [
+      "Electrician",
+      "Plumber",
+      "Carpenter",
+      "AC Repair",
+      "Home Cleaning",
+      "Pest Control",
+      "Mobile Repair",
+      "Software Services",
+      "Internet Services",
+    ],
+  },
+
+  /* 10. PERSONAL CARE */
+  {
+    category: "Personal Care",
+    subcategories: [
+      "Salon",
+      "Spa",
+      "Gym",
+      "Cosmetics",
+      "Skincare",
+      "Hair Care",
+      "Fitness Items",
+    ],
+  },
+
+  /* 11. HOME */
+  {
+    category: "Home",
+    subcategories: [
+      "Repair",
+      "Cleaning Items",
+      "Furniture",
+      "Decor",
+      "Bedding",
+      "Curtains",
+      "Lights",
+      "Tools",
+    ],
+  },
+
+  /* 12. FAMILY & KIDS */
+  {
+    category: "Family & Kids",
+    subcategories: [
+      "School Fees",
+      "Kids Clothes",
+      "Baby Care",
+      "Toys",
+      "Medical",
+      "Snacks",
+    ],
+  },
+
+  /* 13. EDUCATION */
+  {
+    category: "Education",
+    subcategories: [
+      "School Fees",
+      "College Fees",
+      "Books",
+      "Courses",
+      "Online Learning",
+      "Coaching",
+    ],
+  },
+
+  /* 14. INVESTMENT */
+  {
+    category: "Investment",
+    subcategories: [
+      "Mutual Funds",
+      "Stocks",
+      "Gold",
+      "FD",
+      "RD",
+      "Crypto",
+      "Insurance Premium",
+    ],
+  },
+
+  /* 15. OTHER */
+  {
+    category: "Other",
+    subcategories: [
+      "Donations",
+      "Charity",
+      "Unexpected Expense",
+      "Fine / Penalty",
+      "Miscellaneous",
+    ],
+  },
+]
+
+function initExpensesCategoryDropdowns() {
+  if (!expCategorySelect || !expSubCategorySelect) return
+
+  // Helper to remember a current value if present
+  const currentCategory = expCategorySelect.value || ""
+
+  // Rebuild category options with leading "No value"
+  expCategorySelect.innerHTML = ""
+  const noneOpt = document.createElement("option")
+  noneOpt.value = ""
+  noneOpt.textContent = "No value"
+  expCategorySelect.appendChild(noneOpt)
+
+  expensesCategories.forEach((c) => {
+    const opt = document.createElement("option")
+    opt.value = c.category
+    opt.textContent = c.category
+    expCategorySelect.appendChild(opt)
+  })
+
+  // Restore selection if it still exists, otherwise keep "No value"
+  if (currentCategory && Array.from(expCategorySelect.options).some((o) => o.value === currentCategory)) {
+    expCategorySelect.value = currentCategory
+  } else {
+    expCategorySelect.value = ""
+  }
+
+  // Always refresh subcategories based on current category
+  populateSubCategories(expCategorySelect.value, expSubCategorySelect.value || "")
+}
+
+function populateSubCategories(categoryValue, currentSubValue) {
+  if (!expSubCategorySelect) return
+
+  expSubCategorySelect.innerHTML = ""
+  const noneOpt = document.createElement("option")
+  noneOpt.value = ""
+  noneOpt.textContent = "No value"
+  expSubCategorySelect.appendChild(noneOpt)
+
+  const cat = expensesCategories.find((c) => c.category === categoryValue)
+  if (cat && Array.isArray(cat.subcategories)) {
+    cat.subcategories.forEach((name) => {
+      const opt = document.createElement("option")
+      opt.value = name
+      opt.textContent = name
+      expSubCategorySelect.appendChild(opt)
+    })
+  }
+
+  if (
+    currentSubValue &&
+    Array.from(expSubCategorySelect.options).some((o) => o.value === currentSubValue)
+  ) {
+    expSubCategorySelect.value = currentSubValue
+  } else {
+    expSubCategorySelect.value = ""
+  }
+}
+
+if (expCategorySelect) {
+  initExpensesCategoryDropdowns()
+  expCategorySelect.addEventListener("change", () => {
+    const catVal = expCategorySelect.value || ""
+    populateSubCategories(catVal, "")
+  })
+}
+
+function updateExpPaymentModeAvailability() {
+  if (!expPaymentStatusSelect || !expPaymentModeGroup) return
+  const status = expPaymentStatusSelect.value
+  const radios = expPaymentModeGroup.querySelectorAll('input[name="expPaymentMode"]')
+  if (!radios.length) return
+
+  if (status === "pending") {
+    radios.forEach((r) => {
+      r.checked = false
+      r.disabled = true
+    })
+  } else {
+    let anyChecked = false
+    radios.forEach((r) => {
+      r.disabled = false
+      if (r.checked) anyChecked = true
+    })
+    if (!anyChecked) {
+      radios.forEach((r) => {
+        if (r.value === "online") r.checked = true
+      })
+    }
+  }
+}
+
+if (expPaymentStatusSelect) {
+  expPaymentStatusSelect.addEventListener("change", updateExpPaymentModeAvailability)
+}
+
+function openExpensesModal(date, options) {
+  const cal = getActiveExpensesCalendar()
+  if (!cal || !expensesModal) return
+
+  selectedDate = date
+
+  const key = dateKey(date)
+  const day = normalizeExpensesDay(cal, key)
+
+  // If explicitly editing, load existing entry; otherwise treat as new entry
+  const isEdit = options && options.edit === true
+  const entryId = options && options.entryId
+  let info = {}
+  editingExpenseEntryId = null
+  if (isEdit && entryId && Array.isArray(day.entries)) {
+    const found = day.entries.find((e) => e.id === entryId)
+    if (found) {
+      info = found
+      editingExpenseEntryId = found.id
+    }
+  }
+
+  if (expensesModalDateLabel) {
+    expensesModalDateLabel.textContent = date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+  }
+
+  if (expensesModalCalendarName) {
+    expensesModalCalendarName.textContent = cal.title || ""
+  }
+
+  if (expDateDisplay) {
+    expDateDisplay.value = date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+  }
+
+  if (expTimeDisplay) {
+    const t = info.createdAt ? new Date(info.createdAt) : new Date()
+    const hh = pad(t.getHours())
+    const mm = pad(t.getMinutes())
+    expTimeDisplay.value = `${hh}:${mm}`
+  }
+
+  if (expPayeeNameInput) expPayeeNameInput.value = info.payeeName || ""
+  if (expRecurringInput) expRecurringInput.checked = !!info.recurring
+
+  if (expCategorySelect) expCategorySelect.value = info.category || ""
+  if (expSubCategorySelect) expSubCategorySelect.value = info.subCategory || ""
+  if (expPaymentStatusSelect) expPaymentStatusSelect.value = info.paymentStatus || "paid"
+
+  if (expPaymentModeGroup) {
+    const mode = info.paymentMode || "online"
+    const radios = expPaymentModeGroup.querySelectorAll(
+      'input[name="expPaymentMode"]'
+    )
+    radios.forEach((r) => {
+      r.checked = r.value === mode
+    })
+  }
+
+  if (expensesItemsList) {
+    expensesItemsList.innerHTML = ""
+
+    if (Array.isArray(info.items) && info.items.length) {
+      // Edit mode with existing items
+      info.items.forEach((it) => addExpItemRow(it))
+    } else {
+      // New entry: start with a single empty row
+      addExpItemRow()
+    }
+  }
+
+  // Always recompute total from current DOM rows and update label
+  expRecomputeTotal()
+
+  expensesModal.classList.add("open")
+  overlay.classList.add("active")
+  document.body.style.overflow = "hidden"
+
+  updateExpPaymentModeAvailability()
+}
+
+function closeExpensesModal() {
+  if (!expensesModal) return
+  expensesModal.classList.remove("open")
+  overlay.classList.remove("active")
+  document.body.style.overflow = ""
+  selectedDate = null
+   editingExpenseEntryId = null
+}
+
+if (expensesModalCloseBtn) {
+  expensesModalCloseBtn.addEventListener("click", closeExpensesModal)
+}
+
+function addExpItemRow(prefill) {
+  if (!expensesItemsList) return
+  const row = document.createElement("div")
+  row.className = "expenses-item-row"
+  const name = document.createElement("input")
+  name.type = "text"
+  name.placeholder = "Item"
+  if (prefill && prefill.name) {
+    name.value = prefill.name
+    name.dataset.autofilled = "1"
+  } else {
+    name.value = ""
+  }
+  name.addEventListener("input", expRecomputeTotal)
+  const qty = document.createElement("input")
+  qty.type = "number"
+  qty.min = "0"
+  qty.step = "1"
+  qty.placeholder = "Qty"
+  qty.value = prefill && prefill.qty != null ? String(prefill.qty) : ""
+  qty.addEventListener("input", expRecomputeTotal)
+  const price = document.createElement("input")
+  price.type = "number"
+  price.min = "0"
+  price.step = "0.01"
+  price.placeholder = "Price"
+  price.value = prefill && prefill.price != null ? String(prefill.price) : ""
+  price.addEventListener("input", expRecomputeTotal)
+  const remove = document.createElement("button")
+  remove.className = "expenses-item-remove-btn"
+  remove.textContent = "✕"
+  remove.addEventListener("click", () => {
+    row.remove()
+    expRecomputeTotal()
+  })
+  row.appendChild(name)
+  row.appendChild(qty)
+  row.appendChild(price)
+  row.appendChild(remove)
+  expensesItemsList.appendChild(row)
+}
+
+function getExpItemsFromDOM() {
+  const items = []
+  if (!expensesItemsList) return items
+  const rows = expensesItemsList.querySelectorAll(".expenses-item-row")
+  rows.forEach((row) => {
+    const inputs = row.querySelectorAll("input")
+    const n = inputs[0] ? inputs[0].value.trim() : ""
+    let q = 0
+    if (inputs[1]) {
+      const raw = inputs[1].value.trim()
+      q = raw === "" ? 1 : Number(raw) || 1
+    }
+    const p = inputs[2] ? Number(inputs[2].value) || 0 : 0
+    if (n || q || p) items.push({ name: n, qty: q, price: p })
+  })
+  return items
+}
+
+function expRecomputeTotal() {
+  if (!expTotalForDateEl) return
+  const items = getExpItemsFromDOM()
+  let total = 0
+  for (const it of items) {
+    total += (Number(it.qty) || 0) * (Number(it.price) || 0)
+  }
+  const rounded = Math.round(total)
+  expTotalForDateEl.textContent = `₹${Number.isFinite(rounded) ? rounded : 0}`
+}
+
+if (expAddItemRowBtn) {
+  expAddItemRowBtn.addEventListener("click", () => {
+    // When adding a new row, prefill the item name from selected sub category (if any)
+    let prefill = null
+    if (expSubCategorySelect && expSubCategorySelect.value) {
+      prefill = { name: expSubCategorySelect.value }
+    }
+    addExpItemRow(prefill)
+  })
+}
+
+// Whenever sub category changes, auto-fill the first empty item name with it
+if (expSubCategorySelect && expensesItemsList) {
+  expSubCategorySelect.addEventListener("change", () => {
+    const label = expSubCategorySelect.value || ""
+    if (!label) return
+    const rows = expensesItemsList.querySelectorAll(".expenses-item-row")
+    if (!rows.length) return
+
+    // Prefer updating the last row that was auto-filled earlier, otherwise the last row
+    let targetInput = null
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const input = rows[i].querySelector("input")
+      if (!input) continue
+      if (input.dataset.autofilled === "1" || !input.value.trim()) {
+        targetInput = input
+        break
+      }
+    }
+
+    if (!targetInput) {
+      const last = rows[rows.length - 1]
+      targetInput = last.querySelector("input") || null
+    }
+
+    if (targetInput) {
+      targetInput.value = label
+      targetInput.dataset.autofilled = "1"
+    }
+  })
+}
+
+if (expSaveEntryBtn) {
+  expSaveEntryBtn.addEventListener("click", () => {
+    const cal = getActiveExpensesCalendar()
+    if (!cal || !selectedDate) return
+    const key = dateKey(selectedDate)
+    const day = normalizeExpensesDay(cal, key)
+
+    const items = getExpItemsFromDOM(true)
+    if (items === null) {
+      alert("Please enter item name or choose a sub category for each item.")
+      return
+    }
+    let total = 0
+    for (const it of items) total += (Number(it.qty) || 0) * (Number(it.price) || 0)
+    const roundedTotal = Math.round(total)
+
+    let paymentStatus = expPaymentStatusSelect
+      ? expPaymentStatusSelect.value
+      : "paid"
+    let mode = "online"
+    if (expPaymentModeGroup && (!expPaymentStatusSelect || paymentStatus !== "pending")) {
+      const picked = expPaymentModeGroup.querySelector('input[name="expPaymentMode"]:checked')
+      if (picked) mode = picked.value
+    } else if (paymentStatus === "pending") {
+      mode = "none"
+    }
+
+    const baseEntry = {
+      id: editingExpenseEntryId || `exp_${Date.now()}`,
+      payeeName: expPayeeNameInput ? expPayeeNameInput.value.trim() : "",
+      recurring: expRecurringInput ? !!expRecurringInput.checked : false,
+      category: expCategorySelect ? expCategorySelect.value || "" : "",
+      subCategory: expSubCategorySelect ? expSubCategorySelect.value || "" : "",
+      paymentStatus,
+      paymentMode: mode,
+      items,
+      total: roundedTotal,
+      createdAt: Date.now(),
+    }
+
+    // Insert or replace entry in this day's list
+    if (!Array.isArray(day.entries)) day.entries = []
+    const idx = editingExpenseEntryId
+      ? day.entries.findIndex((e) => e.id === editingExpenseEntryId)
+      : -1
+    if (idx >= 0) {
+      day.entries[idx] = baseEntry
+    } else {
+      day.entries.push(baseEntry)
+    }
+
+    // Recompute per-day aggregate total and a synthetic status used by old code
+    let dayTotal = 0
+    let anyPending = false
+    day.entries.forEach((e) => {
+      const t = Number(e.total) || 0
+      dayTotal += t
+      if (e.paymentStatus === "pending") anyPending = true
+    })
+    day.total = dayTotal
+    // Keep a top-level paymentStatus for backward compatibility (used in some views)
+    day.paymentStatus = anyPending ? "pending" : "paid"
+
+    saveExpensesCalendars()
+    closeExpensesModal()
     renderCalendar()
-    renderStats()
   })
 }
 
-if (holidayPrevMonthBtn) {
-  holidayPrevMonthBtn.addEventListener("click", () => {
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    holidayViewDate.setMonth(holidayViewDate.getMonth() - 1)
-    openHolidaySettingsForCurrentMonth()
-  })
-}
-
-if (holidayNextMonthBtn) {
-  holidayNextMonthBtn.addEventListener("click", () => {
-    if (!holidayViewDate) holidayViewDate = new Date(currentDate.getTime())
-    holidayViewDate.setMonth(holidayViewDate.getMonth() + 1)
-    openHolidaySettingsForCurrentMonth()
-  })
-}
-
-// Calendar list rendering
-function renderCalendarList() {
-  calendarListEl.innerHTML = ""
-  if (!calendars.length) return
-
-  calendars.forEach((cal) => {
-    const item = document.createElement("div")
-    item.className = "calendar-list-item"
-
-    const main = document.createElement("div")
-    main.className = "calendar-list-main"
-
-    const name = document.createElement("div")
-    name.className = "calendar-list-name"
-    name.textContent = cal.name
-
-    const desc = document.createElement("div")
-    desc.className = "calendar-list-desc"
-    desc.textContent = cal.description || "No description"
-
-    const meta = document.createElement("div")
-    meta.className = "calendar-list-meta"
-    const salaryText =
-      cal.salaryMonthly || cal.salaryHourly
-        ? `Monthly: ${cal.salaryMonthly || 0} | Hourly: ${
-            cal.salaryHourly || 0
-          }`
-        : "No salary set"
-    meta.textContent =
-      cal.pin && cal.pin.length
-        ? `${salaryText}  PIN Protected`
-        : salaryText
-
-    main.appendChild(name)
-    main.appendChild(desc)
-    main.appendChild(meta)
-
-    const actions = document.createElement("div")
-    actions.className = "calendar-list-actions"
-
-    const editBtn = document.createElement("button")
-    editBtn.className = "small-btn"
-    editBtn.textContent = "Edit"
-    editBtn.addEventListener("click", (e) => {
-      e.stopPropagation()
-      if (cal.pin) {
-        openPinModal(cal, "edit")
-      } else {
-        editCalendar(cal.id)
-      }
-    })
-
-    const delBtn = document.createElement("button")
-    delBtn.className = "small-btn"
-    delBtn.textContent = "Del"
-    delBtn.addEventListener("click", (e) => {
-      e.stopPropagation()
-      if (cal.pin) {
-        openPinModal(cal, "delete")
-      } else {
-        openDeleteModal(cal)
-      }
-    })
-
-    actions.appendChild(editBtn)
-    actions.appendChild(delBtn)
-
-    item.appendChild(main)
-    item.appendChild(actions)
-
-    // Clicking anywhere on the row (except buttons) selects the calendar
-    item.addEventListener("click", (e) => {
-      if (e.target instanceof HTMLButtonElement) return
-      if (cal.pin) {
-        openPinModal(cal, "select")
-      } else {
-        selectCalendar(cal.id)
-      }
-    })
-
-    calendarListEl.appendChild(item)
-
-    if (cal.id === activeCalendarId) {
-      item.style.outline = "2px solid rgba(0,122,255,0.7)"
-    }
-  })
-}
-
-function selectCalendar(id) {
-  const cal = calendars.find((c) => c.id === id)
-  if (!cal) return
-  activeCalendarId = id
-
-  saveCalendars()
-  renderCalendarList()
-  renderCalendar()
-  renderStats()
-  updateAppTitle()
-  closeDrawer()
-}
-
-function editCalendar(id) {
-  const cal = calendars.find((c) => c.id === id)
-  if (!cal) return
-
-  // Switch form into edit mode
-  editingCalendarId = id
-
-  // Pre-fill fields from existing calendar
-  calendarNameInput.value = cal.name || ""
-  calendarDescriptionInput.value = cal.description || ""
-  salaryMonthlyInput.value = cal.salaryMonthly != null ? cal.salaryMonthly : ""
-  salaryHourlyInput.value = cal.salaryHourly != null ? cal.salaryHourly : ""
-  if (workingDaysPerWeekInput) {
-    workingDaysPerWeekInput.value = cal.workingDaysPerWeek || 6
-  }
-  calendarPinInput.value = cal.pin || ""
-
-  // Convert stored schedule minutes back to HH:MM for the time inputs
-  if (cal.scheduleInMinutes != null) {
-    const h = Math.floor(cal.scheduleInMinutes / 60)
-    const m = cal.scheduleInMinutes % 60
-    officeInTimeInput.value = `${pad(h)}:${pad(m)}`
-  } else {
-    officeInTimeInput.value = ""
-  }
-
-  if (cal.scheduleOutMinutes != null) {
-    const h2 = Math.floor(cal.scheduleOutMinutes / 60)
-    const m2 = cal.scheduleOutMinutes % 60
-    officeOutTimeInput.value = `${pad(h2)}:${pad(m2)}`
-  } else {
-    officeOutTimeInput.value = ""
-  }
-
-  // Show form and adjust button label
-  calendarForm.classList.add("visible")
-  if (calendarSubmitBtn) {
-    calendarSubmitBtn.textContent = "Save"
-  }
-}
-
-function deleteCalendar(id) {
-  if (calendars.length === 1) {
-    alert("At least one calendar must exist.")
+function renderExpensesSummary() {
+  if (!expTodayEl || !expTotalSpentEl || !expMonthlyBudgetEl || !expRemainingEl || !expOverBudgetEl || !expWalletBalanceEl) {
     return
   }
-  const cal = calendars.find((c) => c.id === id)
-  if (!cal) return
 
-  calendars = calendars.filter((c) => c.id !== id)
-  if (activeCalendarId === id) {
-    activeCalendarId = calendars[0]?.id || null
-  }
-  // Clear any active session for deleted calendar
-  activeSessionKey = null
-  saveCalendars()
-  renderCalendarList()
-  renderCalendar()
-  renderStats()
-  updateAppTitle()
-}
-
-// Create calendar form
-createCalendarToggle.addEventListener("click", () => {
-  const willShow = !calendarForm.classList.contains("visible")
-  calendarForm.classList.toggle("visible")
-
-  // If opening the form via toggle, assume create mode
-  if (willShow) {
-    editingCalendarId = null
-    calendarNameInput.value = ""
-    calendarDescriptionInput.value = ""
-    salaryMonthlyInput.value = ""
-    salaryHourlyInput.value = ""
-    if (workingDaysPerWeekInput) {
-      workingDaysPerWeekInput.value = 6
-    }
-    calendarPinInput.value = ""
-    officeInTimeInput.value = ""
-    officeOutTimeInput.value = ""
-    if (calendarSubmitBtn) {
-      calendarSubmitBtn.textContent = "Add"
-    }
-  }
-})
-
-calendarForm.addEventListener("submit", (e) => {
-  e.preventDefault()
-  const name = calendarNameInput.value.trim()
-  if (!name) {
-    alert("Please enter a calendar name.")
+  const cal = getActiveExpensesCalendar()
+  if (!cal) {
+    expTodayEl.textContent = "₹0"
+    expTotalSpentEl.textContent = "₹0"
+    expMonthlyBudgetEl.textContent = "₹0"
+    expRemainingEl.textContent = "₹0"
+    expOverBudgetEl.textContent = "₹0"
+    expWalletBalanceEl.textContent = "₹0"
+    if (expensesPayeeTableBody) expensesPayeeTableBody.innerHTML = ""
     return
   }
-  const desc = calendarDescriptionInput.value.trim()
-  const salaryMonthly = Number(salaryMonthlyInput.value) || 0
-  const salaryHourly = Number(salaryHourlyInput.value) || 0
-  const pin = calendarPinInput.value.trim() || null
-  const workingDaysPerWeek = workingDaysPerWeekInput
-    ? Number(workingDaysPerWeekInput.value) || 6
-    : 6
-
-  // Parse office schedule times (HH:MM -> minutes)
-  const inStr = officeInTimeInput.value
-  const outStr = officeOutTimeInput.value
-  let scheduleInMinutes = null
-  let scheduleOutMinutes = null
-  if (inStr && outStr) {
-    const [ih, im] = inStr.split(":").map(Number)
-    const [oh, om] = outStr.split(":").map(Number)
-    if (!Number.isNaN(ih) && !Number.isNaN(im)) {
-      scheduleInMinutes = ih * 60 + im
-    }
-    if (!Number.isNaN(oh) && !Number.isNaN(om)) {
-      scheduleOutMinutes = oh * 60 + om
-    }
-  }
-
-  if (editingCalendarId) {
-    // Update existing calendar
-    const cal = calendars.find((c) => c.id === editingCalendarId)
-    if (cal) {
-      cal.name = name
-      cal.description = desc
-      cal.salaryMonthly = salaryMonthly
-      cal.salaryHourly = salaryHourly
-      cal.pin = pin
-      cal.workingDaysPerWeek = workingDaysPerWeek
-      cal.scheduleInMinutes = scheduleInMinutes
-      cal.scheduleOutMinutes = scheduleOutMinutes
-    }
-  } else {
-    // Create a new calendar
-    const id = "cal_" + Date.now()
-    calendars.push({
-      id,
-      name,
-      description: desc,
-      salaryMonthly,
-      salaryHourly,
-      workingDaysPerWeek,
-      scheduleInMinutes,
-      scheduleOutMinutes,
-      pin,
-      days: {},
-      holidays: {},
-    })
-    activeCalendarId = id
-  }
-
-  saveCalendars()
-  calendarNameInput.value = ""
-  calendarDescriptionInput.value = ""
-  salaryMonthlyInput.value = ""
-  salaryHourlyInput.value = ""
-  if (workingDaysPerWeekInput) {
-    workingDaysPerWeekInput.value = 6
-  }
-  calendarPinInput.value = ""
-  officeInTimeInput.value = ""
-  officeOutTimeInput.value = ""
-
-  calendarForm.classList.remove("visible")
-  editingCalendarId = null
-  if (calendarSubmitBtn) {
-    calendarSubmitBtn.textContent = "Add"
-  }
-  renderCalendarList()
-  renderCalendar()
-  renderStats()
-  updateAppTitle()
-})
-
-backupExportBtn.addEventListener("click", exportBackup)
-backupImportBtn.addEventListener("click", () => backupFileInput.click())
-backupFileInput.addEventListener("change", (e) => {
-  const file = e.target.files?.[0]
-  if (!file) return
-  importBackup(file)
-  backupFileInput.value = ""
-})
-
-// Calendar rendering
-function renderCalendar() {
-  const cal = getActiveCalendar()
-  const today = new Date()
-
-  updateAppTitle()
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
+  const today = new Date()
+  const todayKey = dateKey(today)
 
-  monthLabel.textContent = currentDate.toLocaleString("default", {
-    month: "long",
-  })
-  yearLabel.textContent = String(year)
+  let todayTotal = 0
+  let totalSpent = 0
+  let paidTotal = 0
+  let pendingTotal = 0
 
-  const firstDayOfMonth = new Date(year, month, 1)
-  const startingWeekday = firstDayOfMonth.getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  // For UI: group by payee, then date-wise rows within each payee.
+  const payeeRowsMap = new Map()
 
-  statDaysInMonth.textContent = daysInMonth
+  if (cal.days) {
+    Object.entries(cal.days).forEach(([key]) => {
+      const [yStr, mStr, dStr] = key.split("-")
+      const y = Number(yStr)
+      const m = Number(mStr) - 1
+      const d = Number(dStr)
+      if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
 
-  daysGrid.innerHTML = ""
+      if (y !== year || m !== month) return
 
-  // 6 rows x 7 cols (42 cells)
-  let dayNum = 1
-  for (let cell = 0; cell < 42; cell++) {
-    const cellDiv = document.createElement("div")
-    cellDiv.className = "day-cell"
+      const day = normalizeExpensesDay(cal, key)
+      if (!Array.isArray(day.entries) || !day.entries.length) return
 
-    if (cell < startingWeekday || dayNum > daysInMonth) {
-      cellDiv.classList.add("disabled")
-      daysGrid.appendChild(cellDiv)
-      continue
-    }
+      const dateLabel = new Date(y, m, d).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
 
-    cellDiv.textContent = dayNum
+      day.entries.forEach((entry) => {
+        const entryTotal = Number(entry.total) || 0
+        if (!entryTotal) return
 
-    const cellDate = new Date(year, month, dayNum)
-    const key = dateKey(cellDate)
-    let info = cal?.days?.[key]
+        // Monthly aggregates
+        totalSpent += entryTotal
+        if (key === todayKey) {
+          todayTotal += entryTotal
+        }
+        if (entry.paymentStatus === "paid") {
+          paidTotal += entryTotal
+        } else if (entry.paymentStatus === "pending") {
+          pendingTotal += entryTotal
+        }
 
-    // Apply configured holidays from settings (per month/day)
-    if (cal) {
-      ensureCalendarHolidays(cal)
-      const mKey = monthKeyFromYearMonth(year, month)
-      const holMonth = cal.holidays[mKey]
-      const holConfig = holMonth && holMonth[dayNum]
-      if (holConfig) {
-        if (!cal.days[key]) cal.days[key] = {}
-        cal.days[key].status = "holiday"
-        cal.days[key].holidayName = holConfig.name || null
-        info = cal.days[key]
-      }
-    }
+        const payeeName = (entry.payeeName || "Unknown").trim() || "Unknown"
+        const status = entry.paymentStatus || "paid"
 
-    const dow = cellDate.getDay()
-    if (dow === 0 || dow === 6) {
-      cellDiv.classList.add("weekend")
-    }
+        let list = payeeRowsMap.get(payeeName)
+        if (!list) {
+          list = []
+          payeeRowsMap.set(payeeName, list)
+        }
 
-    if (
-      cellDate.getFullYear() === today.getFullYear() &&
-      cellDate.getMonth() === today.getMonth() &&
-      cellDate.getDate() === today.getDate()
-    ) {
-      cellDiv.classList.add("today")
-    }
-
-    if (info?.status) {
-      applyStatusClass(cellDiv, info.status)
-    }
-
-    // Running timer indicator
-    if (cal && cal.runningDateKey === key) {
-      cellDiv.classList.add("running")
-    }
-
-    cellDiv.addEventListener("click", () => {
-      openModal(cellDate)
+        list.push({
+          key,
+          entryId: entry.id,
+          dateLabel,
+          total: entryTotal,
+          status,
+        })
+      })
     })
-
-    daysGrid.appendChild(cellDiv)
-    dayNum++
   }
 
-  renderStats()
+  const budget = Number(cal.budgetAmount) || 0
+  const walletBase = Number(cal.walletAmount) || 0
+  const remaining = budget - totalSpent
+  const over = remaining < 0 ? -remaining : 0
+  const remainingDisplay = remaining > 0 ? remaining : 0
+  const walletBalance = walletBase - paidTotal
 
+<<<<<<< HEAD
   // Update session bar based on current active calendar and selectedDate
   updateSessionBar()
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  expTodayEl.textContent = `₹${todayTotal}`
+  expTotalSpentEl.textContent = `₹${totalSpent}`
+  expMonthlyBudgetEl.textContent = `₹${budget}`
+  expRemainingEl.textContent = `₹${remainingDisplay}`
+  expOverBudgetEl.textContent = `₹${over}`
+  expWalletBalanceEl.textContent = `₹${walletBalance}`
+
+  if (expensesPayeeTableBody) {
+    expensesPayeeTableBody.innerHTML = ""
+
+    // Sort payees alphabetically, then each payee's rows by date key
+    const payeeNames = Array.from(payeeRowsMap.keys()).sort((a, b) =>
+      a.localeCompare(b)
+    )
+
+    payeeNames.forEach((payeeName) => {
+      const list = payeeRowsMap.get(payeeName) || []
+      list.sort((a, b) => {
+        if (a.key < b.key) return -1
+        if (a.key > b.key) return 1
+        return 0
+      })
+
+      // Card container for this payee
+      const card = document.createElement("div")
+      card.className = "payee-card"
+
+      const header = document.createElement("div")
+      header.className = "payee-card-header"
+
+      const titleWrap = document.createElement("div")
+      titleWrap.className = "payee-card-title"
+
+      const nameEl = document.createElement("div")
+      nameEl.className = "payee-card-name"
+      nameEl.textContent = payeeName
+
+      const subtitleEl = document.createElement("div")
+      subtitleEl.className = "payee-card-subtitle"
+      const payeeTotal = list.reduce((sum, r) => sum + (Number(r.total) || 0), 0)
+      subtitleEl.textContent = `Total: ₹${payeeTotal}`
+
+      titleWrap.appendChild(nameEl)
+      titleWrap.appendChild(subtitleEl)
+
+      const actions = document.createElement("div")
+      actions.className = "payee-card-actions"
+
+      const viewBtn = document.createElement("button")
+      viewBtn.className = "payee-card-icon-btn view"
+      // Report icon (line-style)
+      viewBtn.innerHTML = '<i class="ri-bar-chart-2-line"></i>'
+      viewBtn.addEventListener("click", () => {
+        openPayeeReport(payeeName)
+      })
+
+      const deleteBtnGroup = document.createElement("button")
+      deleteBtnGroup.className = "payee-card-icon-btn delete"
+      deleteBtnGroup.innerHTML = '<i class="ri-delete-bin-6-line"></i>'
+      deleteBtnGroup.addEventListener("click", () => {
+        openExpenseEntryDeleteModal({ type: "group", payeeName })
+      })
+
+      actions.appendChild(viewBtn)
+      actions.appendChild(deleteBtnGroup)
+
+      header.appendChild(titleWrap)
+      header.appendChild(actions)
+
+      const listWrap = document.createElement("div")
+      listWrap.className = "payee-card-list"
+
+      list.forEach((row) => {
+        const rowEl = document.createElement("div")
+        rowEl.className = "payee-card-row"
+
+        const main = document.createElement("div")
+        main.className = "payee-card-row-main"
+
+        const dateEl = document.createElement("div")
+        dateEl.className = "payee-card-date"
+        dateEl.textContent = row.dateLabel
+
+        const statusPill = document.createElement("div")
+        statusPill.className = "payee-card-status-pill"
+        if (row.status === "pending") {
+          statusPill.classList.add("pending")
+          statusPill.textContent = "Pending"
+        } else {
+          statusPill.classList.add("paid")
+          statusPill.textContent = "Paid"
+        }
+
+        const amountEl = document.createElement("div")
+        amountEl.className = "payee-card-amount"
+        amountEl.textContent = `₹${row.total}`
+
+        main.appendChild(dateEl)
+        main.appendChild(statusPill)
+        main.appendChild(amountEl)
+
+        const rowActions = document.createElement("div")
+        rowActions.className = "payee-card-row-actions"
+
+        const editBtn = document.createElement("button")
+        editBtn.className = "payee-card-icon-btn edit"
+        editBtn.innerHTML = '<i class="ri-edit-2-line"></i>'
+        editBtn.addEventListener("click", () => {
+          openExpensesModalForKey(row.key, row.entryId)
+        })
+
+        const deleteBtnSingle = document.createElement("button")
+        deleteBtnSingle.className = "payee-card-icon-btn delete"
+        deleteBtnSingle.innerHTML = '<i class="ri-delete-bin-6-line"></i>'
+        deleteBtnSingle.addEventListener("click", () => {
+          openExpenseEntryDeleteModal({
+            type: "single",
+            key: row.key,
+            entryId: row.entryId,
+            payeeName,
+            dateLabel: row.dateLabel,
+          })
+        })
+
+        rowActions.appendChild(editBtn)
+        rowActions.appendChild(deleteBtnSingle)
+
+        rowEl.appendChild(main)
+        rowEl.appendChild(rowActions)
+        listWrap.appendChild(rowEl)
+      })
+
+      card.appendChild(header)
+      card.appendChild(listWrap)
+      expensesPayeeTableBody.appendChild(card)
+    })
+  }
+}
+
+function openExpensesModalForKey(key, entryId) {
+  if (!key) return
+  const parts = String(key).split("-")
+  if (parts.length !== 3) return
+  const y = Number(parts[0])
+  const m = Number(parts[1]) - 1
+  const d = Number(parts[2])
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
+  const date = new Date(y, m, d)
+  // When entryId is provided, open that specific entry for editing.
+  // Fallback: edit mode without a specific entry still works for legacy data.
+  if (entryId) {
+    openExpensesModal(date, { edit: true, entryId })
+  } else {
+    openExpensesModal(date, { edit: true })
+  }
+}
+
+function buildPayeeMonthlyData(cal, payeeName) {
+  if (!cal || !payeeName) return null
+
+  const nowYear = currentDate.getFullYear()
+  const nowMonth = currentDate.getMonth()
+
+  let monthTotal = 0
+  let monthPaid = 0
+  let monthPending = 0
+  const pendingByMonth = {}
+  const rows = []
+
+  if (cal.days) {
+    Object.entries(cal.days).forEach(([key]) => {
+      const [yStr, mStr, dStr] = key.split("-")
+      const y = Number(yStr)
+      const m = Number(mStr) - 1
+      const d = Number(dStr)
+      if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return
+
+      const day = normalizeExpensesDay(cal, key)
+      if (!Array.isArray(day.entries) || !day.entries.length) return
+
+      day.entries.forEach((entry) => {
+        const entryTotal = Number(entry.total) || 0
+        if (!entryTotal) return
+
+        const name = (entry.payeeName || "Unknown").trim() || "Unknown"
+        if (name !== payeeName) return
+
+        const isCurrentMonth = y === nowYear && m === nowMonth
+
+        if (isCurrentMonth) {
+          monthTotal += entryTotal
+          if (entry.paymentStatus === "paid") monthPaid += entryTotal
+          if (entry.paymentStatus === "pending") monthPending += entryTotal
+
+          const createdAt = entry.createdAt
+            ? new Date(entry.createdAt)
+            : new Date(y, m, d)
+          const dateLabel = createdAt.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          })
+          const timeLabel = createdAt.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+
+          if (Array.isArray(entry.items) && entry.items.length) {
+            entry.items.forEach((it) => {
+              const qty = Number(it.qty) || 0
+              const price = Number(it.price) || 0
+              const lineTotal = qty * price
+              rows.push({
+                dateLabel,
+                timeLabel,
+                itemName: it.name || "-",
+                qty,
+                price,
+                lineTotal,
+                status: entry.paymentStatus || "-",
+                mode: entry.paymentMode || "-",
+                category: entry.category || "",
+                subCategory: entry.subCategory || "",
+              })
+            })
+          } else {
+            rows.push({
+              dateLabel,
+              timeLabel,
+              itemName: "-",
+              qty: 0,
+              price: 0,
+              lineTotal: entryTotal,
+              status: entry.paymentStatus || "-",
+              mode: entry.paymentMode || "-",
+              category: entry.category || "",
+              subCategory: entry.subCategory || "",
+            })
+          }
+        } else {
+          if (entry.paymentStatus === "pending") {
+            const mKey = monthKeyFromYearMonth(y, m)
+            const prev = pendingByMonth[mKey] || 0
+            pendingByMonth[mKey] = prev + entryTotal
+          }
+        }
+      })
+    })
+  }
+
+  let previousMonthsPendingTotal = 0
+  Object.values(pendingByMonth).forEach((amt) => {
+    previousMonthsPendingTotal += Number(amt) || 0
+  })
+
+  return {
+    monthTotal,
+    monthPaid,
+    monthPending,
+    pendingByMonth,
+    totalPending: monthPending + previousMonthsPendingTotal,
+    rows,
+  }
+}
+
+function getPayeePaymentsForCalendar(cal, payeeName) {
+  if (!cal || !payeeName) return { totalPaid: 0, payments: [] }
+  const store = cal.payeePayments || {}
+  const list = Array.isArray(store[payeeName]) ? store[payeeName] : []
+  let totalPaid = 0
+  list.forEach((p) => {
+    totalPaid += Number(p.amount) || 0
+  })
+  return { totalPaid, payments: list.slice() }
+}
+
+function openPayeeReport(payeeName) {
+  const cal = getActiveExpensesCalendar()
+  if (!cal || !payeeReportModal) return
+
+  const data = buildPayeeMonthlyData(cal, payeeName)
+  if (!data) return
+
+  const { totalPaid, payments } = getPayeePaymentsForCalendar(cal, payeeName)
+  const remainingPendingAll = Math.max(0, (Number(data.totalPending) || 0) - totalPaid)
+
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+  const monthStart = new Date(year, month, 1)
+  const thisMonthLabel = monthStart.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  })
+
+  if (payeeReportTitle) {
+    payeeReportTitle.textContent = "Payee Report"
+  }
+  if (payeeReportSubtitle) {
+    payeeReportSubtitle.textContent = monthStart.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+  }
+  if (payeeReportPayeeName) {
+    payeeReportPayeeName.textContent = payeeName
+  }
+  if (payeeReportMonthTotal) {
+    payeeReportMonthTotal.textContent = `₹${data.monthTotal}`
+  }
+  if (payeeReportPending) {
+    if (!remainingPendingAll) {
+      payeeReportPending.textContent = "All payment cleared"
+    } else {
+      payeeReportPending.textContent = `${thisMonthLabel}: ₹${remainingPendingAll}`
+    }
+  }
+  if (payeeReportLastPending) {
+    const map = data.pendingByMonth || {}
+    const entries = Object.entries(map).filter(([, amount]) => Number(amount) > 0)
+
+    if (!entries.length) {
+      payeeReportLastPending.textContent = "No previous pending"
+    } else {
+      let totalPrev = 0
+      entries.sort((a, b) => {
+        return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0
+      })
+
+      let html = '<table class="pill-mini-table"><tbody>'
+      entries.forEach(([mKey, amount]) => {
+        const [yStr, mmStr] = mKey.split("-")
+        const yy = Number(yStr)
+        const mm = Number(mmStr) - 1
+        const label = new Date(yy, mm, 1).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        })
+        const amt = Number(amount) || 0
+        totalPrev += amt
+        html += `<tr><td>${label}</td><td style="text-align:right;">₹${amt}</td></tr>`
+      })
+      html += `<tr class="pill-mini-total"><td><strong>Total</strong></td><td style="text-align:right;"><strong>₹${totalPrev}</strong></td></tr>`
+      html += "</tbody></table>"
+      payeeReportLastPending.innerHTML = html
+    }
+  }
+  if (payeeReportTotalPaid) {
+    payeeReportTotalPaid.textContent = `₹${totalPaid}`
+  }
+
+  if (payeeReportLastPaymentInfo) {
+    if (!payments.length) {
+      payeeReportLastPaymentInfo.textContent = "No payments recorded yet"
+    } else {
+      const last = payments[payments.length - 1]
+      const ts = last.timestamp ? new Date(last.timestamp) : new Date()
+      const dateLabel = ts.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+      const labelType = last.type === "full" ? "Full payment" : "Part payment"
+      const amt = Number(last.amount) || 0
+      payeeReportLastPaymentInfo.textContent = `${labelType} on ${dateLabel}: ₹${amt}`
+    }
+  }
+
+  if (payeeReportTableBody) {
+    payeeReportTableBody.innerHTML = ""
+    data.rows.forEach((row) => {
+      const tr = document.createElement("tr")
+      const dateTd = document.createElement("td")
+      const timeTd = document.createElement("td")
+      const itemTd = document.createElement("td")
+      const qtyTd = document.createElement("td")
+      const priceTd = document.createElement("td")
+      const totalTd = document.createElement("td")
+      const statusTd = document.createElement("td")
+      const modeTd = document.createElement("td")
+
+      dateTd.textContent = row.dateLabel
+      timeTd.textContent = row.timeLabel
+      itemTd.textContent = row.itemName
+      qtyTd.textContent = row.qty ? String(row.qty) : "0"
+      priceTd.textContent = row.price ? `₹${row.price}` : "₹0"
+      totalTd.textContent = `₹${row.lineTotal}`
+      statusTd.textContent = row.status
+      modeTd.textContent = row.mode
+
+      tr.appendChild(dateTd)
+      tr.appendChild(timeTd)
+      tr.appendChild(itemTd)
+      tr.appendChild(qtyTd)
+      tr.appendChild(priceTd)
+      tr.appendChild(totalTd)
+      tr.appendChild(statusTd)
+      tr.appendChild(modeTd)
+      payeeReportTableBody.appendChild(tr)
+    })
+  }
+
+  if (payeeReportCards) {
+    payeeReportCards.innerHTML = ""
+    // Group rows by dateLabel
+    const byDate = new Map()
+    data.rows.forEach((row) => {
+      const key = row.dateLabel || "-"
+      if (!byDate.has(key)) byDate.set(key, [])
+      byDate.get(key).push(row)
+    })
+
+    Array.from(byDate.entries()).forEach(([dateLabel, rows]) => {
+      const card = document.createElement("div")
+      card.className = "payee-report-card"
+
+      const header = document.createElement("div")
+      header.className = "payee-report-card-header"
+
+      const dtWrap = document.createElement("div")
+      dtWrap.className = "payee-report-card-date-time"
+
+      const dateEl = document.createElement("div")
+      dateEl.className = "payee-report-card-date"
+      dateEl.textContent = dateLabel
+
+      dtWrap.appendChild(dateEl)
+
+      header.appendChild(dtWrap)
+
+      const body = document.createElement("div")
+      body.className = "payee-report-card-body"
+      body.style.flexDirection = "column"
+      body.style.alignItems = "stretch"
+      body.style.gap = "4px"
+
+      rows.forEach((row) => {
+        const line = document.createElement("div")
+        line.style.display = "flex"
+        line.style.alignItems = "center"
+        line.style.justifyContent = "space-between"
+        line.style.gap = "6px"
+
+        const left = document.createElement("div")
+        left.style.display = "flex"
+        left.style.flexDirection = "column"
+        left.style.gap = "2px"
+
+        const timeText = document.createElement("div")
+        timeText.className = "payee-report-card-time"
+        timeText.textContent = row.timeLabel
+
+        const itemText = document.createElement("div")
+        itemText.className = "payee-report-item"
+        itemText.textContent = row.itemName || "-"
+
+        const metaText = document.createElement("div")
+        metaText.className = "payee-report-meta"
+        const metaParts = []
+        if (typeof row.qty === "number" && !Number.isNaN(row.qty) && row.qty > 0) {
+          metaParts.push(`Qty: ${row.qty}`)
+        }
+        if (row.category) metaParts.push(row.category)
+        if (row.subCategory) metaParts.push(row.subCategory)
+        metaText.textContent = metaParts.join(" • ")
+
+        left.appendChild(timeText)
+        left.appendChild(itemText)
+        if (metaParts.length) left.appendChild(metaText)
+
+        const right = document.createElement("div")
+        right.style.display = "flex"
+        right.style.flexDirection = "column"
+        right.style.alignItems = "flex-end"
+        right.style.gap = "2px"
+
+        const statusModeWrap = document.createElement("div")
+        statusModeWrap.className = "payee-report-card-status-mode"
+
+        const statusPill = document.createElement("div")
+        statusPill.className = "payee-report-pill"
+        if (row.status === "pending") {
+          statusPill.classList.add("status-pending")
+          statusPill.textContent = "Pending"
+        } else {
+          statusPill.classList.add("status-paid")
+          statusPill.textContent = "Paid"
+        }
+
+        const modePill = document.createElement("div")
+        modePill.className = "payee-report-pill"
+        const modeLower = (row.mode || "").toLowerCase()
+        if (modeLower === "cash") {
+          modePill.classList.add("mode-cash")
+        } else {
+          modePill.classList.add("mode-online")
+        }
+        modePill.textContent = row.mode || "-"
+
+        statusModeWrap.appendChild(statusPill)
+        statusModeWrap.appendChild(modePill)
+
+        const amounts = document.createElement("div")
+        amounts.className = "payee-report-amounts"
+
+        const priceEl = document.createElement("div")
+        priceEl.textContent = row.price ? `Price: ₹${row.price}` : "Price: ₹0"
+
+        const totalEl = document.createElement("div")
+        totalEl.textContent = `Total: ₹${row.lineTotal}`
+
+        amounts.appendChild(priceEl)
+        amounts.appendChild(totalEl)
+
+        right.appendChild(statusModeWrap)
+        right.appendChild(amounts)
+
+        line.appendChild(left)
+        line.appendChild(right)
+
+        body.appendChild(line)
+      })
+
+      card.appendChild(header)
+      card.appendChild(body)
+      payeeReportCards.appendChild(card)
+    })
+  }
+
+  if (payeePaymentTableBody) {
+    payeePaymentTableBody.innerHTML = ""
+    const sorted = payments.slice().sort((a, b) => {
+      return (a.timestamp || 0) - (b.timestamp || 0)
+    })
+    sorted.forEach((p) => {
+      const tr = document.createElement("tr")
+      const dateTd = document.createElement("td")
+      const typeTd = document.createElement("td")
+      const amountTd = document.createElement("td")
+      const slipTd = document.createElement("td")
+
+      const ts = p.timestamp ? new Date(p.timestamp) : new Date()
+      dateTd.textContent = ts.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+      typeTd.textContent = p.type === "full" ? "Full" : "Part"
+      amountTd.textContent = `₹${Number(p.amount) || 0}`
+      if (p.slipDataUrl) {
+        const link = document.createElement("a")
+        link.href = p.slipDataUrl
+        link.download = p.slipName || "payment-slip"
+        const img = document.createElement("img")
+        img.src = p.slipDataUrl
+        img.alt = p.slipName || "Slip"
+        img.className = "payment-slip-thumb"
+        link.appendChild(img)
+        slipTd.appendChild(link)
+      } else {
+        slipTd.textContent = p.slipName || "-"
+      }
+
+      tr.appendChild(dateTd)
+      tr.appendChild(typeTd)
+      tr.appendChild(amountTd)
+      tr.appendChild(slipTd)
+      payeePaymentTableBody.appendChild(tr)
+    })
+  }
+
+  payeeReportModal.classList.add("open")
+  overlay.classList.add("active")
+}
+
+if (payeePaymentSubmitBtn) {
+  payeePaymentSubmitBtn.addEventListener("click", () => {
+    const cal = getActiveExpensesCalendar()
+    if (!cal || !payeeReportPayeeName || !payeePaymentAmountInput) return
+
+    const payeeName = (payeeReportPayeeName.textContent || "").trim()
+    if (!payeeName) return
+
+    const amount = Number(payeePaymentAmountInput.value) || 0
+    if (!amount) return
+
+    const type = payeePaymentTypeSelect ? payeePaymentTypeSelect.value || "part" : "part"
+
+    const finalizeSave = (slipName, slipDataUrl) => {
+      const entry = {
+        id: `pay_${Date.now()}`,
+        timestamp: Date.now(),
+        type,
+        amount,
+        slipName,
+        slipDataUrl: slipDataUrl || null,
+      }
+
+      if (!cal.payeePayments) cal.payeePayments = {}
+      if (!Array.isArray(cal.payeePayments[payeeName])) cal.payeePayments[payeeName] = []
+      cal.payeePayments[payeeName].push(entry)
+
+      saveExpensesCalendars()
+
+      payeePaymentAmountInput.value = ""
+      if (payeePaymentFileInput) {
+        payeePaymentFileInput.value = ""
+      }
+
+      openPayeeReport(payeeName)
+    }
+
+    if (payeePaymentFileInput && payeePaymentFileInput.files && payeePaymentFileInput.files[0]) {
+      const file = payeePaymentFileInput.files[0]
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const dataUrl = typeof e.target?.result === "string" ? e.target.result : null
+        finalizeSave(file.name, dataUrl)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      finalizeSave("", null)
+    }
+  })
+}
+
+function closePayeeReport() {
+  if (!payeeReportModal) return
+  payeeReportModal.classList.remove("open")
+  overlay.classList.remove("active")
+}
+
+if (payeeReportCloseBtn) {
+  payeeReportCloseBtn.addEventListener("click", closePayeeReport)
+}
+
+if (payeeReportDownloadBtn) {
+  payeeReportDownloadBtn.addEventListener("click", () => {
+    // Use browser print; user can choose "Save as PDF" to download
+    window.print()
+  })
+}
+
+if (payeeReportShareBtn) {
+  payeeReportShareBtn.addEventListener("click", () => {
+    const payeeName = payeeReportPayeeName ? payeeReportPayeeName.textContent || "" : ""
+    const monthTotal = payeeReportMonthTotal ? payeeReportMonthTotal.textContent || "" : ""
+    const pending = payeeReportPending ? payeeReportPending.textContent || "" : ""
+    const lastPending = payeeReportLastPending ? payeeReportLastPending.textContent || "" : ""
+    const totalPaid = payeeReportTotalPaid ? payeeReportTotalPaid.textContent || "" : ""
+
+    const lines = []
+    lines.push(`Payee Expenses Report - ${payeeName}`)
+    if (payeeReportSubtitle && payeeReportSubtitle.textContent) {
+      lines.push(payeeReportSubtitle.textContent)
+    }
+    lines.push("")
+    lines.push(`Month Expenses Payment: ${monthTotal}`)
+    lines.push(`Pending Payment: ${pending}`)
+    lines.push(`Last Month Pending: ${lastPending}`)
+    lines.push(`Total Payment: ${totalPaid}`)
+    lines.push("")
+    lines.push("Date | Time | Item | Qty | Price | Total | Status | Mode")
+
+    if (payeeReportTableBody) {
+      const rows = payeeReportTableBody.querySelectorAll("tr")
+      rows.forEach((tr) => {
+        const tds = tr.querySelectorAll("td")
+        if (tds.length >= 8) {
+          const parts = Array.from(tds).map((td) => td.textContent || "")
+          lines.push(parts.join(" | "))
+        }
+      })
+    }
+
+    const text = lines.join("\n")
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, "_blank")
+  })
+>>>>>>> 7093bec (2)
 }
 
 function applyStatusClass(el, status) {
@@ -4770,11 +7458,16 @@ function renderStats() {
       const perDay = cal.scheduleOutMinutes - cal.scheduleInMinutes
       if (perDay > 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         const dayCap =
           todayInfo.status === "halfday" ? Math.floor(perDay / 2) : perDay
 =======
         const dayCap = todayInfo.status === "halfday" ? Math.floor(perDay / 2) : perDay
 >>>>>>> e6d3907 (Initial project commit)
+=======
+        const dayCap =
+          todayInfo.status === "halfday" ? Math.floor(perDay / 2) : perDay
+>>>>>>> 7093bec (2)
         if (dayCap > 0 && cappedToday > dayCap) cappedToday = dayCap
       }
     }
@@ -4825,12 +7518,17 @@ function renderStats() {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (statLate) statLate.textContent = `${lateMinutes}m`
   if (statExtra) statExtra.textContent = `${extraMinutes}m`
 =======
   statLate.textContent = `${lateMinutes}m`
   statExtra.textContent = `${extraMinutes}m`
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  if (statLate) statLate.textContent = `${lateMinutes}m`
+  if (statExtra) statExtra.textContent = `${extraMinutes}m`
+>>>>>>> 7093bec (2)
 
   // Salary calculation
   let salary = 0
@@ -4842,6 +7540,9 @@ function renderStats() {
     salary = workingEquiv * perDay
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
   if (statSalary) {
     statSalary.textContent = "₹" + Math.round(salary)
   }
@@ -5174,6 +7875,7 @@ function renderCalendar() {
     renderExpensesSummary()
     renderExpensesCategorySummary(cal)
   }
+<<<<<<< HEAD
 }
 
 // Month navigation
@@ -5262,22 +7964,98 @@ function closeGoldInvoiceModal() {
 
 =======
   statSalary.textContent = "" + Math.round(salary)
+=======
+>>>>>>> 7093bec (2)
 }
 
 // Month navigation
-prevMonthBtn.addEventListener("click", () => {
-  currentDate.setMonth(currentDate.getMonth() - 1)
-  renderCalendar()
-})
+if (prevMonthBtn) {
+  prevMonthBtn.addEventListener("click", () => {
+    currentDate.setMonth(currentDate.getMonth() - 1)
+    renderCalendar()
+  })
+}
 
-nextMonthBtn.addEventListener("click", () => {
-  currentDate.setMonth(currentDate.getMonth() + 1)
-  renderCalendar()
-})
+if (nextMonthBtn) {
+  nextMonthBtn.addEventListener("click", () => {
+    currentDate.setMonth(currentDate.getMonth() + 1)
+    renderCalendar()
+  })
+}
 
 // ===== Monthly report logic =====
 
+<<<<<<< HEAD
 >>>>>>> e6d3907 (Initial project commit)
+=======
+function openGoldInvoiceModal() {
+  if (!goldInvoiceModal || !overlay) return
+
+  // Require a saved snapshot from the "Save Details" button
+  if (!lastSavedGoldInvoice) return
+
+  const now = new Date(lastSavedGoldInvoice.savedAt || Date.now())
+  const dateLabel = now.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+
+  if (goldInvoiceTitle) {
+    goldInvoiceTitle.textContent = `${lastSavedGoldInvoice.metal || 'Gold'} Invoice`
+  }
+  if (goldInvoiceSubtitle) {
+    goldInvoiceSubtitle.textContent = `Date: ${dateLabel}`
+  }
+
+  if (goldInvoiceMetal) {
+    goldInvoiceMetal.textContent = lastSavedGoldInvoice.metal || '-'
+  }
+
+  if (goldInvoicePriceBasis) {
+    goldInvoicePriceBasis.textContent = lastSavedGoldInvoice.priceBasis || '-'
+  }
+
+  if (goldInvoiceWeight) {
+    goldInvoiceWeight.textContent = lastSavedGoldInvoice.weightInput || '0'
+  }
+
+  if (goldInvoicePurity) {
+    const p = lastSavedGoldInvoice.purityInput || '0'
+    goldInvoicePurity.textContent = `${p}%`
+  }
+
+  if (goldInvoiceMaking) {
+    goldInvoiceMaking.textContent = lastSavedGoldInvoice.makingText || '₹0'
+  }
+
+  if (goldInvoiceGst) {
+    goldInvoiceGst.textContent = lastSavedGoldInvoice.gstText || '₹0'
+  }
+
+  if (goldInvoiceDiscount) {
+    goldInvoiceDiscount.textContent = lastSavedGoldInvoice.discountText || '₹0'
+  }
+
+  if (goldInvoiceFinal) {
+    goldInvoiceFinal.textContent = lastSavedGoldInvoice.finalText || '₹0'
+  }
+
+  if (goldInvoiceDetail) {
+    goldInvoiceDetail.textContent = lastSavedGoldInvoice.detailText || ''
+  }
+
+  goldInvoiceModal.classList.add('open')
+  overlay.classList.add('active')
+}
+
+function closeGoldInvoiceModal() {
+  if (!goldInvoiceModal || !overlay) return
+  goldInvoiceModal.classList.remove('open')
+  overlay.classList.remove('active')
+}
+
+>>>>>>> 7093bec (2)
 function openReportModal() {
   const cal = getActiveCalendar()
   if (!cal || !reportModal) return
@@ -5502,6 +8280,9 @@ function closeReportModal() {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 // ===== Combined monthly expenses report (expenses mode) =====
 
 function openExpensesReport() {
@@ -5847,6 +8628,7 @@ function closeExpensesReport() {
   overlay.classList.remove("active")
 }
 
+<<<<<<< HEAD
 if (reportBtn) {
   reportBtn.addEventListener("click", () => {
     // If user is on calculator and Gold calculator is active, show gold invoice
@@ -5865,6 +8647,22 @@ if (reportBtn) {
 if (reportBtn) {
   reportBtn.addEventListener("click", openReportModal)
 >>>>>>> e6d3907 (Initial project commit)
+=======
+if (reportBtn) {
+  reportBtn.addEventListener("click", () => {
+    // If user is on calculator and Gold calculator is active, show gold invoice
+    if (activeMode === 'calculator' && lastCalculatorKey === 'gold' && goldInvoiceModal) {
+      openGoldInvoiceModal()
+      return
+    }
+
+    if (activeMode === "expenses") {
+      openExpensesReport()
+    } else {
+      openReportModal()
+    }
+  })
+>>>>>>> 7093bec (2)
 }
 
 if (reportCloseBtn) {
@@ -5872,6 +8670,9 @@ if (reportCloseBtn) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 if (goldInvoiceCloseBtn) {
   goldInvoiceCloseBtn.addEventListener('click', closeGoldInvoiceModal)
 }
@@ -5910,8 +8711,11 @@ if (expCategoryTableBtn) {
   expCategoryTableBtn.addEventListener("click", () => setExpCategoryView("table"))
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
 // Download PDF: rely on browser print dialog (user can save as PDF)
 if (reportDownloadBtn) {
   reportDownloadBtn.addEventListener("click", () => {
@@ -5920,6 +8724,9 @@ if (reportDownloadBtn) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 if (expensesReportDownloadBtn) {
   expensesReportDownloadBtn.addEventListener("click", () => {
     window.print()
@@ -5932,8 +8739,11 @@ if (goldInvoicePrintBtn) {
   })
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
 // Share on Whatsapp: build a plain-text summary and open wa.me link
 if (reportShareBtn) {
   reportShareBtn.addEventListener("click", () => {
@@ -5971,6 +8781,9 @@ if (reportShareBtn) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 if (goldInvoiceShareBtn) {
   goldInvoiceShareBtn.addEventListener('click', () => {
     const lines = []
@@ -6050,8 +8863,11 @@ if (expensesReportShareBtn) {
   })
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
 // Modal logic
 function openModal(date) {
   selectedDate = date
@@ -6156,11 +8972,15 @@ dateModal.addEventListener("click", (e) => {
 
   const key = dateKey(selectedDate)
 <<<<<<< HEAD
+<<<<<<< HEAD
   const info = cal.days[key] || {}
 =======
   if (!cal.days[key]) cal.days[key] = {}
   const info = cal.days[key]
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  const info = cal.days[key] || {}
+>>>>>>> 7093bec (2)
 
   if (action === "present") {
     info.status = "present"
@@ -6238,9 +9058,13 @@ dateModal.addEventListener("click", (e) => {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   cal.days[key] = info
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  cal.days[key] = info
+>>>>>>> 7093bec (2)
   saveCalendars()
   renderCalendar()
   renderStats()
@@ -6309,6 +9133,7 @@ pinUnlockBtn.addEventListener("click", () => {
 
 // Delete calendar modal
 <<<<<<< HEAD
+<<<<<<< HEAD
 function openDeleteModal(calendar, type = "office") {
   pendingDeleteCalendarId = calendar.id
   pendingDeleteCalendarType = type === "expenses" ? "expenses" : "office"
@@ -6323,6 +9148,17 @@ function openDeleteModal(calendar) {
   pendingDeleteCalendarId = calendar.id
   deleteCalendarName.textContent = calendar.name
 >>>>>>> e6d3907 (Initial project commit)
+=======
+function openDeleteModal(calendar, type = "office") {
+  pendingDeleteCalendarId = calendar.id
+  pendingDeleteCalendarType = type === "expenses" ? "expenses" : "office"
+
+  const displayName =
+    type === "expenses"
+      ? calendar.title || calendar.name || "Expenses Calendar"
+      : calendar.name || calendar.title || "Calendar"
+  deleteCalendarName.textContent = displayName
+>>>>>>> 7093bec (2)
 
   const warning = document.getElementById("deleteWarningText")
   if (warning) {
@@ -6344,9 +9180,13 @@ function closeDeleteModal() {
   overlay.classList.remove("active")
   pendingDeleteCalendarId = null
 <<<<<<< HEAD
+<<<<<<< HEAD
   pendingDeleteCalendarType = "office"
 =======
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  pendingDeleteCalendarType = "office"
+>>>>>>> 7093bec (2)
 }
 
 deleteModalCloseBtn.addEventListener("click", closeDeleteModal)
@@ -6359,11 +9199,15 @@ deleteConfirmBtn.addEventListener("click", () => {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
   if (pendingDeleteCalendarType === "expenses") {
     deleteExpensesCalendar(pendingDeleteCalendarId)
   } else {
     deleteCalendar(pendingDeleteCalendarId)
   }
+<<<<<<< HEAD
   closeDeleteModal()
 })
 
@@ -6494,12 +9338,141 @@ function openClearMonthModal() {
   const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
 =======
   deleteCalendar(pendingDeleteCalendarId)
+=======
+>>>>>>> 7093bec (2)
   closeDeleteModal()
 })
 
+function openExpenseEntryDeleteModal(config) {
+  if (!expenseEntryDeleteModal || !overlay) return
+
+  const { type, key, entryId, payeeName, dateLabel } = config || {}
+  pendingDeleteExpenseType = type === "group" ? "group" : "single"
+  pendingDeleteExpenseKey = key || null
+  pendingDeleteExpenseEntryId = entryId || null
+  pendingDeleteExpensePayee = payeeName || ""
+
+  if (expenseEntryDeleteLabel) {
+    if (pendingDeleteExpenseType === "group") {
+      expenseEntryDeleteLabel.textContent = payeeName || ""
+    } else {
+      const labelParts = []
+      if (dateLabel) labelParts.push(dateLabel)
+      if (payeeName) labelParts.push(payeeName)
+      expenseEntryDeleteLabel.textContent = labelParts.join(" - ")
+    }
+  }
+
+  if (expenseEntryDeleteMessage) {
+    if (pendingDeleteExpenseType === "group") {
+      expenseEntryDeleteMessage.textContent =
+        "Are you sure you want to delete all expenses for this payee in this month?"
+    } else {
+      expenseEntryDeleteMessage.textContent =
+        "Are you sure you want to delete this expense entry?"
+    }
+  }
+
+  expenseEntryDeleteModal.classList.add("open")
+  overlay.classList.add("active")
+}
+
+function closeExpenseEntryDeleteModal() {
+  if (!expenseEntryDeleteModal || !overlay) return
+  expenseEntryDeleteModal.classList.remove("open")
+  overlay.classList.remove("active")
+  pendingDeleteExpenseType = null
+  pendingDeleteExpenseKey = null
+  pendingDeleteExpenseEntryId = null
+  pendingDeleteExpensePayee = ""
+}
+
+if (expenseEntryDeleteCloseBtn) {
+  expenseEntryDeleteCloseBtn.addEventListener("click", closeExpenseEntryDeleteModal)
+}
+if (expenseEntryDeleteCancelBtn) {
+  expenseEntryDeleteCancelBtn.addEventListener("click", closeExpenseEntryDeleteModal)
+}
+
+if (expenseEntryDeleteConfirmBtn) {
+  expenseEntryDeleteConfirmBtn.addEventListener("click", () => {
+    const cal = getActiveExpensesCalendar()
+    if (!cal) {
+      closeExpenseEntryDeleteModal()
+      return
+    }
+
+    if (pendingDeleteExpenseType === "single" && pendingDeleteExpenseKey && pendingDeleteExpenseEntryId) {
+      const day = normalizeExpensesDay(cal, pendingDeleteExpenseKey)
+      if (Array.isArray(day.entries) && day.entries.length) {
+        day.entries = day.entries.filter((e) => e.id !== pendingDeleteExpenseEntryId)
+
+        if (!day.entries.length) {
+          delete cal.days[pendingDeleteExpenseKey]
+        } else {
+          let dayTotal = 0
+          let anyPending = false
+          day.entries.forEach((e) => {
+            const t = Number(e.total) || 0
+            dayTotal += t
+            if (e.paymentStatus === "pending") anyPending = true
+          })
+          day.total = dayTotal
+          day.paymentStatus = anyPending ? "pending" : "paid"
+        }
+      }
+    } else if (pendingDeleteExpenseType === "group" && pendingDeleteExpensePayee) {
+      const year = currentDate.getFullYear()
+      const month = currentDate.getMonth()
+
+      if (cal.days) {
+        Object.entries(cal.days).forEach(([key, value]) => {
+          const [yStr, mStr] = key.split("-")
+          const y = Number(yStr)
+          const m = Number(mStr) - 1
+          if (Number.isNaN(y) || Number.isNaN(m)) return
+          if (y !== year || m !== month) return
+
+          const day = normalizeExpensesDay(cal, key)
+          if (!Array.isArray(day.entries) || !day.entries.length) return
+
+          day.entries = day.entries.filter((e) => {
+            const name = (e.payeeName || "Unknown").trim() || "Unknown"
+            return name !== pendingDeleteExpensePayee
+          })
+
+          if (!day.entries.length) {
+            delete cal.days[key]
+          } else {
+            let dayTotal = 0
+            let anyPending = false
+            day.entries.forEach((e) => {
+              const t = Number(e.total) || 0
+              dayTotal += t
+              if (e.paymentStatus === "pending") anyPending = true
+            })
+            day.total = dayTotal
+            day.paymentStatus = anyPending ? "pending" : "paid"
+          }
+        })
+      }
+    }
+
+    saveExpensesCalendars()
+    renderExpensesSummary()
+    renderCalendar()
+    closeExpenseEntryDeleteModal()
+  })
+}
+
 function openClearMonthModal() {
+<<<<<<< HEAD
   const cal = getActiveCalendar()
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  const isExpensesMode = activeMode === "expenses"
+  const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
+>>>>>>> 7093bec (2)
   if (!cal) return
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -6532,11 +9505,16 @@ if (clearMonthCancelBtn) {
 if (clearMonthConfirmBtn) {
   clearMonthConfirmBtn.addEventListener("click", () => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const isExpensesMode = activeMode === "expenses"
     const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
 =======
     const cal = getActiveCalendar()
 >>>>>>> e6d3907 (Initial project commit)
+=======
+    const isExpensesMode = activeMode === "expenses"
+    const cal = isExpensesMode ? getActiveExpensesCalendar() : getActiveCalendar()
+>>>>>>> 7093bec (2)
     if (!cal) {
       closeClearMonthModal()
       return
@@ -6553,15 +9531,22 @@ if (clearMonthConfirmBtn) {
         delete cal.days[key]
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (!isExpensesMode && cal.runningDateKey === key) {
 =======
       if (cal.runningDateKey === key) {
 >>>>>>> e6d3907 (Initial project commit)
+=======
+      if (!isExpensesMode && cal.runningDateKey === key) {
+>>>>>>> 7093bec (2)
         cal.runningDateKey = null
       }
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
     if (isExpensesMode) {
       saveExpensesCalendars()
       renderCalendar()
@@ -6573,12 +9558,15 @@ if (clearMonthConfirmBtn) {
       updateSessionBar()
     }
 
+<<<<<<< HEAD
 =======
     saveCalendars()
     renderCalendar()
     renderStats()
     updateSessionBar()
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
     closeClearMonthModal()
   })
 }
@@ -6779,6 +9767,7 @@ function updateSessionBar() {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const key = activeSessionKey
   const info = cal.days[key]
@@ -6793,6 +9782,8 @@ function updateSessionBar() {
   }
 
 >>>>>>> e6d3907 (Initial project commit)
+=======
+>>>>>>> 7093bec (2)
   sessionBar.classList.remove("hidden")
 
   // Clear previous interval
@@ -6801,6 +9792,7 @@ function updateSessionBar() {
     sessionIntervalId = null
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   const startMs = cal.days[activeSessionKey].inTime
   const endMs = cal.days[activeSessionKey].outTime || Date.now()
@@ -6816,10 +9808,19 @@ function updateSessionBar() {
     const now = Date.now()
     const effectiveEnd = info.outTime || now
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  const startMs = cal.days[activeSessionKey].inTime
+  const endMs = cal.days[activeSessionKey].outTime || Date.now()
+
+  function refresh() {
+    const now = Date.now()
+    const effectiveEnd = cal.days[activeSessionKey].outTime || now
+>>>>>>> 7093bec (2)
     const totalMs = Math.max(0, effectiveEnd - startMs)
 
     // Compute break duration in seconds for live feeling
     let breakSeconds = 0
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length) {
       for (const b of cal.days[activeSessionKey].breaks) {
@@ -6827,6 +9828,10 @@ function updateSessionBar() {
     if (info.breaks && info.breaks.length) {
       for (const b of info.breaks) {
 >>>>>>> e6d3907 (Initial project commit)
+=======
+    if (cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length) {
+      for (const b of cal.days[activeSessionKey].breaks) {
+>>>>>>> 7093bec (2)
         if (!b.start) continue
         const end = b.end != null ? b.end : now
         if (end > b.start) {
@@ -6862,16 +9867,21 @@ function updateSessionBar() {
 
     if (sessionStatusEl) {
 <<<<<<< HEAD
+<<<<<<< HEAD
       sessionStatusEl.textContent = cal.days[activeSessionKey].outTime ? "Finished" : "Working"
 =======
       sessionStatusEl.textContent = info.outTime ? "Finished" : "Working"
 >>>>>>> e6d3907 (Initial project commit)
+=======
+      sessionStatusEl.textContent = cal.days[activeSessionKey].outTime ? "Finished" : "Working"
+>>>>>>> 7093bec (2)
     }
 
     // Auto end-of-day reminder once scheduled out time is reached
     if (
       cal &&
       cal.scheduleOutMinutes != null &&
+<<<<<<< HEAD
 <<<<<<< HEAD
       cal.runningDateKey === activeSessionKey &&
       !cal.days[activeSessionKey].outTime
@@ -6883,6 +9893,12 @@ function updateSessionBar() {
     ) {
       const [yStr, mStr, dStr] = key.split("-")
 >>>>>>> e6d3907 (Initial project commit)
+=======
+      cal.runningDateKey === activeSessionKey &&
+      !cal.days[activeSessionKey].outTime
+    ) {
+      const [yStr, mStr, dStr] = activeSessionKey.split("-")
+>>>>>>> 7093bec (2)
       const y = Number(yStr)
       const m = Number(mStr)
       const d = Number(dStr)
@@ -6899,10 +9915,14 @@ function updateSessionBar() {
         if (now >= scheduled.getTime() && !snoozed) {
           if (!endReminderModal || !endReminderModal.classList.contains("open")) {
 <<<<<<< HEAD
+<<<<<<< HEAD
             openEndReminderModal(cal, activeSessionKey)
 =======
             openEndReminderModal(cal, key)
 >>>>>>> e6d3907 (Initial project commit)
+=======
+            openEndReminderModal(cal, activeSessionKey)
+>>>>>>> 7093bec (2)
           }
         }
       }
@@ -6916,20 +9936,28 @@ function updateSessionBar() {
   refresh()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!cal.days[activeSessionKey].outTime) {
 =======
   if (!info.outTime) {
 >>>>>>> e6d3907 (Initial project commit)
+=======
+  if (!cal.days[activeSessionKey].outTime) {
+>>>>>>> 7093bec (2)
     sessionIntervalId = setInterval(refresh, 1000)
   }
 
   // Update buttons visibility
   if (sessionBreakBtn && sessionBackBtn) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const onBreak = cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length && cal.days[activeSessionKey].breaks[cal.days[activeSessionKey].breaks.length - 1].end == null
 =======
     const onBreak = info.breaks && info.breaks.length && info.breaks[info.breaks.length - 1].end == null
 >>>>>>> e6d3907 (Initial project commit)
+=======
+    const onBreak = cal.days[activeSessionKey].breaks && cal.days[activeSessionKey].breaks.length && cal.days[activeSessionKey].breaks[cal.days[activeSessionKey].breaks.length - 1].end == null
+>>>>>>> 7093bec (2)
     if (onBreak) {
       sessionBreakBtn.style.display = "none"
       sessionBackBtn.style.display = "inline-block"
@@ -6985,6 +10013,9 @@ if (sessionEndBtn) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 7093bec (2)
 // Expenses storage helpers
 function loadExpensesCalendars() {
   try {
@@ -7013,6 +10044,7 @@ function saveExpensesCalendars() {
   )
 }
 
+<<<<<<< HEAD
 // Init
 loadCalendars()
 loadExpensesCalendars()
@@ -7020,8 +10052,16 @@ renderCalendarList()
 renderExpensesCalendarList()
 renderCalendar()
 =======
+=======
+>>>>>>> 7093bec (2)
 // Init
 loadCalendars()
+loadExpensesCalendars()
 renderCalendarList()
+<<<<<<< HEAD
 renderCalendar()
 >>>>>>> e6d3907 (Initial project commit)
+=======
+renderExpensesCalendarList()
+renderCalendar()
+>>>>>>> 7093bec (2)
