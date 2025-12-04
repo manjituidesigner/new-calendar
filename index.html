@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
-    <title>Mobile Work Calendar ww</title>
+    <title>Mobile Work Calendar </title>
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -14,12 +14,7 @@
     />
   </head>
   <body>
-<<<<<<< HEAD
-    <!-- Overlay for drawer and modal -->
->>>>>>> e6d3907 (Initial project commit)
-=======
     <!-- Overlay for drawer aaa and modal -->
->>>>>>> 7093bec (2)
     <div class="overlay" id="overlay"></div>
 
     <!-- Side Drawer -->
@@ -132,8 +127,6 @@
           </div>
         </div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         <!-- Expenses tab -->
         <div class="drawer-panel" id="expensesTab">
           <h3 class="drawer-title">Expenses Calendars</h3>
@@ -198,85 +191,11 @@
         </div>
 
         <!-- Placeholder tabs -->
-=======
-        <!-- Placeholder tabs -->
-=======
-        <!-- Expenses tab -->
->>>>>>> 7093bec (2)
-        <div class="drawer-panel" id="expensesTab">
-          <h3 class="drawer-title">Expenses Calendars</h3>
-
-          <div class="calendar-list" id="expensesCalendarList"></div>
-
-          <button class="primary-btn full-width" id="createExpensesCalendarToggle">
-            + Create New Expenses Calendar
-          </button>
-
-          <form class="calendar-form" id="expensesCalendarForm">
-            <div class="field">
-              <label>Title</label>
-              <input
-                type="text"
-                id="expensesTitle"
-                placeholder="e.g. Home Expenses"
-              />
-            </div>
-            <div class="field">
-              <label>Description</label>
-              <textarea
-                id="expensesDescription"
-                rows="2"
-                placeholder="Short description"
-              ></textarea>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label>Budget Amount</label>
-                <input
-                  type="number"
-                  id="expensesBudgetAmount"
-                  placeholder="₹ / month"
-                  min="0"
-                />
-              </div>
-              <div class="field">
-                <label>Wallet Amount</label>
-                <input
-                  type="number"
-                  id="expensesWalletAmount"
-                  placeholder="₹ balance"
-                  min="0"
-                />
-              </div>
-            </div>
-            <div class="field">
-              <label>4 Digit PIN</label>
-              <input
-                type="password"
-                id="expensesPin"
-                placeholder="Optional - 4 digit"
-                maxlength="4"
-                inputmode="numeric"
-              />
-            </div>
-            <button type="submit" class="primary-btn full-width">
-              Save
-            </button>
-          </form>
-        </div>
-<<<<<<< HEAD
->>>>>>> e6d3907 (Initial project commit)
-=======
-
-        <!-- Placeholder tabs -->
->>>>>>> 7093bec (2)
         <div class="drawer-panel" id="notesTab">
           <p class="placeholder-text">
             Notes module coming soon.
           </p>
         </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
 
         <div class="drawer-panel" id="calculatorTab">
           <h3 class="drawer-title">Calculators</h3>
@@ -295,32 +214,6 @@
               <button class="calculator-chip disabled" disabled>More calculators coming soon…</button>
             </div>
           </div>
-=======
-        <div class="drawer-panel" id="calculatorTab">
-          <p class="placeholder-text">
-            Calculator module coming soon.
-          </p>
->>>>>>> e6d3907 (Initial project commit)
-=======
-
-        <div class="drawer-panel" id="calculatorTab">
-          <h3 class="drawer-title">Calculators</h3>
-
-          <div class="calculator-layout">
-            <div class="calculator-list" id="calculatorList">
-              <button class="calculator-chip" data-calc="basic">Basic Calculator</button>
-              <button class="calculator-chip" data-calc="emi">EMI Calculator</button>
-              <button class="calculator-chip" data-calc="gold">Gold Calculator</button>
-              <button class="calculator-chip" data-calc="unit">Unit Converter</button>
-              <button class="calculator-chip" data-calc="gst">GST Calculator</button>
-              <button class="calculator-chip" data-calc="discount">Discount Calculator</button>
-              <button class="calculator-chip" data-calc="incomeTax">Income Tax Calculator</button>
-              <button class="calculator-chip" data-calc="splitBill">Split Bill Calculator</button>
-              <button class="calculator-chip" data-calc="currency">Currency Converter</button>
-              <button class="calculator-chip disabled" disabled>More calculators coming soon…</button>
-            </div>
-          </div>
->>>>>>> 7093bec (2)
         </div>
       </section>
     </aside>
@@ -341,15 +234,7 @@
           <span class="month-label" id="monthLabel"></span>
           <span class="year-label" id="yearLabel"></span>
         </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
         <button class="nav-arrow aaa" id="nextMonthBtn">›</button>
-=======
-        <button class="nav-arrow" id="nextMonthBtn">›</button>
->>>>>>> e6d3907 (Initial project commit)
-=======
-        <button class="nav-arrow aaa" id="nextMonthBtn">›</button>
->>>>>>> e3041a4 (update v5)
       </section>
 
       <!-- Calendar -->
@@ -386,18 +271,8 @@
         </div>
       </div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
       <!-- Office stats cards -->
       <section class="stats-section" id="officeStatsSection">
-=======
-      <!-- Stats cards -->
-      <section class="stats-section">
->>>>>>> e6d3907 (Initial project commit)
-=======
-      <!-- Office stats cards -->
-      <section class="stats-section" id="officeStatsSection">
->>>>>>> 7093bec (2)
         <div class="stat-card">
           <span class="stat-label">Days in Month</span>
           <span class="stat-value" id="statDaysInMonth">0</span>
@@ -438,10 +313,6 @@
           <span class="stat-label">Working Hours</span>
           <span class="stat-value" id="statWorkingHours">0h 0m</span>
         </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7093bec (2)
       </section>
 
       <!-- Expenses stats cards -->
@@ -469,7 +340,6 @@
         <div class="stat-card">
           <span class="stat-label">Wallet Balance</span>
           <span class="stat-value purple" id="expWalletBalance">₹0</span>
-<<<<<<< HEAD
         </div>
       </section>
 
@@ -899,445 +769,6 @@
       </div>
     </div>
 
-=======
-        <div class="stat-card wide">
-          <span class="stat-label">Calculated Salary</span>
-          <span class="stat-value" id="statSalary">₹0</span>
-=======
->>>>>>> 7093bec (2)
-        </div>
-      </section>
-
-      <section class="expenses-category-section hidden" id="expensesCategorySection">
-        <div class="exp-category-card">
-          <div class="exp-category-header">
-            <span class="exp-category-title">Category wise spend</span>
-            <span class="exp-category-subtitle" id="expCategoryMonthLabel"></span>
-            <div class="exp-category-view-toggle">
-              <button class="exp-cat-view-btn active" id="expCategoryBarBtn" type="button" data-exp-category-view="bar" title="Bar view">
-                <i class="ri-bar-chart-2-line"></i>
-              </button>
-              <button class="exp-cat-view-btn" id="expCategoryPieBtn" type="button" data-exp-category-view="pie" title="Pie view">
-                <i class="ri-pie-chart-2-line"></i>
-              </button>
-              <button class="exp-cat-view-btn" id="expCategoryTableBtn" type="button" data-exp-category-view="table" title="Table view">
-                <i class="ri-table-2"></i>
-              </button>
-            </div>
-          </div>
-          <div class="exp-category-body">
-            <div class="exp-category-view exp-category-view-bar" id="expCategoryBarView">
-              <div class="exp-category-list" id="expCategoryList"></div>
-            </div>
-            <div class="exp-category-view exp-category-view-pie hidden" id="expCategoryPieView">
-              <div class="exp-category-pie-wrapper" id="expCategoryPieWrapper"></div>
-            </div>
-            <div class="exp-category-view exp-category-view-table hidden" id="expCategoryTableView">
-              <div class="report-table-wrapper" style="margin-top: 8px;">
-                <table class="report-table">
-                  <thead>
-                    <tr>
-                      <th>Category</th>
-                      <th>Sub Category</th>
-                      <th>Amount</th>
-                      <th>Count</th>
-                    </tr>
-                  </thead>
-                  <tbody id="expCategoryTableBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Expenses payee summary table -->
-      <section class="expenses-payee-section hidden" id="expensesPayeeSection">
-        <h4 class="section-title">Payee wise summary</h4>
-        <div class="expenses-payee-cards" id="expensesPayeeTableBody"></div>
-      </section>
-
-      <button class="primary-btn full-width" id="clearMonthBtn">Clear Month</button>
-    </div>
-
-<<<<<<< HEAD
->>>>>>> e6d3907 (Initial project commit)
-=======
-    <!-- Calculator full page -->
-    <div class="calculator-page" id="calculatorPage">
-      <div class="calculator-page-panel">
-        <section class="calculator-page-body">
-          <div class="calculator-panel">
-
-            <!-- Basic Calculator: keypad style -->
-            <div class="calculator-view" data-calc-view="basic">
-              <div class="calc-display" id="basicDisplay">0</div>
-
-              <div class="calc-keypad">
-                <button class="calc-btn calc-func" data-key="mc">MC</button>
-                <button class="calc-btn calc-func" data-key="mr">MR</button>
-                <button class="calc-btn calc-func" data-key="mplus">M+</button>
-                <button class="calc-btn calc-func" data-key="mminus">M-</button>
-
-                <button class="calc-btn calc-func" data-key="percent">%</button>
-                <button class="calc-btn calc-func" data-key="ce">CE</button>
-                <button class="calc-btn calc-func" data-key="c">C</button>
-                <button class="calc-btn calc-func" data-key="back">⌫</button>
-
-                <button class="calc-btn calc-func" data-key="inv">1/x</button>
-                <button class="calc-btn calc-func" data-key="sqr">x²</button>
-                <button class="calc-btn calc-func" data-key="sqrt">√x</button>
-                <button class="calc-btn calc-op" data-key="/">÷</button>
-
-                <button class="calc-btn" data-key="7">7</button>
-                <button class="calc-btn" data-key="8">8</button>
-                <button class="calc-btn" data-key="9">9</button>
-                <button class="calc-btn calc-op" data-key="*">×</button>
-
-                <button class="calc-btn" data-key="4">4</button>
-                <button class="calc-btn" data-key="5">5</button>
-                <button class="calc-btn" data-key="6">6</button>
-                <button class="calc-btn calc-op" data-key="-">−</button>
-
-                <button class="calc-btn" data-key="1">1</button>
-                <button class="calc-btn" data-key="2">2</button>
-                <button class="calc-btn" data-key="3">3</button>
-                <button class="calc-btn calc-op" data-key="+">+</button>
-
-                <button class="calc-btn" data-key="neg">+/-</button>
-                <button class="calc-btn" data-key="0">0</button>
-                <button class="calc-btn" data-key=".">.</button>
-                <button class="calc-btn calc-equals" data-key="=">=</button>
-              </div>
-            </div>
-
-            <!-- EMI Calculator -->
-            <div class="calculator-view hidden" data-calc-view="emi">
-              <div class="emi-tabs" id="emiLoanTabs">
-                <button class="emi-tab active" data-loan-type="home">Home Loan</button>
-                <button class="emi-tab" data-loan-type="personal">Personal Loan</button>
-                <button class="emi-tab" data-loan-type="car">Car Loan</button>
-              </div>
-
-              <div class="emi-layout">
-                <div class="emi-left">
-                  <!-- Amount -->
-                  <div class="emi-field">
-                    <div class="emi-field-label-row">
-                      <label>Loan Amount</label>
-                      <div class="emi-value-input">
-                        <span class="emi-prefix">₹</span>
-                        <input type="number" id="emiAmount" />
-                      </div>
-                    </div>
-                    <div class="emi-slider-row">
-                      <input type="range" id="emiAmountRange" min="100000" max="20000000" step="10000" />
-                    </div>
-                    <div class="emi-scale-row">
-                      <span>1L</span>
-                      <span>50L</span>
-                      <span>1Cr</span>
-                      <span>2Cr</span>
-                    </div>
-                  </div>
-
-                  <!-- Interest Rate -->
-                  <div class="emi-field">
-                    <div class="emi-field-label-row">
-                      <label>Interest Rate</label>
-                      <div class="emi-value-input">
-                        <input type="number" id="emiRate" step="0.1" />
-                        <span class="emi-suffix">%</span>
-                      </div>
-                    </div>
-                    <div class="emi-slider-row">
-                      <input type="range" id="emiRateRange" min="5" max="20" step="0.1" />
-                    </div>
-                    <div class="emi-scale-row">
-                      <span>5%</span>
-                      <span>10%</span>
-                      <span>15%</span>
-                      <span>20%</span>
-                    </div>
-                  </div>
-
-                  <!-- Tenure -->
-                  <div class="emi-field">
-                    <div class="emi-field-label-row">
-                      <label>Loan Tenure</label>
-                      <div class="emi-tenure-input-group">
-                        <input type="number" id="emiTenure" />
-                        <div class="emi-tenure-toggle" id="emiTenureToggle">
-                          <button type="button" data-unit="years" class="active">Yr</button>
-                          <button type="button" data-unit="months">Mo</button>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="emi-slider-row">
-                      <input type="range" id="emiTenureRange" min="1" max="30" step="1" />
-                    </div>
-                    <div class="emi-scale-row">
-                      <span>1</span>
-                      <span>10</span>
-                      <span>20</span>
-                      <span>30</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="emi-right">
-                  <div class="emi-results-grid">
-                    <div class="emi-result-card">
-                      <span class="emi-result-label">Loan EMI</span>
-                      <span class="emi-result-value" id="emiEmiValue">₹0</span>
-                    </div>
-                    <div class="emi-result-card">
-                      <span class="emi-result-label">Total Interest Payable</span>
-                      <span class="emi-result-value" id="emiInterestValue">₹0</span>
-                    </div>
-                    <div class="emi-result-card">
-                      <span class="emi-result-label">Total Payment (Principal + Interest)</span>
-                      <span class="emi-result-value" id="emiTotalValue">₹0</span>
-                    </div>
-                  </div>
-
-                  <div class="emi-chart-card">
-                    <span class="emi-chart-title">Break-up of Total Payment</span>
-                    <div class="emi-chart-wrapper">
-                      <div class="emi-chart-pie">
-                        <div class="emi-chart-slice emi-chart-principal" id="emiChartPrincipal"></div>
-                        <div class="emi-chart-slice emi-chart-interest" id="emiChartInterest"></div>
-                      </div>
-                      <div class="emi-chart-legend">
-                        <div class="emi-legend-item">
-                          <span class="emi-legend-dot principal"></span>
-                          <span>Principal</span>
-                          <span class="emi-legend-value" id="emiPrincipalPct">0%</span>
-                        </div>
-                        <div class="emi-legend-item">
-                          <span class="emi-legend-dot interest"></span>
-                          <span>Interest</span>
-                          <span class="emi-legend-value" id="emiInterestPct">0%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Gold & Silver Calculator -->
-            <div class="calculator-view hidden" data-calc-view="gold">
-              <div class="gold-live-row">
-                <div class="gold-live-card">
-                  <div class="gold-live-label">Gold price today (per gram)</div>
-                  <div class="gold-live-value" id="gold">Loading…</div>
-                </div>
-                <div class="gold-live-card">
-                  <div class="gold-live-label">Silver price today (per gram)</div>
-                  <div class="gold-live-value" id="silver">Loading…</div>
-                </div>
-              </div>
-
-              <div class="gold-layout">
-                <div class="gold-input-column">
-                  <div class="gold-metal-toggle" id="goldMetalToggle">
-                    <button type="button" class="gold-metal-btn active" data-metal="gold">Gold</button>
-                    <button type="button" class="gold-metal-btn" data-metal="silver">Silver</button>
-                  </div>
-
-                  <div class="gold-section-card">
-                    <div class="gold-section-header">
-                      <span class="gold-section-title">Gold Price Input Type</span>
-                    </div>
-                    <div class="gold-toggle" id="goldPriceTypeToggle">
-                      <button type="button" class="gold-toggle-btn active" data-gold-price-type="per10g">10 Gram Rate</button>
-                      <button type="button" class="gold-toggle-btn" data-gold-price-type="perGram">Per Gram Rate</button>
-                    </div>
-                  </div>
-
-                  <div class="gold-section-card" id="goldKaratCard">
-                    <label class="gold-label" for="goldKaratSelect">Gold Karat</label>
-                    <select id="goldKaratSelect">
-                      <option value="24" selected>24K (999)</option>
-                      <option value="22">22K (916)</option>
-                      <option value="18">18K (750)</option>
-                      <option value="14">14K (585)</option>
-                      <option value="9">9K (375)</option>
-                    </select>
-                  </div>
-
-                  <div class="gold-section-card">
-                    <label class="gold-label" for="goldPriceInput" id="goldPriceLabel">Gold Price</label>
-                    <input type="number" id="goldPriceInput" step="0.01" />
-                  </div>
-
-                  <div class="gold-section-card gold-section-two-col">
-                    <div>
-                      <label class="gold-label" for="goldWeightInput">Weight (grams)</label>
-                      <input type="number" id="goldWeightInput" step="0.01" />
-                    </div>
-                    <div>
-                      <label class="gold-label" for="goldPurityInput" id="goldPurityLabel">Gold Purity (%)</label>
-                      <input type="number" id="goldPurityInput" step="0.1" />
-                    </div>
-                  </div>
-
-                  <div class="gold-section-card">
-                    <label class="gold-label" for="goldMakingInput">Making Charge</label>
-                    <div class="gold-section-two-col">
-                      <div>
-                        <input type="number" id="goldMakingInput" step="0.1" />
-                      </div>
-                      <div>
-                        <select id="goldMakingType">
-                          <option value="percent" selected>%</option>
-                          <option value="amount">Amount</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="gold-section-card">
-                    <label class="gold-label" for="goldGstInput">GST (%)</label>
-                    <input type="number" id="goldGstInput" step="0.1" />
-                  </div>
-
-                  <div class="gold-section-card">
-                    <label class="gold-label" for="goldDiscountInput">Discount (%)</label>
-                    <input type="number" id="goldDiscountInput" step="0.1" />
-                  </div>
-
-                  <button type="button" class="primary-btn full-width" id="goldCalcBtn">Save Details</button>
-                </div>
-
-                <div class="gold-result-column">
-                  <div class="gold-result-card" id="goldResult">
-                    <div class="gold-result-total-label">Total Price</div>
-                    <div class="gold-result-total" id="goldResultTotal">₹0</div>
-
-                    <div class="gold-breakdown">
-                      <div class="gold-breakdown-row">
-                        <span>Gold Value</span>
-                        <span id="goldResultGoldValue">₹0</span>
-                      </div>
-                      <div class="gold-breakdown-row">
-                        <span>Making Charge</span>
-                        <span id="goldResultMaking">₹0</span>
-                      </div>
-                      <div class="gold-breakdown-row">
-                        <span>GST</span>
-                        <span id="goldResultGst">₹0</span>
-                      </div>
-                      <div class="gold-breakdown-row">
-                        <span>Discount</span>
-                        <span id="goldResultDiscount">₹0</span>
-                      </div>
-                      <div class="gold-breakdown-row gold-breakdown-final">
-                        <span>Final Amount</span>
-                        <span id="goldResultFinal">₹0</span>
-                      </div>
-                    </div>
-
-                    <div class="gold-info" id="goldResultInfo"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- GST Calculator -->
-            <div class="calculator-view hidden" data-calc-view="gst">
-              <div class="field-row">
-                <div class="field">
-                  <label>Base Amount</label>
-                  <input type="number" id="gstBase" />
-                </div>
-                <div class="field">
-                  <label>GST %</label>
-                  <input type="number" id="gstRate" step="0.1" />
-                </div>
-              </div>
-              <button type="button" class="primary-btn full-width" id="gstCalcBtn">Calculate GST</button>
-              <div class="calculator-result" id="gstResult"></div>
-            </div>
-
-            <!-- Discount Calculator (shopping) -->
-            <div class="calculator-view hidden" data-calc-view="discount">
-              <div class="field-row">
-                <div class="field">
-                  <label>Original Price</label>
-                  <input type="number" id="discOriginal" />
-                </div>
-                <div class="field">
-                  <label>Discount %</label>
-                  <input type="number" id="discPercent" step="0.1" />
-                </div>
-              </div>
-              <button type="button" class="primary-btn full-width" id="discCalcBtn">Calculate Discount</button>
-              <div class="calculator-result" id="discResult"></div>
-            </div>
-
-            <!-- Split Bill Calculator -->
-            <div class="calculator-view hidden" data-calc-view="splitBill">
-              <div class="field-row">
-                <div class="field">
-                  <label>Total Bill</label>
-                  <input type="number" id="splitTotal" />
-                </div>
-                <div class="field">
-                  <label>No. of People</label>
-                  <input type="number" id="splitPeople" />
-                </div>
-              </div>
-              <button type="button" class="primary-btn full-width" id="splitCalcBtn">Split Bill</button>
-              <div class="calculator-result" id="splitResult"></div>
-            </div>
-
-            <!-- Simple stubs for Unit, Income Tax, Currency (UI only for now) -->
-            <div class="calculator-view hidden" data-calc-view="unit">
-              <p class="placeholder-text">Unit converter UI will come here. You can define pairs like km ↔ miles, kg ↔ lbs.</p>
-            </div>
-
-            <div class="calculator-view hidden" data-calc-view="incomeTax">
-              <p class="placeholder-text">Income tax calculator UI will come here based on your slabs.</p>
-            </div>
-
-            <div class="calculator-view hidden" data-calc-view="currency">
-              <p class="placeholder-text">Currency converter UI will come here. Add your own rates when you are ready.</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Delete Expense Entry / Payee Modal -->
-    <div class="modal" id="expenseEntryDeleteModal">
-      <div class="modal-content">
-        <header class="modal-header">
-          <div>
-            <div class="modal-title">Delete Expense</div>
-            <div class="modal-subtitle" id="expenseEntryDeleteLabel"></div>
-          </div>
-          <button class="icon-btn" id="expenseEntryDeleteCloseBtn">
-</button>
-        </header>
-
-        <section class="modal-section">
-          <p class="placeholder-text" id="expenseEntryDeleteMessage">
-            Are you sure you want to delete this expense entry?
-          </p>
-        </section>
-
-        <section class="modal-section">
-          <div class="report-footer-actions">
-            <button class="primary-btn" id="expenseEntryDeleteCancelBtn">Cancel</button>
-            <button class="primary-btn" id="expenseEntryDeleteConfirmBtn">Delete</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
->>>>>>> 7093bec (2)
     <!-- Standalone Settings Page -->
     <div class="settings-page" id="settingsPage">
       <div class="settings-page-panel">
@@ -1502,15 +933,10 @@
       </div>
     </div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7093bec (2)
     <!-- Payee-wise Expenses Report Modal -->
     <div class="modal" id="payeeReportModal">
       <div class="modal-content report-modal-content">
         <header class="modal-header report-modal-header">
-<<<<<<< HEAD
           <div>
             <div class="modal-title" id="payeeReportTitle">Payee Report</div>
             <div class="modal-subtitle" id="payeeReportSubtitle"></div>
@@ -1803,311 +1229,6 @@
                 <button class="chip red" id="deleteExpenseConfirmBtn">Delete</button>
               </div>
             </section>
-=======
-    <!-- Clear Month Modal -->
-    <div class="modal" id="clearMonthModal">
-      <div class="modal-content">
-        <header class="modal-header">
-=======
->>>>>>> 7093bec (2)
-          <div>
-            <div class="modal-title" id="payeeReportTitle">Payee Report</div>
-            <div class="modal-subtitle" id="payeeReportSubtitle"></div>
-          </div>
-          <button class="icon-btn" id="payeeReportCloseBtn">✕</button>
-        </header>
-
-        <section class="modal-section">
-<<<<<<< HEAD
-          <p class="placeholder-text">
-            Are you sure you want to clear all entries for this month? This cannot be undone.
->>>>>>> e6d3907 (Initial project commit)
-=======
-          <div class="report-summary-grid">
-            <div class="report-pill primary">
-              <span class="pill-label">Payee Name</span>
-              <span class="pill-value" id="payeeReportPayeeName">-</span>
-            </div>
-            <div class="report-pill green-soft">
-              <span class="pill-label">Month Expenses Payment</span>
-              <span class="pill-value" id="payeeReportMonthTotal">₹0</span>
-            </div>
-            <div class="report-pill red">
-              <span class="pill-label">This Month Pending</span>
-              <span class="pill-value" id="payeeReportPending">₹0</span>
-            </div>
-            <div class="report-pill orange-soft">
-              <span class="pill-label">Previous Month Pending</span>
-              <span class="pill-value" id="payeeReportLastPending">₹0</span>
-            </div>
-            <div class="report-pill blue">
-              <span class="pill-label">Total Paid Payment</span>
-              <span class="pill-value" id="payeeReportTotalPaid">₹0</span>
-              <span class="pill-value" id="payeeReportLastPaymentInfo" style="font-size:11px; font-weight:500;"></span>
-            </div>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <h4 class="section-title">Record Payment</h4>
-          <div class="field-row">
-            <div class="field">
-              <label>Payment Type</label>
-              <select id="payeePaymentType">
-                <option value="full">Full Payment</option>
-                <option value="part">Part Payment</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Amount</label>
-              <input type="number" id="payeePaymentAmount" min="0" placeholder="₹" />
-            </div>
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label>Attach payment slip (optional)</label>
-              <input type="file" id="payeePaymentFile" accept="image/*" />
-            </div>
-          </div>
-          <button class="primary-btn full-width" id="payeePaymentSubmitBtn">Save Payment</button>
-        </section>
-
-        <section class="modal-section">
-          <h4 class="section-title">Recorded Payments</h4>
-          <div class="report-table-wrapper">
-            <table class="report-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Slip</th>
-                </tr>
-              </thead>
-              <tbody id="payeePaymentTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <h4 class="section-title">Date wise details</h4>
-          <div class="payee-report-cards" id="payeeReportCards"></div>
-
-          <!-- Hidden table kept for export/share text generation -->
-          <div class="report-table-wrapper hidden">
-            <table class="report-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total Bill</th>
-                  <th>Status</th>
-                  <th>Mode</th>
-                </tr>
-              </thead>
-              <tbody id="payeeReportTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <div class="report-footer-actions">
-            <button class="primary-btn" id="payeeReportDownloadBtn">Download Report</button>
-            <button class="primary-btn" id="payeeReportShareBtn">Share on WhatsApp</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Expenses Date Modal -->
-    <div class="modal" id="expensesModal">
-      <div class="modal-content">
-        <header class="modal-header">
-          <div>
-            <div class="modal-title" id="expensesModalDateLabel">Expenses</div>
-            <div class="modal-subtitle" id="expensesModalCalendarName"></div>
-          </div>
-          <button class="icon-btn" id="expensesModalCloseBtn">✕</button>
-        </header>
-
-        <section class="modal-section">
-          <div class="field-row">
-            <div class="field">
-              <label>Payee Name</label>
-              <input type="text" id="expPayeeName" placeholder="e.g. Supermarket" />
-            </div>
-            <div class="field" style="flex:0 0 110px;">
-              <label>&nbsp;</label>
-              <label class="checkbox-inline">
-                <input type="checkbox" id="expRecurring" />
-                <span>Recurring?</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label>Item Category</label>
-              <select id="expCategory"><option value="">No value</option></select>
-            </div>
-            <div class="field">
-              <label>Sub Category (optional)</label>
-              <select id="expSubCategory"><option value="">No value</option></select>
-            </div>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <h4 class="section-title">Items</h4>
-          <div class="expenses-items-header">
-            <span>Item</span>
-            <span>Qty</span>
-            <span>Price</span>
-            <span></span>
-          </div>
-          <div class="expenses-items-list" id="expensesItemsList"></div>
-          <button class="small-btn full-width" id="expAddItemRowBtn">+ Add another item</button>
-        </section>
-
-        <section class="modal-section">
-          <div class="field-row">
-            <div class="field">
-              <label>Payment Status</label>
-              <select id="expPaymentStatus">
-                <option value="paid" selected>Paid</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Payment Mode</label>
-              <div class="radio-group" id="expPaymentModeGroup">
-                <label class="radio-inline">
-                  <input type="radio" name="expPaymentMode" value="online" checked />
-                  <span>Online</span>
-                </label>
-                <label class="radio-inline">
-                  <input type="radio" name="expPaymentMode" value="cash" />
-                  <span>Cash</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label>Date</label>
-              <input type="text" id="expDateDisplay" readonly />
-            </div>
-            <div class="field">
-              <label>Time</label>
-              <input type="text" id="expTimeDisplay" readonly />
-            </div>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <div class="expenses-total-row">
-            <span>Total Expenses</span>
-            <span class="expenses-total-value" id="expTotalForDate">₹0</span>
-          </div>
-          <div class="field-row" style="margin-top: 8px; flex-direction: column; gap: 8px;">
-            <button class="primary-btn full-width" id="expSaveEntryBtn">Add</button>
-            <button class="primary-btn full-width" id="expPrintBillBtn">Print Bill</button>
-            <button class="primary-btn full-width" id="expShareBillBtn">Share bill on WhatsApp</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Expenses Monthly Report Modal -->
-    <div class="modal" id="expensesReportModal">
-      <div class="modal-content report-modal-content">
-        <header class="modal-header report-modal-header">
-          <div>
-            <div class="modal-title" id="expensesReportTitle">Expenses Report</div>
-            <div class="modal-subtitle" id="expensesReportSubtitle"></div>
-          </div>
-          <button class="icon-btn" id="expensesReportCloseBtn">✕</button>
-        </header>
-
-        <section class="modal-section">
-          <div class="report-summary-grid">
-            <div class="report-pill primary">
-              <span class="pill-label">Payee Name</span>
-              <span class="pill-value" id="expReportPayeeName">-</span>
-            </div>
-            <div class="report-pill green-soft">
-              <span class="pill-label">Total Expenses</span>
-              <span class="pill-value" id="expReportTotal">₹0</span>
-            </div>
-            <div class="report-pill blue">
-              <span class="pill-label">Paid Payment</span>
-              <span class="pill-value" id="expReportPaid">₹0</span>
-            </div>
-            <div class="report-pill red">
-              <span class="pill-label">Pending Payment</span>
-              <span class="pill-value" id="expReportPending">₹0</span>
-            </div>
-            <div class="report-pill orange-soft" style="grid-column: span 2;">
-              <span class="pill-label" id="expReportCarryLabel">Carry forward pending amount</span>
-              <span class="pill-value" id="expReportCarryValue">₹0</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <h4 class="section-title">Date wise details</h4>
-          <div class="expenses-report-cards" id="expensesReportCards"></div>
-
-          <!-- Hidden table kept for export/share text generation -->
-          <div class="report-table-wrapper hidden">
-            <table class="report-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Payee</th>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total Bill</th>
-                  <th>Status</th>
-                  <th>Mode</th>
-                  <th>Category</th>
-                  <th>Sub Category</th>
-                </tr>
-              </thead>
-              <tbody id="expensesReportTableBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="modal-section">
-          <div class="report-footer-actions">
-            <button class="primary-btn" id="expensesReportDownloadBtn">Download Report</button>
-            <button class="primary-btn" id="expensesReportShareBtn">Share on WhatsApp</button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <!-- Clear Month Modal -->
-    <div class="modal" id="clearMonthModal">
-      <div class="modal-content">
-
-            <section class="modal-section">
-              <p class="placeholder-text">
-                Are you sure you want to delete this expense entry? This cannot be undone.
-              </p>
-              <div class="chip-row">
-                <button class="chip secondary" id="deleteExpenseCancelBtn">Cancel</button>
-                <button class="chip red" id="deleteExpenseConfirmBtn">Delete</button>
-              </div>
-            </section>
->>>>>>> 7093bec (2)
           </p>
           <div class="chip-row">
             <button class="chip secondary" id="clearMonthCancelBtn">Cancel</button>
@@ -2153,14 +1274,7 @@
     <div class="modal center-modal" id="pinModal">
       <div class="modal-content">
         <header class="modal-header">
-<<<<<<< HEAD
-<<<<<<< HEAD
           <div>
-=======
->>>>>>> e6d3907 (Initial project commit)
-=======
-          <div>
->>>>>>> 7093bec (2)
             <div class="modal-title">Unlock Calendar</div>
             <div class="modal-subtitle" id="pinCalendarName"></div>
           </div>
@@ -2341,10 +1455,6 @@
       </div>
     </div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7093bec (2)
     <!-- Gold Invoice Modal -->
     <div class="modal" id="goldInvoiceModal">
       <div class="modal-content report-modal-content">
@@ -2407,11 +1517,6 @@
       </div>
     </div>
 
-<<<<<<< HEAD
-=======
->>>>>>> e6d3907 (Initial project commit)
-=======
->>>>>>> 7093bec (2)
     <!-- End-of-day work reminder modal -->
     <div class="modal" id="endReminderModal">
       <div class="modal-content">
@@ -2440,10 +1545,6 @@
     </div>
 
     <script src="script.js"></script>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7093bec (2)
     <script>
       const TROY_OUNCE_IN_GRAMS = 31.1034768; // 1 troy ounce = 31.1034768 grams
       const GOLD_API_KEY = "goldapi-hoa19mirlk17s-io";
@@ -2589,10 +1690,3 @@
     </script>
   </body>
 </html>
-<<<<<<< HEAD
-=======
-  </body>
-</html>
->>>>>>> e6d3907 (Initial project commit)
-=======
->>>>>>> 7093bec (2)
