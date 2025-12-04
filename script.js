@@ -1046,6 +1046,16 @@ function setActiveCalculator(key) {
     localStorage.setItem('mw_lastCalculatorKey', key)
   } catch (e) {}
 
+  // When opening the gold calculator, load any stored live prices and
+  // auto-fill the Gold Price input from them.
+  if (key === 'gold') {
+    try {
+      if (typeof loadLiveMetalPricesFromStorage === 'function') {
+        loadLiveMetalPricesFromStorage()
+      }
+    } catch (e) {}
+  }
+
   if (calculatorPage) {
     calculatorPage.classList.add('open')
 
@@ -1096,6 +1106,13 @@ document.addEventListener('click', (e) => {
 })
 
 // After calculator elements and functions exist, optionally restore last calculator view
+// and load any stored live metal prices for the gold calculator.
+try {
+  if (typeof loadLiveMetalPricesFromStorage === 'function') {
+    loadLiveMetalPricesFromStorage()
+  }
+} catch (e) {}
+
 if (shouldRestoreCalculatorOnInit && lastCalculatorKey) {
 	try {
 		setActiveCalculator(lastCalculatorKey)
@@ -1407,6 +1424,60 @@ let liveSilverPerGramInInr = null
 let goldPriceManuallyEdited = false
 let lastSavedGoldInvoice = null
 
+// Load any stored live metal prices (saved by index.html metalPrices script)
+function loadLiveMetalPricesFromStorage() {
+  try {
+    const raw = localStorage.getItem('metalPrices')
+    if (!raw) return
+    const data = JSON.parse(raw)
+    if (!data) return
+
+    if (typeof data.goldPerGramINR === 'number') {
+      liveGoldPerGramInInr = data.goldPerGramINR
+    }
+    if (typeof data.silverPerGramINR === 'number') {
+      liveSilverPerGramInInr = data.silverPerGramINR
+    }
+
+    // If we have a price and the calculator fields exist, pre-fill once
+    if (goldPriceInput && (liveGoldPerGramInInr || liveSilverPerGramInInr)) {
+      syncGoldPriceInputFromCard(true)
+    }
+  } catch (e) {
+    // Ignore parsing/storage errors, calculator will just not auto-fill
+  }
+}
+
+// Read value from the gold/silver live price card and put it into Gold Price input
+function syncGoldPriceInputFromCard(force = false) {
+  if (!goldPriceInput) return
+
+  if (!force && goldPriceManuallyEdited && goldPriceInput.value) {
+    return
+  }
+
+  const cardId = goldActiveMetal === 'silver' ? 'silver' : 'gold'
+  const cardEl = document.getElementById(cardId)
+  if (!cardEl) return
+
+  const rawText = cardEl.innerText || cardEl.textContent || ''
+  const numericText = rawText.replace(/[^0-9.]/g, '')
+  const perGram = parseFloat(numericText)
+  if (!perGram || Number.isNaN(perGram)) return
+
+  const price = goldPriceType === 'per10g' ? perGram * 10 : perGram
+  goldPriceInput.value = String(Math.round(price))
+  recalcGoldDetail()
+}
+
+// Whenever the live metal prices are updated (cards refreshed),
+// sync the Gold Price input from the latest card values.
+try {
+  window.addEventListener('metalPricesUpdated', () => {
+    syncGoldPriceInputFromCard(true)
+  })
+} catch (e) {}
+
 function recalcGoldDetail() {
   if (
     !goldResultInfoEl ||
@@ -1654,7 +1725,8 @@ if (goldMetalToggle) {
       goldPriceLabelEl.textContent = metalLabel + suffix
     }
 
-    autoFillMetalPriceFromLive(true)
+    // When switching metal, sync the input from the visible live-price card
+    syncGoldPriceInputFromCard(true)
     recalcGoldDetail()
   })
 }
