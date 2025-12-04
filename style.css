@@ -1424,18 +1424,19 @@ body {
 
 .gold-live-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   margin-bottom: 8px;
 }
 
 .gold-live-card {
-  flex: 1 1 150px;
-  border-radius: 14px;
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 12px;
   padding: 6px 10px 8px;
   background: #ffffff;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
 .gold-live-label {
@@ -1445,9 +1446,10 @@ body {
 }
 
 .gold-live-value {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #111827;
+  letter-spacing: 0.01em;
 }
 
 .gold-metal-toggle {
@@ -1477,7 +1479,7 @@ body {
 
 @media (max-width: 480px) {
   .gold-live-row {
-    flex-direction: column;
+    flex-wrap: wrap;
   }
 
   .gold-result-column {

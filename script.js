@@ -665,6 +665,14 @@ function formatMinutesToHM(mins) {
   const m = Math.max(0, (mins || 0) % 60)
   return `${h}h ${m}m`
 }
+function formatCurrencyINR(amount) {
+	const n = Number(amount) || 0
+	return new Intl.NumberFormat('en-IN', {
+		style: 'currency',
+		currency: 'INR',
+		maximumFractionDigits: 2,
+	}).format(n)
+}
 function buildDateWithTime(date, hhmm) {
   if (!date || !hhmm) return null
   const parts = String(hhmm).split(":")
@@ -715,6 +723,7 @@ function selectCalendar(id) {
   renderCalendar()
   renderStats()
   updateSessionBar()
+  updateAppTitle()
   closeDrawer()
 }
 function editCalendar(id) {
@@ -749,6 +758,7 @@ function deleteCalendar(id) {
 }
 function updateAppTitle() {
   if (!appTitleEl) return
+
   if (activeMode === "expenses") {
     const ec = getActiveExpensesCalendar()
     appTitleEl.textContent = ec ? ec.title : "Expenses Calendar"
@@ -953,6 +963,9 @@ const calculatorViews = document.querySelectorAll('[data-calc-view]')
 const calculatorPage = document.getElementById("calculatorPage")
 const appShell = document.querySelector(".app-shell")
 
+// Remember which calculator is active (for header title)
+let activeCalculatorTitle = null
+
 function setActiveCalculator(key) {
   // calculatorTitleEl is optional (we sometimes only use the main header title),
   // but we always need the list element and the views.
@@ -977,11 +990,18 @@ function setActiveCalculator(key) {
     }
   })
 
+  // Update and remember title from active chip
   const activeChip = calculatorListEl.querySelector('.calculator-chip.active')
-  if (calculatorTitleEl && activeChip) {
+  if (activeChip) {
     const label = activeChip.getAttribute('data-label') || activeChip.textContent || ''
     const titleText = label.trim() || 'Calculator'
-    calculatorTitleEl.textContent = titleText
+
+    activeCalculatorTitle = titleText
+
+    if (calculatorTitleEl) {
+      calculatorTitleEl.textContent = titleText
+    }
+
     if (typeof appTitleEl !== 'undefined' && appTitleEl) {
       appTitleEl.textContent = titleText
     }
@@ -1042,6 +1062,11 @@ const goldMetalToggle = document.getElementById('goldMetalToggle')
 const goldPriceLabelEl = document.getElementById('goldPriceLabel')
 const goldPurityLabelEl = document.getElementById('goldPurityLabel')
 const goldKaratSelect = document.getElementById('goldKaratSelect')
+// Related labels inside the gold calculator card
+const goldPriceTypeTitleEl = goldPriceTypeToggle
+	? goldPriceTypeToggle.closest('.gold-section-card')?.querySelector('.gold-section-title')
+	: null
+const goldKaratLabelEl = document.querySelector('label[for="goldKaratSelect"]')
 const goldPriceInput = document.getElementById('goldPriceInput')
 const goldWeightInput = document.getElementById('goldWeightInput')
 const goldPurityInput = document.getElementById('goldPurityInput')
@@ -1220,6 +1245,92 @@ if (
       recalcGoldDetail()
     })
   }
+}
+
+// Metal (Gold / Silver) toggle
+if (goldMetalToggle) {
+  goldMetalToggle.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+
+    const btn = target.closest('.gold-metal-btn')
+    if (!btn) return
+
+    const metal = btn.getAttribute('data-metal')
+    if (!metal || (metal !== 'gold' && metal !== 'silver')) return
+
+    goldActiveMetal = metal
+
+    const allBtns = goldMetalToggle.querySelectorAll('.gold-metal-btn')
+    allBtns.forEach((b) => {
+      if (!(b instanceof HTMLElement)) return
+      const val = b.getAttribute('data-metal')
+      b.classList.toggle('active', val === metal)
+    })
+
+    const isSilver = metal === 'silver'
+
+    // For silver we hide karat-based purity label and use direct purity input
+    if (goldKaratSelect && goldPurityLabelEl) {
+      if (isSilver) {
+        goldKaratSelect.disabled = true
+        goldPurityLabelEl.textContent = 'Silver Purity (%)'
+      } else {
+        goldKaratSelect.disabled = false
+        goldPurityLabelEl.textContent = 'Gold Purity (%)'
+      }
+    }
+
+    // Update section titles / labels that contain "Gold" -> "Silver" and back
+    if (goldPriceTypeTitleEl) {
+      goldPriceTypeTitleEl.textContent = isSilver
+        ? 'Silver Price Input Type'
+        : 'Gold Price Input Type'
+    }
+
+    if (goldKaratLabelEl) {
+      goldKaratLabelEl.textContent = isSilver ? 'Silver Karat' : 'Gold Karat'
+    }
+
+    if (goldPriceLabelEl) {
+      const metalLabel = isSilver ? 'Silver' : 'Gold'
+      const suffix = goldPriceType === 'per10g' ? ' Price (per 10g)' : ' Price (per gram)'
+      goldPriceLabelEl.textContent = metalLabel + suffix
+    }
+
+    autoFillMetalPriceFromLive(true)
+    recalcGoldDetail()
+  })
+}
+
+// Gold price input type toggle (10 Gram Rate / Per Gram Rate)
+if (goldPriceTypeToggle) {
+  goldPriceTypeToggle.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+
+    const btn = target.closest('.gold-toggle-btn')
+    if (!btn) return
+
+    const type = btn.getAttribute('data-gold-price-type')
+    if (!type || (type !== 'per10g' && type !== 'perGram')) return
+
+    goldPriceType = type
+
+    const allBtns = goldPriceTypeToggle.querySelectorAll('.gold-toggle-btn')
+    allBtns.forEach((b) => {
+      if (!(b instanceof HTMLElement)) return
+      const val = b.getAttribute('data-gold-price-type')
+      b.classList.toggle('active', val === type)
+    })
+
+    if (goldPriceLabelEl) {
+      goldPriceLabelEl.textContent = type === 'per10g' ? 'Gold Price (per 10g)' : 'Gold Price (per gram)'
+    }
+
+    autoFillMetalPriceFromLive(true)
+    recalcGoldDetail()
+  })
 }
 
 // Live gold & silver prices via metals-api
