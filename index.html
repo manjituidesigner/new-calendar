@@ -562,21 +562,12 @@
             <div class="calculator-view hidden" data-calc-view="gold">
               <div class="gold-live-row">
                 <div class="gold-live-card">
-                  <div class="gold-live-label">Gold price today</div>
-                  <div class="gold-live-value" id="goldPrice">Loading…</div>
+                  <div class="gold-live-label">Gold price today (per gram)</div>
+                  <div class="gold-live-value" id="gold">Loading…</div>
                 </div>
                 <div class="gold-live-card">
-                  <div class="gold-live-label">Silver price today</div>
-                  <div class="gold-live-value" id="silverPrice">Loading…</div>
-                </div>
-              </div>
-
-              <div class="gold-live-row" style="margin-top: 8px;">
-                <div class="gold-live-card" style="width: 100%;">
-                  <div class="gold-live-label">Live Gold Price Chart</div>
-                  <div class="tradingview-widget-container" style="width: 100%; height: 260px;">
-                    <div id="tradingview_gold" style="width: 100%; height: 100%;"></div>
-                  </div>
+                  <div class="gold-live-label">Silver price today (per gram)</div>
+                  <div class="gold-live-value" id="silver">Loading…</div>
                 </div>
               </div>
 
@@ -1554,20 +1545,148 @@
     </div>
 
     <script src="script.js"></script>
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-      if (typeof TradingView !== "undefined") {
-        new TradingView.widget({
-          autosize: true,
-          symbol: "OANDA:XAUUSD",
-          interval: "1",
-          timezone: "Etc/UTC",
-          theme: "light",
-          style: "1",
-          locale: "en",
-          container_id: "tradingview_gold",
-        })
+      const TROY_OUNCE_IN_GRAMS = 31.1034768; // 1 troy ounce = 31.1034768 grams
+      const GOLD_API_KEY = "goldapi-hoa19mirlk17s-io";
+
+      // ---- helper: aaj ki date string (YYYY-MM-DD) ----
+      function getTodayStr() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
       }
+
+      // ---- helper: localStorage se pichla data ----
+      function getStoredPrices() {
+        try {
+          const raw = localStorage.getItem("metalPrices");
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // ---- helper: localStorage me save ----
+      function storePrices(goldPerGramINR, silverPerGramINR) {
+        const now = new Date();
+        const data = {
+          date: getTodayStr(),
+          fetchedAt: now.toISOString(),
+          goldPerGramINR,
+          silverPerGramINR,
+        };
+        try {
+          localStorage.setItem("metalPrices", JSON.stringify(data));
+        } catch (e) {
+          console.log("Error storing metal prices:", e);
+        }
+      }
+
+      // ---- main: UI me value dikhana ----
+      function showPrices(goldPerGramINR, silverPerGramINR) {
+        const goldEl = document.getElementById("gold");
+        const silverEl = document.getElementById("silver");
+        if (goldEl) {
+          goldEl.innerText = goldPerGramINR.toFixed(2) + " \u20b9";
+        }
+        if (silverEl) {
+          silverEl.innerText = silverPerGramINR.toFixed(2) + " \u20b9";
+        }
+
+        // Notify other scripts (gold calculator) that live metal prices are ready
+        try {
+          window.dispatchEvent(new CustomEvent("metalPricesUpdated"));
+        } catch (e) {}
+      }
+
+      // ---- API se naya data fetch karna ----
+      async function fetchTodayPrices() {
+        // 1) Gold price (USD per ounce)
+        const goldRes = await fetch("https://www.goldapi.io/api/XAU/USD", {
+          method: "GET",
+          headers: {
+            "x-access-token": GOLD_API_KEY,
+            "Content-Type": "application/json",
+          },
+        });
+        const goldData = await goldRes.json();
+        const goldUSD = goldData.price;
+
+        // 2) Silver price (USD per ounce)
+        const silverRes = await fetch("https://www.goldapi.io/api/XAG/USD", {
+          method: "GET",
+          headers: {
+            "x-access-token": GOLD_API_KEY,
+            "Content-Type": "application/json",
+          },
+        });
+        const silverData = await silverRes.json();
+        const silverUSD = silverData.price;
+
+        // 3) USD → INR rate
+        const fxRes = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+        const fxData = await fxRes.json();
+        const usdToInr = fxData.rates.INR;
+
+        // 4) per gram INR
+        const goldPerOunceINR = goldUSD * usdToInr;
+        const goldPerGramINR = goldPerOunceINR / TROY_OUNCE_IN_GRAMS;
+
+        const silverPerOunceINR = silverUSD * usdToInr;
+        const silverPerGramINR = silverPerOunceINR / TROY_OUNCE_IN_GRAMS;
+
+        // 5) store + show
+        storePrices(goldPerGramINR, silverPerGramINR);
+        showPrices(goldPerGramINR, silverPerGramINR);
+      }
+
+      // ---- logic: sirf roz 1 baar, 8 baje ke baad fetch ----
+      async function initMetalPrices() {
+        const now = new Date();
+        const today = getTodayStr();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const isAfter8am = currentHour > 8 || (currentHour === 8 && currentMinute >= 0);
+
+        const stored = getStoredPrices();
+
+        // 1) Agar aaj ka data already stored hai → wahi dikhao, API mat call karo
+        if (stored && stored.date === today) {
+          showPrices(stored.goldPerGramINR, stored.silverPerGramINR);
+          return;
+        }
+
+        // 2) Agar 8 baje se pehle hai aur aaj ka data nahin hai
+        if (!isAfter8am) {
+          if (stored) {
+            // pichle din ka data dikha do (jab tak naya 8 baje ke baad nahin aata)
+            showPrices(stored.goldPerGramINR, stored.silverPerGramINR);
+          } else {
+            const goldEl = document.getElementById("gold");
+            const silverEl = document.getElementById("silver");
+            if (goldEl) goldEl.innerText = "Rates after 8:00 AM";
+            if (silverEl) silverEl.innerText = "Rates after 8:00 AM";
+          }
+          return;
+        }
+
+        // 3) Agar 8 baje ke baad hai aur aaj ka data nahin hai → ab 1 baar fetch karo
+        try {
+          await fetchTodayPrices();
+        } catch (e) {
+          console.error("Error fetching prices:", e);
+          const goldEl = document.getElementById("gold");
+          const silverEl = document.getElementById("silver");
+          if (goldEl) goldEl.innerText = "Error";
+          if (silverEl) silverEl.innerText = "Error";
+        }
+      }
+
+      // page load pe run karo
+      initMetalPrices();
     </script>
   </body>
 </html>
