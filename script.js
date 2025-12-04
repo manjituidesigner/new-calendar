@@ -11,7 +11,9 @@ let editingCalendarId = null
 // Expenses data
 let expensesCalendars = []
 let activeExpensesCalendarId = null
-let activeMode = "office" // "office" | "expenses"
+let activeMode = "office" // "office" | "expenses" | "calculator"
+let lastCalculatorKey = null
+let shouldRestoreCalculatorOnInit = false
 
 // Elements
 const monthLabel = document.getElementById("monthLabel")
@@ -84,8 +86,12 @@ function applyModeVisibility() {
 // Restore last active mode from localStorage (if any)
 try {
   const storedMode = localStorage.getItem("mw_lastMode")
-  if (storedMode === "expenses" || storedMode === "office") {
+  const storedCalcKey = localStorage.getItem("mw_lastCalculatorKey")
+  if (storedMode === "expenses" || storedMode === "office" || storedMode === "calculator") {
     activeMode = storedMode
+  }
+  if (storedCalcKey) {
+    lastCalculatorKey = storedCalcKey
   }
 } catch (e) {}
 
@@ -102,6 +108,9 @@ drawerTabs.forEach((btn) => {
     activeMode = target === "expenses" ? "expenses" : "office"
     try {
       localStorage.setItem("mw_lastMode", activeMode)
+      if (activeMode !== "calculator") {
+        localStorage.removeItem("mw_lastCalculatorKey")
+      }
     } catch (e) {}
     applyModeVisibility()
 
@@ -150,7 +159,12 @@ if (drawerTabs.length && drawerPanels.length) {
     panel.classList.toggle("active", shouldBeActive)
   })
 
-  updateAppTitle()
+  // If last mode was calculator, mark for restore later (after calculatorPage is defined)
+  if (activeMode === 'calculator' && lastCalculatorKey) {
+    shouldRestoreCalculatorOnInit = true
+  } else {
+    updateAppTitle()
+  }
 }
 
 const calendarListEl = document.getElementById("calendarList")
@@ -888,6 +902,23 @@ const repProductivity = document.getElementById("repProductivity")
 const reportDownloadBtn = document.getElementById("reportDownloadBtn")
 const reportShareBtn = document.getElementById("reportShareBtn")
 
+// Gold invoice modal elements
+const goldInvoiceModal = document.getElementById("goldInvoiceModal")
+const goldInvoiceCloseBtn = document.getElementById("goldInvoiceCloseBtn")
+const goldInvoiceTitle = document.getElementById("goldInvoiceTitle")
+const goldInvoiceSubtitle = document.getElementById("goldInvoiceSubtitle")
+const goldInvoiceMetal = document.getElementById("goldInvoiceMetal")
+const goldInvoicePriceBasis = document.getElementById("goldInvoicePriceBasis")
+const goldInvoiceWeight = document.getElementById("goldInvoiceWeight")
+const goldInvoicePurity = document.getElementById("goldInvoicePurity")
+const goldInvoiceMaking = document.getElementById("goldInvoiceMaking")
+const goldInvoiceGst = document.getElementById("goldInvoiceGst")
+const goldInvoiceDiscount = document.getElementById("goldInvoiceDiscount")
+const goldInvoiceFinal = document.getElementById("goldInvoiceFinal")
+const goldInvoiceDetail = document.getElementById("goldInvoiceDetail")
+const goldInvoicePrintBtn = document.getElementById("goldInvoicePrintBtn")
+const goldInvoiceShareBtn = document.getElementById("goldInvoiceShareBtn")
+
 // Expenses combined monthly report modal elements
 const expWalletBalanceEl = document.getElementById("expWalletBalance")
 const expensesPayeeTableBody = document.getElementById("expensesPayeeTableBody")
@@ -1007,6 +1038,14 @@ function setActiveCalculator(key) {
     }
   }
 
+  // Persist calculator as last active view
+  lastCalculatorKey = key
+  activeMode = 'calculator'
+  try {
+    localStorage.setItem('mw_lastMode', 'calculator')
+    localStorage.setItem('mw_lastCalculatorKey', key)
+  } catch (e) {}
+
   if (calculatorPage) {
     calculatorPage.classList.add('open')
 
@@ -1056,6 +1095,283 @@ document.addEventListener('click', (e) => {
   setActiveCalculator(key)
 })
 
+// After calculator elements and functions exist, optionally restore last calculator view
+if (shouldRestoreCalculatorOnInit && lastCalculatorKey) {
+	try {
+		setActiveCalculator(lastCalculatorKey)
+		shouldRestoreCalculatorOnInit = false
+	} catch (e) {
+		// If anything goes wrong, fall back to normal calendar view
+		activeMode = 'office'
+		try {
+			localStorage.setItem('mw_lastMode', 'office')
+			localStorage.removeItem('mw_lastCalculatorKey')
+		} catch (e2) {}
+		updateAppTitle()
+		if (typeof renderCalendar === 'function') {
+			renderCalendar()
+		}
+	}
+}
+
+// EMI calculator logic
+const emiLoanTabs = document.getElementById('emiLoanTabs')
+const emiAmountInput = document.getElementById('emiAmount')
+const emiAmountRange = document.getElementById('emiAmountRange')
+const emiRateInput = document.getElementById('emiRate')
+const emiRateRange = document.getElementById('emiRateRange')
+const emiTenureInput = document.getElementById('emiTenure')
+const emiTenureRange = document.getElementById('emiTenureRange')
+const emiTenureToggle = document.getElementById('emiTenureToggle')
+const emiEmiValueEl = document.getElementById('emiEmiValue')
+const emiInterestValueEl = document.getElementById('emiInterestValue')
+const emiTotalValueEl = document.getElementById('emiTotalValue')
+const emiChartPrincipalEl = document.getElementById('emiChartPrincipal')
+const emiChartInterestEl = document.getElementById('emiChartInterest')
+const emiPrincipalPctEl = document.getElementById('emiPrincipalPct')
+const emiInterestPctEl = document.getElementById('emiInterestPct')
+
+let emiTenureUnit = 'years' // 'years' | 'months'
+
+const EMI_LOAN_PRESETS = {
+  home: { amount: 3000000, rate: 8.5, tenureYears: 20 },
+  personal: { amount: 500000, rate: 13.0, tenureYears: 5 },
+  car: { amount: 800000, rate: 9.0, tenureYears: 7 },
+}
+
+function syncEmiAmountFromRange() {
+  if (!emiAmountInput || !emiAmountRange) return
+  emiAmountInput.value = String(emiAmountRange.value)
+}
+
+function syncEmiAmountFromInput() {
+  if (!emiAmountInput || !emiAmountRange) return
+  const val = Number(emiAmountInput.value) || 0
+  const min = Number(emiAmountRange.min) || 0
+  const max = Number(emiAmountRange.max) || 0
+  const clamped = Math.min(max, Math.max(min, val))
+  emiAmountRange.value = String(clamped)
+  emiAmountInput.value = String(clamped)
+}
+
+function syncEmiRateFromRange() {
+  if (!emiRateInput || !emiRateRange) return
+  emiRateInput.value = String(emiRateRange.value)
+}
+
+function syncEmiRateFromInput() {
+  if (!emiRateInput || !emiRateRange) return
+  const val = Number(emiRateInput.value) || 0
+  const min = Number(emiRateRange.min) || 0
+  const max = Number(emiRateRange.max) || 0
+  const clamped = Math.min(max, Math.max(min, val))
+  emiRateRange.value = String(clamped)
+  emiRateInput.value = String(clamped)
+}
+
+function syncEmiTenureFromRange() {
+  if (!emiTenureInput || !emiTenureRange) return
+  emiTenureInput.value = String(emiTenureRange.value)
+}
+
+function syncEmiTenureFromInput() {
+  if (!emiTenureInput || !emiTenureRange) return
+  const val = Number(emiTenureInput.value) || 0
+  const min = Number(emiTenureRange.min) || 0
+  const max = Number(emiTenureRange.max) || 0
+  const clamped = Math.min(max, Math.max(min, val))
+  emiTenureRange.value = String(clamped)
+  emiTenureInput.value = String(clamped)
+}
+
+function getEmiMonths() {
+  const t = Number(emiTenureInput && emiTenureInput.value ? emiTenureInput.value : 0) || 0
+  if (!t) return 0
+  return emiTenureUnit === 'years' ? t * 12 : t
+}
+
+function recalcEmi() {
+  if (!emiAmountInput || !emiRateInput || !emiTenureInput) return
+
+  const principal = Number(emiAmountInput.value) || 0
+  const annualRate = Number(emiRateInput.value) || 0
+  const months = getEmiMonths()
+
+  if (!principal || !annualRate || !months) {
+    if (emiEmiValueEl) emiEmiValueEl.textContent = '₹0'
+    if (emiInterestValueEl) emiInterestValueEl.textContent = '₹0'
+    if (emiTotalValueEl) emiTotalValueEl.textContent = '₹0'
+    if (emiPrincipalPctEl) emiPrincipalPctEl.textContent = '0%'
+    if (emiInterestPctEl) emiInterestPctEl.textContent = '0%'
+    if (emiChartPrincipalEl) emiChartPrincipalEl.style.setProperty('flex', '1')
+    if (emiChartInterestEl) emiChartInterestEl.style.setProperty('flex', '0')
+    return
+  }
+
+  const monthlyRate = annualRate / 12 / 100
+  let emi = 0
+
+  if (monthlyRate === 0) {
+    emi = principal / months
+  } else {
+    const pow = Math.pow(1 + monthlyRate, months)
+    emi = (principal * monthlyRate * pow) / (pow - 1)
+  }
+
+  const totalPayment = emi * months
+  const interest = totalPayment - principal
+
+  if (emiEmiValueEl) emiEmiValueEl.textContent = formatCurrencyINR(emi)
+  if (emiInterestValueEl) emiInterestValueEl.textContent = formatCurrencyINR(interest)
+  if (emiTotalValueEl) emiTotalValueEl.textContent = formatCurrencyINR(totalPayment)
+
+  const total = principal + interest
+  const principalPct = total > 0 ? Math.round((principal / total) * 100) : 0
+  const interestPct = 100 - principalPct
+
+  if (emiPrincipalPctEl) emiPrincipalPctEl.textContent = `${principalPct}%`
+  if (emiInterestPctEl) emiInterestPctEl.textContent = `${interestPct}%`
+
+  if (emiChartPrincipalEl) {
+    emiChartPrincipalEl.style.flex = String(Math.max(1, principalPct))
+  }
+  if (emiChartInterestEl) {
+    emiChartInterestEl.style.flex = String(Math.max(1, interestPct))
+  }
+}
+
+function applyEmiPreset(type) {
+  const preset = EMI_LOAN_PRESETS[type]
+  if (!preset) return
+  if (emiAmountInput && emiAmountRange) {
+    emiAmountInput.value = String(preset.amount)
+    emiAmountRange.value = String(preset.amount)
+  }
+  if (emiRateInput && emiRateRange) {
+    emiRateInput.value = String(preset.rate)
+    emiRateRange.value = String(preset.rate)
+  }
+  if (emiTenureInput && emiTenureRange) {
+    emiTenureUnit = 'years'
+    emiTenureInput.value = String(preset.tenureYears)
+    emiTenureRange.value = String(preset.tenureYears)
+  }
+
+  if (emiTenureToggle) {
+    const buttons = emiTenureToggle.querySelectorAll('button[data-unit]')
+    buttons.forEach((btn) => {
+      const unit = btn.getAttribute('data-unit')
+      btn.classList.toggle('active', unit === 'years')
+    })
+  }
+
+  recalcEmi()
+}
+
+// Wire EMI loan type tabs
+if (emiLoanTabs) {
+  emiLoanTabs.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+    const tab = target.closest('.emi-tab')
+    if (!tab) return
+
+    const type = tab.getAttribute('data-loan-type') || 'home'
+
+    const allTabs = emiLoanTabs.querySelectorAll('.emi-tab')
+    allTabs.forEach((btn) => {
+      btn.classList.toggle('active', btn === tab)
+    })
+
+    applyEmiPreset(type)
+  })
+}
+
+// Wire EMI sliders and inputs
+if (emiAmountRange && emiAmountInput) {
+  emiAmountRange.addEventListener('input', () => {
+    syncEmiAmountFromRange()
+    recalcEmi()
+  })
+  emiAmountInput.addEventListener('input', () => {
+    syncEmiAmountFromInput()
+    recalcEmi()
+  })
+}
+
+if (emiRateRange && emiRateInput) {
+  emiRateRange.addEventListener('input', () => {
+    syncEmiRateFromRange()
+    recalcEmi()
+  })
+  emiRateInput.addEventListener('input', () => {
+    syncEmiRateFromInput()
+    recalcEmi()
+  })
+}
+
+if (emiTenureRange && emiTenureInput) {
+  emiTenureRange.addEventListener('input', () => {
+    syncEmiTenureFromRange()
+    recalcEmi()
+  })
+  emiTenureInput.addEventListener('input', () => {
+    syncEmiTenureFromInput()
+    recalcEmi()
+  })
+}
+
+// Tenure unit toggle (Years / Months)
+if (emiTenureToggle && emiTenureInput && emiTenureRange) {
+  emiTenureToggle.addEventListener('click', (e) => {
+    const target = e.target
+    if (!(target instanceof HTMLElement)) return
+    const btn = target.closest('button[data-unit]')
+    if (!btn) return
+
+    const unit = btn.getAttribute('data-unit') === 'months' ? 'months' : 'years'
+    if (unit === emiTenureUnit) return
+
+    const currentVal = Number(emiTenureInput.value) || 0
+    let newVal = currentVal
+
+    if (unit === 'months') {
+      // years -> months
+      newVal = currentVal * 12
+      emiTenureRange.min = '12'
+      emiTenureRange.max = String(30 * 12)
+      emiTenureRange.step = '12'
+    } else {
+      // months -> years
+      newVal = currentVal / 12
+      emiTenureRange.min = '1'
+      emiTenureRange.max = '30'
+      emiTenureRange.step = '1'
+    }
+
+    emiTenureUnit = unit
+
+    const min = Number(emiTenureRange.min) || 0
+    const max = Number(emiTenureRange.max) || 0
+    const clamped = Math.min(max, Math.max(min, newVal))
+    emiTenureInput.value = String(clamped)
+    emiTenureRange.value = String(clamped)
+
+    const buttons = emiTenureToggle.querySelectorAll('button[data-unit]')
+    buttons.forEach((b) => {
+      const u = b.getAttribute('data-unit')
+      b.classList.toggle('active', u === unit)
+    })
+
+    recalcEmi()
+  })
+}
+
+// Initialize EMI with Home Loan preset if EMI view is used
+if (emiAmountInput && emiAmountRange && emiRateInput && emiRateRange && emiTenureInput && emiTenureRange) {
+  applyEmiPreset('home')
+}
+
 // Gold calculator (detailed)
 const goldPriceTypeToggle = document.getElementById('goldPriceTypeToggle')
 const goldMetalToggle = document.getElementById('goldMetalToggle')
@@ -1089,6 +1405,7 @@ let goldActiveMetal = 'gold' // 'gold' | 'silver'
 let liveGoldPerGramInInr = null
 let liveSilverPerGramInInr = null
 let goldPriceManuallyEdited = false
+let lastSavedGoldInvoice = null
 
 function recalcGoldDetail() {
   if (
@@ -1215,36 +1532,75 @@ function getKaratPurity(karat) {
 if (goldCalcBtn) {
   goldCalcBtn.addEventListener('click', () => {
     recalcGoldDetail()
+
+    if (!goldPriceInput || !goldWeightInput) return
+
+    const price = Number(goldPriceInput.value) || 0
+    const weight = Number(goldWeightInput.value) || 0
+    if (!price || !weight) return
+
+    const metalLabel = goldActiveMetal === 'silver' ? 'Silver' : 'Gold'
+    const basisText = goldPriceType === 'per10g' ? '10g rate basis' : 'Per gram rate basis'
+
+    lastSavedGoldInvoice = {
+      savedAt: Date.now(),
+      metal: metalLabel,
+      priceBasis: basisText,
+      priceInput: goldPriceInput.value || '',
+      weightInput: goldWeightInput.value || '',
+      purityInput: goldPurityInput ? goldPurityInput.value || '' : '',
+      makingText: goldResultMakingEl ? goldResultMakingEl.textContent || '' : '',
+      gstText: goldResultGstEl ? goldResultGstEl.textContent || '' : '',
+      discountText: goldResultDiscountEl ? goldResultDiscountEl.textContent || '' : '',
+      finalText:
+        (goldResultFinalEl && goldResultFinalEl.textContent) ||
+        (goldResultTotalEl && goldResultTotalEl.textContent) ||
+        '',
+      detailText: goldResultInfoEl ? goldResultInfoEl.textContent || '' : '',
+    }
   })
 }
 
-if (
-  goldPriceInput &&
-  goldWeightInput &&
-  goldPurityInput &&
-  goldMakingInput &&
-  goldGstInput &&
-  goldDiscountInput
-) {
-  ;[
-    goldPriceInput,
-    goldWeightInput,
-    goldPurityInput,
-    goldMakingInput,
-    goldGstInput,
-    goldDiscountInput,
-  ].forEach((inputEl) => {
-    if (!inputEl) return
-    inputEl.addEventListener('input', () => {
-      recalcGoldDetail()
-    })
+if (goldPriceInput) {
+  goldPriceInput.addEventListener('input', () => {
+    recalcGoldDetail()
   })
+}
 
-  if (goldMakingType) {
-    goldMakingType.addEventListener('change', () => {
-      recalcGoldDetail()
-    })
-  }
+if (goldWeightInput) {
+  goldWeightInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldPurityInput) {
+  goldPurityInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldMakingInput) {
+  goldMakingInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldGstInput) {
+  goldGstInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldDiscountInput) {
+  goldDiscountInput.addEventListener('input', () => {
+    recalcGoldDetail()
+  })
+}
+
+if (goldMakingType) {
+  goldMakingType.addEventListener('change', () => {
+    recalcGoldDetail()
+  })
 }
 
 // Metal (Gold / Silver) toggle
@@ -1333,53 +1689,18 @@ if (goldPriceTypeToggle) {
   })
 }
 
-// Live gold & silver prices via metals-api
+// Live gold & silver prices via Yahoo Finance
 const goldLivePriceEl = document.getElementById('goldPrice')
 const silverLivePriceEl = document.getElementById('silverPrice')
 
 async function loadMetalPrices() {
-  if (!goldLivePriceEl && !silverLivePriceEl) return
-
-  const API_KEY = 'b82c43210f7b3c11837196b6353b84bd'
-  const url = `https://api.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=INR&currencies=XAU,XAG`
-
-  try {
-    const res = await fetch(url)
-    const data = await res.json()
-
-    // metalpriceapi usually returns rates as: 1 base (INR) = rate * metal,
-    // which means we need to invert to get USD per 1 unit of metal.
-    const rateXau = data?.rates?.XAU
-    const rateXag = data?.rates?.XAG
-
-    if (rateXau && goldLivePriceEl) {
-      const inrPerOunceGold = 1 / rateXau
-      const inrPerGramGold = inrPerOunceGold / 31.1035
-      liveGoldPerGramInInr = inrPerGramGold
-      goldLivePriceEl.innerHTML =
-        `₹${inrPerGramGold.toFixed(0)} / g` + '<br>' + `₹${inrPerOunceGold.toFixed(0)} / oz`
-
-      autoFillMetalPriceFromLive()
-    } else if (goldLivePriceEl) {
-      goldLivePriceEl.textContent = 'Price not available'
-    }
-
-    if (rateXag && silverLivePriceEl) {
-      const inrPerOunceSilver = 1 / rateXag
-      const inrPerGramSilver = inrPerOunceSilver / 31.1035
-      liveSilverPerGramInInr = inrPerGramSilver
-      silverLivePriceEl.innerHTML =
-        `₹${inrPerGramSilver.toFixed(0)} / g` + '<br>' + `₹${inrPerOunceSilver.toFixed(0)} / oz`
-
-      autoFillMetalPriceFromLive()
-    } else if (silverLivePriceEl) {
-      silverLivePriceEl.textContent = 'Price not available'
-    }
-  } catch (e) {
-    const msg = 'Error loading price'
-    if (goldLivePriceEl) goldLivePriceEl.textContent = msg
-    if (silverLivePriceEl) silverLivePriceEl.textContent = msg
-    console.error('Metal price API error', e)
+  // Disabled Yahoo Finance fetch due to CORS restrictions in browser.
+  // Keeping this function as a no-op so existing calls do nothing.
+  if (goldLivePriceEl) {
+    goldLivePriceEl.textContent = 'Use chart / enter price manually'
+  }
+  if (silverLivePriceEl) {
+    silverLivePriceEl.textContent = 'Enter price manually'
   }
 }
 
@@ -4001,6 +4322,73 @@ if (nextMonthBtn) {
 
 // ===== Monthly report logic =====
 
+function openGoldInvoiceModal() {
+  if (!goldInvoiceModal || !overlay) return
+
+  // Require a saved snapshot from the "Save Details" button
+  if (!lastSavedGoldInvoice) return
+
+  const now = new Date(lastSavedGoldInvoice.savedAt || Date.now())
+  const dateLabel = now.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+
+  if (goldInvoiceTitle) {
+    goldInvoiceTitle.textContent = `${lastSavedGoldInvoice.metal || 'Gold'} Invoice`
+  }
+  if (goldInvoiceSubtitle) {
+    goldInvoiceSubtitle.textContent = `Date: ${dateLabel}`
+  }
+
+  if (goldInvoiceMetal) {
+    goldInvoiceMetal.textContent = lastSavedGoldInvoice.metal || '-'
+  }
+
+  if (goldInvoicePriceBasis) {
+    goldInvoicePriceBasis.textContent = lastSavedGoldInvoice.priceBasis || '-'
+  }
+
+  if (goldInvoiceWeight) {
+    goldInvoiceWeight.textContent = lastSavedGoldInvoice.weightInput || '0'
+  }
+
+  if (goldInvoicePurity) {
+    const p = lastSavedGoldInvoice.purityInput || '0'
+    goldInvoicePurity.textContent = `${p}%`
+  }
+
+  if (goldInvoiceMaking) {
+    goldInvoiceMaking.textContent = lastSavedGoldInvoice.makingText || '₹0'
+  }
+
+  if (goldInvoiceGst) {
+    goldInvoiceGst.textContent = lastSavedGoldInvoice.gstText || '₹0'
+  }
+
+  if (goldInvoiceDiscount) {
+    goldInvoiceDiscount.textContent = lastSavedGoldInvoice.discountText || '₹0'
+  }
+
+  if (goldInvoiceFinal) {
+    goldInvoiceFinal.textContent = lastSavedGoldInvoice.finalText || '₹0'
+  }
+
+  if (goldInvoiceDetail) {
+    goldInvoiceDetail.textContent = lastSavedGoldInvoice.detailText || ''
+  }
+
+  goldInvoiceModal.classList.add('open')
+  overlay.classList.add('active')
+}
+
+function closeGoldInvoiceModal() {
+  if (!goldInvoiceModal || !overlay) return
+  goldInvoiceModal.classList.remove('open')
+  overlay.classList.remove('active')
+}
+
 function openReportModal() {
   const cal = getActiveCalendar()
   if (!cal || !reportModal) return
@@ -4571,6 +4959,12 @@ function closeExpensesReport() {
 
 if (reportBtn) {
   reportBtn.addEventListener("click", () => {
+    // If user is on calculator and Gold calculator is active, show gold invoice
+    if (activeMode === 'calculator' && lastCalculatorKey === 'gold' && goldInvoiceModal) {
+      openGoldInvoiceModal()
+      return
+    }
+
     if (activeMode === "expenses") {
       openExpensesReport()
     } else {
@@ -4581,6 +4975,10 @@ if (reportBtn) {
 
 if (reportCloseBtn) {
   reportCloseBtn.addEventListener("click", closeReportModal)
+}
+
+if (goldInvoiceCloseBtn) {
+  goldInvoiceCloseBtn.addEventListener('click', closeGoldInvoiceModal)
 }
 
 if (expensesReportCloseBtn) {
@@ -4630,6 +5028,12 @@ if (expensesReportDownloadBtn) {
   })
 }
 
+if (goldInvoicePrintBtn) {
+  goldInvoicePrintBtn.addEventListener('click', () => {
+    window.print()
+  })
+}
+
 // Share on Whatsapp: build a plain-text summary and open wa.me link
 if (reportShareBtn) {
   reportShareBtn.addEventListener("click", () => {
@@ -4663,6 +5067,43 @@ if (reportShareBtn) {
     const text = summaryLines.join("\n")
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(url, "_blank")
+  })
+}
+
+if (goldInvoiceShareBtn) {
+  goldInvoiceShareBtn.addEventListener('click', () => {
+    const lines = []
+    const metal = goldInvoiceMetal ? goldInvoiceMetal.textContent || '' : ''
+    const basis = goldInvoicePriceBasis ? goldInvoicePriceBasis.textContent || '' : ''
+    const weight = goldInvoiceWeight ? goldInvoiceWeight.textContent || '' : ''
+    const purity = goldInvoicePurity ? goldInvoicePurity.textContent || '' : ''
+    const making = goldInvoiceMaking ? goldInvoiceMaking.textContent || '' : ''
+    const gst = goldInvoiceGst ? goldInvoiceGst.textContent || '' : ''
+    const discount = goldInvoiceDiscount ? goldInvoiceDiscount.textContent || '' : ''
+    const finalAmount = goldInvoiceFinal ? goldInvoiceFinal.textContent || '' : ''
+    const detail = goldInvoiceDetail ? goldInvoiceDetail.textContent || '' : ''
+
+    lines.push('Gold Invoice')
+    if (goldInvoiceSubtitle && goldInvoiceSubtitle.textContent) {
+      lines.push(goldInvoiceSubtitle.textContent)
+    }
+    lines.push('')
+    lines.push(`Metal: ${metal}`)
+    lines.push(`Price Basis: ${basis}`)
+    lines.push(`Weight: ${weight} g`)
+    lines.push(`Purity: ${purity}`)
+    lines.push(`Making Charge: ${making}`)
+    lines.push(`GST: ${gst}`)
+    lines.push(`Discount: ${discount}`)
+    lines.push(`Final Amount: ${finalAmount}`)
+    if (detail) {
+      lines.push('')
+      lines.push(detail)
+    }
+
+    const text = lines.join('\n')
+    const url = 'https://wa.me/?text=' + encodeURIComponent(text)
+    window.open(url, '_blank')
   })
 }
 

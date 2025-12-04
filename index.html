@@ -571,6 +571,15 @@
                 </div>
               </div>
 
+              <div class="gold-live-row" style="margin-top: 8px;">
+                <div class="gold-live-card" style="width: 100%;">
+                  <div class="gold-live-label">Live Gold Price Chart</div>
+                  <div class="tradingview-widget-container" style="width: 100%; height: 260px;">
+                    <div id="tradingview_gold" style="width: 100%; height: 100%;"></div>
+                  </div>
+                </div>
+              </div>
+
               <div class="gold-layout">
                 <div class="gold-input-column">
                   <div class="gold-metal-toggle" id="goldMetalToggle">
@@ -640,7 +649,7 @@
                     <input type="number" id="goldDiscountInput" step="0.1" />
                   </div>
 
-                  <button type="button" class="primary-btn full-width" id="goldCalcBtn">Calculate Price</button>
+                  <button type="button" class="primary-btn full-width" id="goldCalcBtn">Save Details</button>
                 </div>
 
                 <div class="gold-result-column">
@@ -1455,6 +1464,68 @@
       </div>
     </div>
 
+    <!-- Gold Invoice Modal -->
+    <div class="modal" id="goldInvoiceModal">
+      <div class="modal-content report-modal-content">
+        <header class="modal-header report-modal-header">
+          <div>
+            <div class="modal-title" id="goldInvoiceTitle">Gold Invoice</div>
+            <div class="modal-subtitle" id="goldInvoiceSubtitle"></div>
+          </div>
+          <button class="icon-btn" id="goldInvoiceCloseBtn">✕</button>
+        </header>
+
+        <section class="modal-section">
+          <div class="report-summary-grid">
+            <div class="report-pill primary">
+              <span class="pill-label">Metal</span>
+              <span class="pill-value" id="goldInvoiceMetal">-</span>
+            </div>
+            <div class="report-pill">
+              <span class="pill-label">Price Basis</span>
+              <span class="pill-value" id="goldInvoicePriceBasis">-</span>
+            </div>
+            <div class="report-pill">
+              <span class="pill-label">Weight (g)</span>
+              <span class="pill-value" id="goldInvoiceWeight">0</span>
+            </div>
+            <div class="report-pill">
+              <span class="pill-label">Purity (%)</span>
+              <span class="pill-value" id="goldInvoicePurity">0%</span>
+            </div>
+            <div class="report-pill">
+              <span class="pill-label">Making Charge</span>
+              <span class="pill-value" id="goldInvoiceMaking">₹0</span>
+            </div>
+            <div class="report-pill">
+              <span class="pill-label">GST</span>
+              <span class="pill-value" id="goldInvoiceGst">₹0</span>
+            </div>
+            <div class="report-pill">
+              <span class="pill-label">Discount</span>
+              <span class="pill-value" id="goldInvoiceDiscount">₹0</span>
+            </div>
+            <div class="report-pill salary-final">
+              <span class="pill-label">Final Amount</span>
+              <span class="pill-value" id="goldInvoiceFinal">₹0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <h4 class="section-title">Detail</h4>
+          <p class="placeholder-text" id="goldInvoiceDetail">-</p>
+        </section>
+
+        <section class="modal-section">
+          <div class="report-footer-actions">
+            <button class="primary-btn" id="goldInvoicePrintBtn">Print Invoice</button>
+            <button class="primary-btn" id="goldInvoiceShareBtn">Share on Whatsapp</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
     <!-- End-of-day work reminder modal -->
     <div class="modal" id="endReminderModal">
       <div class="modal-content">
@@ -1483,5 +1554,20 @@
     </div>
 
     <script src="script.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+      if (typeof TradingView !== "undefined") {
+        new TradingView.widget({
+          autosize: true,
+          symbol: "OANDA:XAUUSD",
+          interval: "1",
+          timezone: "Etc/UTC",
+          theme: "light",
+          style: "1",
+          locale: "en",
+          container_id: "tradingview_gold",
+        })
+      }
+    </script>
   </body>
 </html>
