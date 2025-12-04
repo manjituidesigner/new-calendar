@@ -55,16 +55,29 @@ const drawerTabs = document.querySelectorAll(".drawer-tab")
 const drawerPanels = document.querySelectorAll(".drawer-panel")
 
 function applyModeVisibility() {
+  // If Settings page is open, keep all stats / expenses sections hidden so
+  // they do not appear behind the Settings + Holidays UI.
+  if (settingsPage && settingsPage.classList.contains("open")) {
+    if (officeStatsSection) officeStatsSection.classList.add("hidden")
+    if (expensesStatsSection) expensesStatsSection.classList.add("hidden")
+    if (expensesCategorySection) expensesCategorySection.classList.add("hidden")
+    if (expensesPayeeSection) expensesPayeeSection.classList.add("hidden")
+    if (sessionBar) sessionBar.classList.remove("hidden")
+    return
+  }
+
   if (activeMode === "expenses") {
     if (officeStatsSection) officeStatsSection.classList.add("hidden")
     if (expensesStatsSection) expensesStatsSection.classList.remove("hidden")
     if (expensesCategorySection) expensesCategorySection.classList.remove("hidden")
     if (expensesPayeeSection) expensesPayeeSection.classList.remove("hidden")
+    if (sessionBar) sessionBar.classList.add("hidden")
   } else {
     if (officeStatsSection) officeStatsSection.classList.remove("hidden")
     if (expensesStatsSection) expensesStatsSection.classList.add("hidden")
     if (expensesCategorySection) expensesCategorySection.classList.add("hidden")
     if (expensesPayeeSection) expensesPayeeSection.classList.add("hidden")
+    if (sessionBar) sessionBar.classList.remove("hidden")
   }
 }
 
@@ -240,7 +253,7 @@ function renderHolidaySettings() {
 // Open Holidays form when user taps the Holidays card in Settings
 if (settingsHolidaysCard && holidaySettings) {
   settingsHolidaysCard.addEventListener("click", () => {
-    holidaySettings.classList.remove("hidden")
+    holidaySettings.style.display = "block"
     renderHolidaySettings()
   })
 }
@@ -449,6 +462,15 @@ if (createCalendarToggle && calendarForm && calendarSubmitBtn) {
 
 function renderExpensesCategorySummary(cal) {
   if (!expensesCategorySection || !expCategoryList) return
+
+  // If Settings page is open, keep expenses category summary hidden so it
+  // does not appear above the Holidays settings UI.
+  if (settingsPage && settingsPage.classList.contains("open")) {
+    expensesCategorySection.classList.add("hidden")
+    expCategoryList.innerHTML = ""
+    if (expCategoryTableBody) expCategoryTableBody.innerHTML = ""
+    return
+  }
   if (!cal) {
     expensesCategorySection.classList.add("hidden")
     expCategoryList.innerHTML = ""
@@ -932,7 +954,9 @@ const calculatorPage = document.getElementById("calculatorPage")
 const appShell = document.querySelector(".app-shell")
 
 function setActiveCalculator(key) {
-  if (!calculatorListEl || !calculatorTitleEl || !calculatorViews.length) return
+  // calculatorTitleEl is optional (we sometimes only use the main header title),
+  // but we always need the list element and the views.
+  if (!calculatorListEl || !calculatorViews.length) return
 
   const chips = calculatorListEl.querySelectorAll('.calculator-chip')
   chips.forEach((chip) => {
@@ -954,412 +978,301 @@ function setActiveCalculator(key) {
   })
 
   const activeChip = calculatorListEl.querySelector('.calculator-chip.active')
-  if (activeChip) {
-    calculatorTitleEl.textContent = activeChip.textContent || 'Calculator'
+  if (calculatorTitleEl && activeChip) {
+    const label = activeChip.getAttribute('data-label') || activeChip.textContent || ''
+    const titleText = label.trim() || 'Calculator'
+    calculatorTitleEl.textContent = titleText
+    if (typeof appTitleEl !== 'undefined' && appTitleEl) {
+      appTitleEl.textContent = titleText
+    }
   }
+
+  if (calculatorPage) {
+    calculatorPage.classList.add('open')
+
+    const calendarCard = document.querySelector('.calendar-card')
+    const monthHeader = document.querySelector('.month-header')
+    const sessionBar = document.getElementById('sessionBar')
+    const clearMonthBtnEl = document.getElementById('clearMonthBtn')
+    const expensesCategorySectionEl = document.getElementById('expensesCategorySection')
+    const officeStatsSectionEl = document.getElementById('officeStatsSection')
+    const expensesStatsSectionEl = document.getElementById('expensesStatsSection')
+    const expensesPayeeSectionEl = document.getElementById('expensesPayeeSection')
+
+    calendarCard?.classList.add('hidden')
+    monthHeader?.classList.add('hidden')
+    sessionBar?.classList.add('hidden')
+    clearMonthBtnEl?.classList.add('hidden')
+    expensesCategorySectionEl?.classList.add('hidden')
+
+    officeStatsSectionEl?.classList.add('hidden')
+    expensesStatsSectionEl?.classList.add('hidden')
+    expensesPayeeSectionEl?.classList.add('hidden')
+
+    // Ensure calculator is visible
+    try {
+      calculatorPage.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } catch (e) {}
+  }
+
+  // Close side drawer after selecting a calculator, if the function exists
+  try {
+    if (typeof closeDrawer === 'function') {
+      closeDrawer()
+    }
+  } catch (e) {}
 }
 
-if (calculatorListEl && calculatorViews.length) {
-  calculatorListEl.addEventListener('click', (e) => {
-    const target = e.target
-    if (!(target instanceof HTMLElement)) return
-    if (target.classList.contains('disabled')) return
-    const key = target.getAttribute('data-calc')
-    if (!key) return
-    setActiveCalculator(key)
+document.addEventListener('click', (e) => {
+  const rawTarget = e.target
+  if (!(rawTarget instanceof HTMLElement)) return
 
-    // Update top header title to selected calculator name
-    const activeChip = target
-    if (appTitleEl && activeChip && activeChip.textContent) {
-      appTitleEl.textContent = activeChip.textContent
+  const chip = rawTarget.closest('.calculator-chip')
+  if (!chip) return
+
+  const key = chip.getAttribute('data-calc')
+  if (!key) return
+
+  setActiveCalculator(key)
+})
+
+// Gold calculator (detailed)
+const goldPriceTypeToggle = document.getElementById('goldPriceTypeToggle')
+const goldMetalToggle = document.getElementById('goldMetalToggle')
+const goldPriceLabelEl = document.getElementById('goldPriceLabel')
+const goldPurityLabelEl = document.getElementById('goldPurityLabel')
+const goldKaratSelect = document.getElementById('goldKaratSelect')
+const goldPriceInput = document.getElementById('goldPriceInput')
+const goldWeightInput = document.getElementById('goldWeightInput')
+const goldPurityInput = document.getElementById('goldPurityInput')
+const goldMakingInput = document.getElementById('goldMakingInput')
+const goldMakingType = document.getElementById('goldMakingType')
+const goldGstInput = document.getElementById('goldGstInput')
+const goldDiscountInput = document.getElementById('goldDiscountInput')
+const goldResultCard = document.getElementById('goldResult')
+const goldResultTotalEl = document.getElementById('goldResultTotal')
+const goldResultGoldValueEl = document.getElementById('goldResultGoldValue')
+const goldResultMakingEl = document.getElementById('goldResultMaking')
+const goldResultGstEl = document.getElementById('goldResultGst')
+const goldResultDiscountEl = document.getElementById('goldResultDiscount')
+const goldResultFinalEl = document.getElementById('goldResultFinal')
+const goldResultInfoEl = document.getElementById('goldResultInfo')
+const goldCalcBtn = document.getElementById('goldCalcBtn')
+
+let goldPriceType = 'per10g'
+let goldActiveMetal = 'gold' // 'gold' | 'silver'
+let liveGoldPerGramInInr = null
+let liveSilverPerGramInInr = null
+let goldPriceManuallyEdited = false
+
+function recalcGoldDetail() {
+  if (
+    !goldResultInfoEl ||
+    !goldPriceInput ||
+    !goldWeightInput ||
+    !goldResultTotalEl ||
+    !goldResultGoldValueEl ||
+    !goldResultMakingEl ||
+    !goldResultGstEl ||
+    !goldResultFinalEl
+  ) {
+    return
+  }
+
+  const price = Number(goldPriceInput.value) || 0
+  const weight = Number(goldWeightInput.value) || 0
+  const purityPct = goldPurityInput && goldPurityInput.value !== ''
+    ? Number(goldPurityInput.value) || 0
+    : 100
+  const makingRaw = goldMakingInput && goldMakingInput.value !== ''
+    ? Number(goldMakingInput.value) || 0
+    : 0
+  const makingIsAmount = goldMakingType && goldMakingType.value === 'amount'
+  const gstPct = goldGstInput && goldGstInput.value !== ''
+    ? Number(goldGstInput.value) || 0
+    : 0
+  const discountPct = goldDiscountInput && goldDiscountInput.value !== ''
+    ? Number(goldDiscountInput.value) || 0
+    : 0
+
+  if (!price || !weight) {
+    goldResultTotalEl.textContent = '—'
+    goldResultGoldValueEl.textContent = '₹0'
+    goldResultMakingEl.textContent = '₹0'
+    goldResultGstEl.textContent = '₹0'
+    if (goldResultDiscountEl) goldResultDiscountEl.textContent = '₹0'
+    goldResultFinalEl.textContent = '₹0'
+    goldResultInfoEl.textContent = 'Enter price and weight to calculate.'
+    return
+  }
+
+  const pricePerGram = goldPriceType === 'per10g' ? price / 10 : price
+
+  const purityFactor = Math.max(0, Math.min(1, purityPct / 100))
+  const baseGoldValue = weight * pricePerGram * purityFactor
+  const makingAmount = makingIsAmount ? makingRaw : (baseGoldValue * makingRaw) / 100
+  const subTotal = baseGoldValue + makingAmount
+  const gstAmount = (subTotal * gstPct) / 100
+  const beforeDiscount = subTotal + gstAmount
+  const discountAmount = (beforeDiscount * discountPct) / 100
+  const finalAmount = beforeDiscount - discountAmount
+
+  goldResultGoldValueEl.textContent = formatCurrencyINR(baseGoldValue)
+  goldResultMakingEl.textContent = formatCurrencyINR(makingAmount)
+  goldResultGstEl.textContent = formatCurrencyINR(gstAmount)
+  if (goldResultDiscountEl) goldResultDiscountEl.textContent = formatCurrencyINR(discountAmount)
+  goldResultFinalEl.textContent = formatCurrencyINR(finalAmount)
+  goldResultTotalEl.textContent = formatCurrencyINR(finalAmount)
+
+  const purityText = purityPct && purityPct !== 100 ? `${purityPct.toFixed(1)}% purity` : ''
+  const basisText = goldPriceType === 'per10g' ? '10g rate basis' : 'per gram rate basis'
+  const metalLabel = goldActiveMetal === 'silver' ? 'Silver' : 'Gold'
+  const discountText = discountPct ? `, discount ${discountPct.toFixed(1)}% applied` : ''
+  goldResultInfoEl.textContent = `${metalLabel} calculation using ${formatCurrencyINR(
+    price
+  )} ${basisText}, weight ${weight.toFixed(2)}g${
+    purityText ? `, ${purityText}` : ''
+  }${discountText}.`
+}
+
+function autoFillMetalPriceFromLive(force = false) {
+  if (!goldPriceInput) return
+
+  if (!force && goldPriceManuallyEdited && goldPriceInput.value) {
+    return
+  }
+
+  if (goldActiveMetal === 'gold') {
+    if (!liveGoldPerGramInInr) return
+
+    let basePerGram = liveGoldPerGramInInr
+
+    if (goldKaratSelect) {
+      const karatNum = Number(goldKaratSelect.value) || 24
+      const factor = karatNum / 24
+      basePerGram = basePerGram * factor
     }
-    closeDrawer()
-    if (calculatorPage) {
-      // Hide main calendar-related sections and month bar, keep top header
-      document.querySelector('.calendar-card')?.classList.add('hidden')
-      document.querySelector('.month-header')?.classList.add('hidden')
-      document.getElementById('sessionBar')?.classList.add('hidden')
-      document.getElementById('officeStatsSection')?.classList.add('hidden')
-      document.getElementById('expensesStatsSection')?.classList.add('hidden')
-      document.getElementById('expensesCategorySection')?.classList.add('hidden')
-      document.getElementById('expensesPayeeSection')?.classList.add('hidden')
-      document.getElementById('clearMonthBtn')?.classList.add('hidden')
-      // Extra safety: ensure the correct calculator view is visible
-      const basicView = document.querySelector('[data-calc-view="basic"]')
-      const emiView = document.querySelector('[data-calc-view="emi"]')
-      if (key === 'emi' && emiView) {
-        emiView.classList.remove('hidden')
-        if (basicView) basicView.classList.add('hidden')
-      }
-      calculatorPage.classList.add('open')
-    }
+
+    const price = goldPriceType === 'per10g' ? basePerGram * 10 : basePerGram
+    goldPriceInput.value = String(Math.round(price))
+  } else {
+    if (!liveSilverPerGramInInr) return
+
+    const perGram = liveSilverPerGramInInr
+    const price = goldPriceType === 'per10g' ? perGram * 10 : perGram
+    goldPriceInput.value = String(Math.round(price))
+  }
+
+  recalcGoldDetail()
+}
+
+if (goldPriceInput) {
+  goldPriceInput.addEventListener('input', () => {
+    goldPriceManuallyEdited = true
   })
 }
 
-// Calculator behaviours
-function formatCurrencyINR(value) {
-  if (!Number.isFinite(value)) return '—'
-  return '₹' + Math.round(value).toLocaleString('en-IN')
+function getKaratPurity(karat) {
+  switch (karat) {
+    case '22':
+      return (22 / 24) * 100
+    case '18':
+      return (18 / 24) * 100
+    case '14':
+      return (14 / 24) * 100
+    case '9':
+      return (9 / 24) * 100
+    default:
+      return 100
+  }
 }
 
-// Basic calculator (keypad)
-const basicDisplayEl = document.getElementById('basicDisplay')
-if (basicDisplayEl) {
-  let current = '0'
-  let stored = null
-  let op = null
-  let memory = 0
-  let overwrite = true
-
-  function updateDisplay() {
-    basicDisplayEl.textContent = current
-  }
-
-  function applyOp() {
-    if (op == null || stored == null) return
-    const a = Number(stored)
-    const b = Number(current)
-    let res = 0
-    if (op === '+') res = a + b
-    else if (op === '-') res = a - b
-    else if (op === '*') res = a * b
-    else if (op === '/') res = b === 0 ? NaN : a / b
-    current = Number.isFinite(res) ? String(res) : 'Error'
-    stored = null
-    op = null
-    overwrite = true
-  }
-
-  const buttons = document.querySelectorAll('.calculator-view[data-calc-view="basic"] .calc-btn')
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const key = btn.getAttribute('data-key')
-      if (!key) return
-
-      if (key >= '0' && key <= '9') {
-        if (overwrite || current === '0') {
-          current = key
-        } else {
-          current += key
-        }
-        overwrite = false
-        updateDisplay()
-        return
-      }
-
-      if (key === '.') {
-        if (overwrite) {
-          current = '0.'
-        } else if (!current.includes('.')) {
-          current += '.'
-        }
-        overwrite = false
-        updateDisplay()
-        return
-      }
-
-      if (key === 'c') {
-        current = '0'
-        stored = null
-        op = null
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === 'ce') {
-        current = '0'
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === 'back') {
-        if (!overwrite && current.length > 1) {
-          current = current.slice(0, -1)
-        } else {
-          current = '0'
-          overwrite = true
-        }
-        updateDisplay()
-        return
-      }
-
-      if (key === 'neg') {
-        if (current.startsWith('-')) current = current.slice(1)
-        else if (current !== '0') current = '-' + current
-        updateDisplay()
-        return
-      }
-
-      if (key === 'percent') {
-        const v = Number(current) || 0
-        current = String(v / 100)
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === 'inv') {
-        const v = Number(current)
-        current = v === 0 ? 'Error' : String(1 / v)
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === 'sqr') {
-        const v = Number(current)
-        current = String(v * v)
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === 'sqrt') {
-        const v = Number(current)
-        current = v < 0 ? 'Error' : String(Math.sqrt(v))
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === 'mc') {
-        memory = 0
-        return
-      }
-      if (key === 'mr') {
-        current = String(memory)
-        overwrite = true
-        updateDisplay()
-        return
-      }
-      if (key === 'mplus') {
-        memory += Number(current) || 0
-        overwrite = true
-        return
-      }
-      if (key === 'mminus') {
-        memory -= Number(current) || 0
-        overwrite = true
-        return
-      }
-
-      if (key === '+' || key === '-' || key === '*' || key === '/') {
-        if (op && stored != null && !overwrite) {
-          applyOp()
-        }
-        stored = current
-        op = key
-        overwrite = true
-        updateDisplay()
-        return
-      }
-
-      if (key === '=') {
-        applyOp()
-        updateDisplay()
-      }
-    })
+if (goldCalcBtn) {
+  goldCalcBtn.addEventListener('click', () => {
+    recalcGoldDetail()
   })
 }
-
-// EMI calculator (sliders + tabs)
-const emiAmountInput = document.getElementById('emiAmount')
-const emiAmountRange = document.getElementById('emiAmountRange')
-const emiRateInput = document.getElementById('emiRate')
-const emiRateRange = document.getElementById('emiRateRange')
-const emiTenureInput = document.getElementById('emiTenure')
-const emiTenureRange = document.getElementById('emiTenureRange')
-const emiTenureToggle = document.getElementById('emiTenureToggle')
-const emiLoanTabs = document.getElementById('emiLoanTabs')
-const emiEmiValueEl = document.getElementById('emiEmiValue')
-const emiInterestValueEl = document.getElementById('emiInterestValue')
-const emiTotalValueEl = document.getElementById('emiTotalValue')
-const emiPrincipalPctEl = document.getElementById('emiPrincipalPct')
-const emiInterestPctEl = document.getElementById('emiInterestPct')
-const emiChartPieEl = document.querySelector('.emi-chart-pie')
 
 if (
-  emiAmountInput &&
-  emiAmountRange &&
-  emiRateInput &&
-  emiRateRange &&
-  emiTenureInput &&
-  emiTenureRange &&
-  emiTenureToggle &&
-  emiEmiValueEl &&
-  emiInterestValueEl &&
-  emiTotalValueEl &&
-  emiPrincipalPctEl &&
-  emiInterestPctEl &&
-  emiChartPieEl
+  goldPriceInput &&
+  goldWeightInput &&
+  goldPurityInput &&
+  goldMakingInput &&
+  goldGstInput &&
+  goldDiscountInput
 ) {
-  let emiUnit = 'years' // 'years' or 'months'
-
-  const loanPresets = {
-    home: { amount: 2500000, rate: 8.5, years: 20 },
-    personal: { amount: 500000, rate: 12.5, years: 5 },
-    car: { amount: 800000, rate: 9.5, years: 7 },
-  }
-
-  function applyPreset(type) {
-    const p = loanPresets[type] || loanPresets.home
-    emiAmountRange.value = String(p.amount)
-    emiAmountInput.value = String(p.amount)
-    emiRateRange.value = String(p.rate)
-    emiRateInput.value = String(p.rate)
-    emiTenureRange.max = emiUnit === 'years' ? 30 : 360
-    const tenureVal = emiUnit === 'years' ? p.years : p.years * 12
-    emiTenureRange.value = String(tenureVal)
-    emiTenureInput.value = String(tenureVal)
-    recalcEmi()
-  }
-
-  function getTenureMonths() {
-    const raw = Number(emiTenureInput.value) || 0
-    if (emiUnit === 'years') return raw * 12
-    return raw
-  }
-
-  function recalcEmi() {
-    const P = Number(emiAmountInput.value) || 0
-    const annualRate = Number(emiRateInput.value) || 0
-    const n = getTenureMonths()
-    if (!P || !annualRate || !n) {
-      emiEmiValueEl.textContent = '₹0'
-      emiInterestValueEl.textContent = '₹0'
-      emiTotalValueEl.textContent = '₹0'
-      emiPrincipalPctEl.textContent = '0%'
-      emiInterestPctEl.textContent = '0%'
-      emiChartPieEl.style.background =
-        'conic-gradient(var(--accent-green) 0deg, var(--accent-green) 180deg, var(--accent-orange) 180deg, var(--accent-orange) 360deg)'
-      return
-    }
-    const r = annualRate / 12 / 100
-    const factor = Math.pow(1 + r, n)
-    const emi = (P * r * factor) / (factor - 1)
-    const totalPay = emi * n
-    const interest = totalPay - P
-
-    emiEmiValueEl.textContent = formatCurrencyINR(emi)
-    emiInterestValueEl.textContent = formatCurrencyINR(interest)
-    emiTotalValueEl.textContent = formatCurrencyINR(totalPay)
-
-    const principalPct = (P / totalPay) * 100
-    const interestPct = 100 - principalPct
-    const pRounded = Math.round(principalPct)
-    const iRounded = 100 - pRounded
-    emiPrincipalPctEl.textContent = `${pRounded}%`
-    emiInterestPctEl.textContent = `${iRounded}%`
-
-    const principalDeg = (principalPct / 100) * 360
-    emiChartPieEl.style.background = `conic-gradient(var(--accent-green) 0deg, var(--accent-green) ${principalDeg}deg, var(--accent-orange) ${principalDeg}deg, var(--accent-orange) 360deg)`
-  }
-
-  // Sync inputs and ranges
-  emiAmountRange.addEventListener('input', () => {
-    emiAmountInput.value = emiAmountRange.value
-    recalcEmi()
-  })
-  emiAmountInput.addEventListener('input', () => {
-    const v = Number(emiAmountInput.value) || 0
-    const clamped = Math.min(Math.max(v, Number(emiAmountRange.min)), Number(emiAmountRange.max))
-    emiAmountInput.value = String(clamped)
-    emiAmountRange.value = String(clamped)
-    recalcEmi()
-  })
-
-  emiRateRange.addEventListener('input', () => {
-    emiRateInput.value = emiRateRange.value
-    recalcEmi()
-  })
-  emiRateInput.addEventListener('input', () => {
-    const v = Number(emiRateInput.value) || 0
-    const clamped = Math.min(Math.max(v, Number(emiRateRange.min)), Number(emiRateRange.max))
-    emiRateInput.value = String(clamped)
-    emiRateRange.value = String(clamped)
-    recalcEmi()
-  })
-
-  emiTenureRange.addEventListener('input', () => {
-    emiTenureInput.value = emiTenureRange.value
-    recalcEmi()
-  })
-  emiTenureInput.addEventListener('input', () => {
-    const maxVal = emiUnit === 'years' ? Number(emiTenureRange.max) : Number(emiTenureRange.max)
-    const v = Number(emiTenureInput.value) || 0
-    const clamped = Math.min(Math.max(v, Number(emiTenureRange.min)), maxVal)
-    emiTenureInput.value = String(clamped)
-    emiTenureRange.value = String(clamped)
-    recalcEmi()
-  })
-
-  // Tenure toggle
-  emiTenureToggle.addEventListener('click', (e) => {
-    const btn = e.target
-    if (!(btn instanceof HTMLElement)) return
-    const unit = btn.getAttribute('data-unit')
-    if (!unit || (unit !== 'years' && unit !== 'months')) return
-    if (unit === emiUnit) return
-    emiUnit = unit
-    Array.from(emiTenureToggle.querySelectorAll('button')).forEach((b) => {
-      if (b.getAttribute('data-unit') === unit) b.classList.add('active')
-      else b.classList.remove('active')
+  ;[
+    goldPriceInput,
+    goldWeightInput,
+    goldPurityInput,
+    goldMakingInput,
+    goldGstInput,
+    goldDiscountInput,
+  ].forEach((inputEl) => {
+    if (!inputEl) return
+    inputEl.addEventListener('input', () => {
+      recalcGoldDetail()
     })
-
-    // Convert existing value
-    let val = Number(emiTenureInput.value) || 0
-    if (unit === 'years') {
-      val = Math.max(1, Math.round(val / 12))
-      emiTenureRange.min = '1'
-      emiTenureRange.max = '30'
-    } else {
-      val = Math.max(12, Math.round(val * 12))
-      emiTenureRange.min = '12'
-      emiTenureRange.max = '360'
-    }
-    emiTenureInput.value = String(val)
-    emiTenureRange.value = String(val)
-    recalcEmi()
   })
 
-  // Loan type tabs
-  if (emiLoanTabs) {
-    emiLoanTabs.addEventListener('click', (e) => {
-      const btn = e.target
-      if (!(btn instanceof HTMLElement)) return
-      if (!btn.classList.contains('emi-tab')) return
-      const type = btn.getAttribute('data-loan-type') || 'home'
-      Array.from(emiLoanTabs.querySelectorAll('.emi-tab')).forEach((tab) => {
-        if (tab === btn) tab.classList.add('active')
-        else tab.classList.remove('active')
-      })
-      applyPreset(type)
+  if (goldMakingType) {
+    goldMakingType.addEventListener('change', () => {
+      recalcGoldDetail()
     })
   }
-
-  // Initial preset
-  applyPreset('home')
 }
 
-// Gold calculator
-const goldGramsInput = document.getElementById('goldGrams')
-const goldRateInput = document.getElementById('goldRate')
-const goldResultEl = document.getElementById('goldResult')
-const goldCalcBtn = document.getElementById('goldCalcBtn')
-if (goldCalcBtn && goldGramsInput && goldRateInput && goldResultEl) {
-  goldCalcBtn.addEventListener('click', () => {
-    const g = Number(goldGramsInput.value) || 0
-    const rate = Number(goldRateInput.value) || 0
-    if (!g || !rate) {
-      goldResultEl.textContent = 'Enter both grams and rate.'
-      return
+// Live gold & silver prices via metals-api
+const goldLivePriceEl = document.getElementById('goldPrice')
+const silverLivePriceEl = document.getElementById('silverPrice')
+
+async function loadMetalPrices() {
+  if (!goldLivePriceEl && !silverLivePriceEl) return
+
+  const API_KEY = 'b82c43210f7b3c11837196b6353b84bd'
+  const url = `https://api.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=INR&currencies=XAU,XAG`
+
+  try {
+    const res = await fetch(url)
+    const data = await res.json()
+
+    // metalpriceapi usually returns rates as: 1 base (INR) = rate * metal,
+    // which means we need to invert to get USD per 1 unit of metal.
+    const rateXau = data?.rates?.XAU
+    const rateXag = data?.rates?.XAG
+
+    if (rateXau && goldLivePriceEl) {
+      const inrPerOunceGold = 1 / rateXau
+      const inrPerGramGold = inrPerOunceGold / 31.1035
+      liveGoldPerGramInInr = inrPerGramGold
+      goldLivePriceEl.innerHTML =
+        `₹${inrPerGramGold.toFixed(0)} / g` + '<br>' + `₹${inrPerOunceGold.toFixed(0)} / oz`
+
+      autoFillMetalPriceFromLive()
+    } else if (goldLivePriceEl) {
+      goldLivePriceEl.textContent = 'Price not available'
     }
-    const value = g * rate
-    goldResultEl.textContent = `Estimated value: ${formatCurrencyINR(value)}`
-  })
+
+    if (rateXag && silverLivePriceEl) {
+      const inrPerOunceSilver = 1 / rateXag
+      const inrPerGramSilver = inrPerOunceSilver / 31.1035
+      liveSilverPerGramInInr = inrPerGramSilver
+      silverLivePriceEl.innerHTML =
+        `₹${inrPerGramSilver.toFixed(0)} / g` + '<br>' + `₹${inrPerOunceSilver.toFixed(0)} / oz`
+
+      autoFillMetalPriceFromLive()
+    } else if (silverLivePriceEl) {
+      silverLivePriceEl.textContent = 'Price not available'
+    }
+  } catch (e) {
+    const msg = 'Error loading price'
+    if (goldLivePriceEl) goldLivePriceEl.textContent = msg
+    if (silverLivePriceEl) silverLivePriceEl.textContent = msg
+    console.error('Metal price API error', e)
+  }
 }
+
+loadMetalPrices()
 
 // GST calculator
 const gstBaseInput = document.getElementById('gstBase')
